@@ -1,3 +1,37 @@
+# Фронтенд проекта Playlisto
+
+## Установка
+
+```bash
+rush install
+```
+
+## Запуск команд проекта(команды смотри в `package.json`)
+
+```bash
+rushx команда
+```
+
+## Технологии
+
+- React 19 - JS фреймворк
+- Vite - Сборщик
+- Shadcn - Библиотека компонетов
+- Tailwindcss - CSS фреймворк
+
+## Структура
+
+- `src` - Исходники проекта
+- `src/components` - Компоненты, в т.ч. shadcn
+
+## Проблемы
+
+### Нельзя установить новые компоненты с помощью Shadcn CLI
+
+Копируем их вручную
+
+---
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
