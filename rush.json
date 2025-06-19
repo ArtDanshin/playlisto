@@ -440,5 +440,9 @@
     //   "reviewCategory": "tools",
     //   "tags": [ "tools" ]
     // }
+    {
+      "packageName": "frontend",
+      "projectFolder": "services/frontend"
+    }
   ]
 }

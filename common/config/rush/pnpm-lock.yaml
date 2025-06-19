@@ -9,3 +9,5 @@ pnpmfileChecksum: avk5jcsa6uxo2n5cahoirjiuw4
 importers:
 
   .: {}
+
+  ../../services/frontend: {}
