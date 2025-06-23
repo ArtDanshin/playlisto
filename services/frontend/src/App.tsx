@@ -1,5 +1,7 @@
 import { AppSidebar } from '@/components/app-sidebar'
 import { NavActions } from '@/components/nav-actions'
+import { TrackList } from '@/components/track-list'
+import { PlaylistProvider, usePlaylist } from '@/contexts/playlist-context'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -13,7 +15,9 @@ import {
   SidebarTrigger,
 } from '@/components/ui/Sidebar'
 
-export default function Page() {
+function AppContent() {
+  const { currentPlaylist } = usePlaylist()
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -26,7 +30,7 @@ export default function Page() {
               <BreadcrumbList>
                 <BreadcrumbItem>
                   <BreadcrumbPage className="line-clamp-1">
-                    Project Management & Task Tracking
+                    {currentPlaylist ? currentPlaylist.name : 'Project Management & Task Tracking'}
                   </BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
@@ -37,10 +41,26 @@ export default function Page() {
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 px-4 py-10">
-          <div className="mx-auto h-24 w-full max-w-3xl rounded-xl bg-muted/50" />
-          <div className="mx-auto h-full w-full max-w-3xl rounded-xl bg-muted/50" />
+          {currentPlaylist ? (
+            <div className="mx-auto w-full max-w-4xl">
+              <TrackList tracks={currentPlaylist.tracks} />
+            </div>
+          ) : (
+            <>
+              <div className="mx-auto h-24 w-full max-w-3xl rounded-xl bg-muted/50" />
+              <div className="mx-auto h-full w-full max-w-3xl rounded-xl bg-muted/50" />
+            </>
+          )}
         </div>
       </SidebarInset>
     </SidebarProvider>
+  )
+}
+
+export default function Page() {
+  return (
+    <PlaylistProvider>
+      <AppContent />
+    </PlaylistProvider>
   )
 }
