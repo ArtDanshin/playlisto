@@ -1,14 +1,16 @@
 "use client"
 
-import { createContext, useContext, useState, type ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
 import type { ParsedPlaylist } from '@/lib/m3u-parser'
+import { playlistDB } from '@/lib/indexed-db'
 
 interface PlaylistContextType {
   currentPlaylist: ParsedPlaylist | null
   setCurrentPlaylist: (playlist: ParsedPlaylist | null) => void
   playlists: ParsedPlaylist[]
-  addPlaylist: (playlist: ParsedPlaylist) => void
-  removePlaylist: (playlistName: string) => void
+  addPlaylist: (playlist: ParsedPlaylist) => Promise<void>
+  removePlaylist: (playlistId: number) => Promise<void>
+  isLoading: boolean
 }
 
 const PlaylistContext = createContext<PlaylistContextType | undefined>(undefined)
@@ -20,28 +22,61 @@ interface PlaylistProviderProps {
 export function PlaylistProvider({ children }: PlaylistProviderProps) {
   const [currentPlaylist, setCurrentPlaylist] = useState<ParsedPlaylist | null>(null)
   const [playlists, setPlaylists] = useState<ParsedPlaylist[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
-  const addPlaylist = (playlist: ParsedPlaylist) => {
-    setPlaylists(prev => {
-      // Проверяем, есть ли уже плейлист с таким именем
-      const existingIndex = prev.findIndex(p => p.name === playlist.name)
-      if (existingIndex !== -1) {
-        // Обновляем существующий плейлист
-        const updated = [...prev]
-        updated[existingIndex] = playlist
-        return updated
+  // Инициализация базы данных и загрузка плейлистов при монтировании
+  useEffect(() => {
+    const initializeDB = async () => {
+      try {
+        await playlistDB.init()
+        const savedPlaylists = await playlistDB.getAllPlaylists()
+        setPlaylists(savedPlaylists)
+      } catch (error) {
+        console.error('Failed to initialize database:', error)
+      } finally {
+        setIsLoading(false)
       }
-      // Добавляем новый плейлист
-      return [...prev, playlist]
-    })
-    setCurrentPlaylist(playlist)
+    }
+
+    initializeDB()
+  }, [])
+
+  const addPlaylist = async (playlist: ParsedPlaylist) => {
+    try {
+      const playlistId = await playlistDB.addPlaylist(playlist)
+      const playlistWithId = { ...playlist, id: playlistId }
+      
+      setPlaylists(prev => {
+        // Проверяем, есть ли уже плейлист с таким именем
+        const existingIndex = prev.findIndex(p => p.name === playlist.name)
+        if (existingIndex !== -1) {
+          // Обновляем существующий плейлист
+          const updated = [...prev]
+          updated[existingIndex] = playlistWithId
+          return updated
+        }
+        // Добавляем новый плейлист
+        return [...prev, playlistWithId]
+      })
+      setCurrentPlaylist(playlistWithId)
+    } catch (error) {
+      console.error('Failed to add playlist:', error)
+      throw error
+    }
   }
 
-  const removePlaylist = (playlistName: string) => {
-    setPlaylists(prev => prev.filter(p => p.name !== playlistName))
-    // Если удаляем текущий плейлист, очищаем его
-    if (currentPlaylist?.name === playlistName) {
-      setCurrentPlaylist(null)
+  const removePlaylist = async (playlistId: number) => {
+    try {
+      await playlistDB.deletePlaylist(playlistId)
+      setPlaylists(prev => prev.filter(p => p.id !== playlistId))
+      
+      // Если удаляем текущий плейлист, очищаем его
+      if (currentPlaylist?.id === playlistId) {
+        setCurrentPlaylist(null)
+      }
+    } catch (error) {
+      console.error('Failed to remove playlist:', error)
+      throw error
     }
   }
 
@@ -50,7 +85,8 @@ export function PlaylistProvider({ children }: PlaylistProviderProps) {
     setCurrentPlaylist,
     playlists,
     addPlaylist,
-    removePlaylist
+    removePlaylist,
+    isLoading
   }
 
   return (
