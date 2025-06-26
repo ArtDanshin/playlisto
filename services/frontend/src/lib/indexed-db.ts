@@ -72,32 +72,20 @@ export class PlaylistDB {
     })
   }
 
-  async updatePlaylist(id: number, playlist: Partial<ParsedPlaylist>): Promise<void> {
+  async updatePlaylist(playlist: ParsedPlaylist): Promise<void> {
     if (!this.db) throw new Error("Database not initialized")
+    if (!playlist.id) throw new Error("Playlist must have an ID to update")
 
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction([PLAYLISTS_STORE], "readwrite")
       const store = transaction.objectStore(PLAYLISTS_STORE)
-      
-      // Сначала получаем существующий плейлист
-      const getRequest = store.get(id)
-      
-      getRequest.onsuccess = () => {
-        const existingPlaylist = getRequest.result
-        if (!existingPlaylist) {
-          reject(new Error("Playlist not found"))
-          return
-        }
+      const request = store.put({
+        ...playlist,
+        updatedAt: new Date().toISOString()
+      })
 
-        // Обновляем плейлист
-        const updatedPlaylist = { ...existingPlaylist, ...playlist }
-        const putRequest = store.put(updatedPlaylist)
-        
-        putRequest.onsuccess = () => resolve()
-        putRequest.onerror = () => reject(putRequest.error)
-      }
-      
-      getRequest.onerror = () => reject(getRequest.error)
+      request.onsuccess = () => resolve()
+      request.onerror = () => reject(request.error)
     })
   }
 }

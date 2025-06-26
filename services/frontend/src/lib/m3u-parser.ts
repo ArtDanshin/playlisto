@@ -1,10 +1,29 @@
 import { Parser, type Segment } from 'm3u8-parser'
 
+export interface SpotifyTrackData {
+  id: string
+  name: string
+  artists: Array<{ id: string; name: string }>
+  album: {
+    id: string
+    name: string
+    images: Array<{ url: string; height: number; width: number }>
+  }
+  duration_ms: number
+  external_urls: {
+    spotify: string
+  }
+  uri: string
+}
+
 export interface Track {
   title: string
   artist: string
   url?: string
   duration?: number
+  // Spotify integration
+  spotifyId?: string
+  spotifyData?: SpotifyTrackData
 }
 
 export interface ParsedPlaylist {

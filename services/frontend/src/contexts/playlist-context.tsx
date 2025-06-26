@@ -10,6 +10,7 @@ interface PlaylistContextType {
   playlists: ParsedPlaylist[]
   addPlaylist: (playlist: ParsedPlaylist) => Promise<void>
   removePlaylist: (playlistId: number) => Promise<void>
+  updatePlaylist: (playlist: ParsedPlaylist) => Promise<void>
   isLoading: boolean
 }
 
@@ -80,12 +81,28 @@ export function PlaylistProvider({ children }: PlaylistProviderProps) {
     }
   }
 
+  const updatePlaylist = async (playlist: ParsedPlaylist) => {
+    try {
+      await playlistDB.updatePlaylist(playlist)
+      setPlaylists(prev => prev.map(p => p.id === playlist.id ? playlist : p))
+      
+      // Если обновляем текущий плейлист, обновляем его
+      if (currentPlaylist?.id === playlist.id) {
+        setCurrentPlaylist(playlist)
+      }
+    } catch (error) {
+      console.error('Failed to update playlist:', error)
+      throw error
+    }
+  }
+
   const value: PlaylistContextType = {
     currentPlaylist,
     setCurrentPlaylist,
     playlists,
     addPlaylist,
     removePlaylist,
+    updatePlaylist,
     isLoading
   }
 

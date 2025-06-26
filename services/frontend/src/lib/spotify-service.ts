@@ -1,5 +1,6 @@
 import { SPOTIFY_CONFIG, SPOTIFY_STORAGE_KEYS } from './spotify-config'
 import { generateCodeVerifier, generateCodeChallenge, isTokenExpired, getTokenExpiryTime, getUrlParams } from './spotify-utils'
+import type { SpotifyTrackData } from './m3u-parser'
 
 export interface SpotifyUser {
   id: string
@@ -12,6 +13,18 @@ export interface SpotifyAuthStatus {
   isAuthenticated: boolean
   user: SpotifyUser | null
   expiresAt: number | null
+}
+
+export interface SpotifySearchResponse {
+  tracks: {
+    href: string
+    items: SpotifyTrackData[]
+    limit: number
+    next: string | null
+    offset: number
+    previous: string | null
+    total: number
+  }
 }
 
 export class SpotifyService {
@@ -231,5 +244,16 @@ export class SpotifyService {
   // Получение конкретного плейлиста
   static async getPlaylist(playlistId: string): Promise<any> {
     return this.apiCall(`/playlists/${playlistId}`)
+  }
+
+  // Поиск треков в Spotify
+  static async searchTracks(query: string, limit: number = 20): Promise<SpotifySearchResponse> {
+    const encodedQuery = encodeURIComponent(query)
+    return this.apiCall(`/search?q=${encodedQuery}&type=track&limit=${limit}`)
+  }
+
+  // Получение конкретного трека по ID
+  static async getTrack(trackId: string): Promise<SpotifyTrackData> {
+    return this.apiCall(`/tracks/${trackId}`)
   }
 } 
