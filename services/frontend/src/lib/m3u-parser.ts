@@ -24,6 +24,7 @@ export interface Track {
   // Spotify integration
   spotifyId?: string
   spotifyData?: SpotifyTrackData
+  coverKey?: string // ключ к обложке в IndexedDB
 }
 
 export interface ParsedPlaylist {

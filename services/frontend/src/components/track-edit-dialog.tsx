@@ -18,6 +18,8 @@ import { Input } from "@/components/ui/Input"
 import { Label } from "@/components/ui/Label"
 import { Separator } from "@/components/ui/Separator"
 import { ScrollArea } from "@/components/ui/ScrollArea"
+import { playlistDB } from "@/lib/indexed-db"
+import { fetchImageAsBase64 } from "@/lib/image-utils"
 
 interface TrackEditDialogProps {
   track: Track
@@ -109,22 +111,41 @@ export function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDia
     }
   }
 
-  const handleSelectSpotifyTrack = (spotifyTrack: SpotifyTrackData) => {
+  const handleSelectSpotifyTrack = async (spotifyTrack: SpotifyTrackData) => {
+    // Выбираем наименьшую картинку
+    const imagesSorted = [...spotifyTrack.album.images].sort((a, b) => a.width - b.width)
+    const smallestImage = imagesSorted[0]
+    let coverKey: string | undefined = smallestImage?.url
+
+    // Сохраняем base64 в IndexedDB, если ещё нет
+    if (smallestImage?.url) {
+      const existing = await playlistDB.getCover(smallestImage.url)
+      if (!existing) {
+        try {
+          const base64 = await fetchImageAsBase64(smallestImage.url)
+          await playlistDB.addCover(smallestImage.url, base64)
+        } catch (e) {
+          // ignore, fallback на внешний url
+        }
+      }
+    }
+
     const updatedTrack: Track = {
       ...track,
       title: spotifyTrack.name,
       artist: spotifyTrack.artists.map(a => a.name).join(', '),
       duration: Math.round(spotifyTrack.duration_ms / 1000),
       spotifyId: spotifyTrack.id,
-      spotifyData: spotifyTrack
+      spotifyData: spotifyTrack,
+      coverKey
     }
-    
+
     setFormData({
       title: spotifyTrack.name,
       artist: spotifyTrack.artists.map(a => a.name).join(', '),
       duration: Math.round(spotifyTrack.duration_ms / 1000)
     })
-    
+
     onTrackUpdate(updatedTrack)
     setShowSearchResults(false)
     setSearchResults([])

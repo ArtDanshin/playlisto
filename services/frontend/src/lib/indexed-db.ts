@@ -3,13 +3,14 @@ import type { ParsedPlaylist } from "./m3u-parser"
 const DB_NAME = "playlisto-db"
 const DB_VERSION = 1
 const PLAYLISTS_STORE = "playlists"
+const COVERS_STORE = "covers"
 
 export class PlaylistDB {
   private db: IDBDatabase | null = null
 
   async init(): Promise<void> {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open(DB_NAME, DB_VERSION)
+      const request = indexedDB.open(DB_NAME, DB_VERSION + 1)
 
       request.onerror = () => reject(request.error)
       request.onsuccess = () => {
@@ -24,6 +25,10 @@ export class PlaylistDB {
         if (!db.objectStoreNames.contains(PLAYLISTS_STORE)) {
           const store = db.createObjectStore(PLAYLISTS_STORE, { keyPath: "id", autoIncrement: true })
           store.createIndex("name", "name", { unique: false })
+        }
+        // Обложки
+        if (!db.objectStoreNames.contains(COVERS_STORE)) {
+          db.createObjectStore(COVERS_STORE, { keyPath: "url" })
         }
       }
     })
@@ -86,6 +91,28 @@ export class PlaylistDB {
 
       request.onsuccess = () => resolve()
       request.onerror = () => reject(request.error)
+    })
+  }
+
+  async addCover(url: string, base64: string): Promise<void> {
+    if (!this.db) throw new Error("Database not initialized")
+    return new Promise((resolve, reject) => {
+      const tx = this.db!.transaction([COVERS_STORE], "readwrite")
+      const store = tx.objectStore(COVERS_STORE)
+      const req = store.put({ url, base64 })
+      req.onsuccess = () => resolve()
+      req.onerror = () => reject(req.error)
+    })
+  }
+
+  async getCover(url: string): Promise<string | undefined> {
+    if (!this.db) throw new Error("Database not initialized")
+    return new Promise((resolve, reject) => {
+      const tx = this.db!.transaction([COVERS_STORE], "readonly")
+      const store = tx.objectStore(COVERS_STORE)
+      const req = store.get(url)
+      req.onsuccess = () => resolve(req.result?.base64)
+      req.onerror = () => reject(req.error)
     })
   }
 }

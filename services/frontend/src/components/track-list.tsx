@@ -6,6 +6,8 @@ import { formatDuration } from "@/lib/utils"
 import { TrackEditDialog } from "@/components/track-edit-dialog"
 import { Button } from "@/components/ui/Button"
 import { usePlaylist } from "@/contexts/playlist-context"
+import { useEffect, useState } from "react"
+import { playlistDB } from "@/lib/indexed-db"
 
 interface TrackListProps {
   tracks: Track[]
@@ -58,11 +60,33 @@ interface TrackItemProps {
 }
 
 function TrackItem({ track, onTrackUpdate }: TrackItemProps) {
+  const [coverBase64, setCoverBase64] = useState<string | null>(null)
+
+  useEffect(() => {
+    let isMounted = true
+    async function loadCover() {
+      if (track.coverKey) {
+        const base64 = await playlistDB.getCover(track.coverKey)
+        if (isMounted) setCoverBase64(base64 || null)
+      } else {
+        setCoverBase64(null)
+      }
+    }
+    loadCover()
+    return () => { isMounted = false }
+  }, [track.coverKey])
+
   return (
     <div className="flex items-center space-x-4 rounded-lg border p-4 hover:bg-muted/50 transition-colors">
       {/* Album Cover */}
       <div className="flex-shrink-0">
-        {track.spotifyData?.album.images && track.spotifyData.album.images.length > 0 ? (
+        {coverBase64 ? (
+          <img
+            src={coverBase64}
+            alt={track.spotifyData?.album.name || track.title}
+            className="w-16 h-16 rounded-lg object-cover"
+          />
+        ) : track.spotifyData?.album.images && track.spotifyData.album.images.length > 0 ? (
           <img
             src={track.spotifyData.album.images[0].url}
             alt={track.spotifyData.album.name}
