@@ -2,6 +2,7 @@ import { AppSidebar } from '@/components/app-sidebar'
 import { NavActions } from '@/components/nav-actions'
 import { TrackList } from '@/components/track-list'
 import { PlaylistProvider, usePlaylist } from '@/contexts/playlist-context'
+import { SpotifyProvider } from '@/contexts/spotify-context'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -59,8 +60,10 @@ function AppContent() {
 
 export default function Page() {
   return (
-    <PlaylistProvider>
-      <AppContent />
-    </PlaylistProvider>
+    <SpotifyProvider>
+      <PlaylistProvider>
+        <AppContent />
+      </PlaylistProvider>
+    </SpotifyProvider>
   )
 }

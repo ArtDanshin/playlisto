@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { User, Music, Info } from "lucide-react"
+import { User, Music, Info, LogOut, LogIn, Loader2 } from "lucide-react"
 
 import { Button } from '@/components/ui/Button'
 import {
@@ -10,15 +10,23 @@ import {
   PopoverTrigger,
 } from '@/components/ui/Popover'
 import { Separator } from '@/components/ui/Separator'
+import { useSpotify } from '@/contexts/spotify-context'
 
 export function NavActions() {
   const [isOpen, setIsOpen] = React.useState(false)
+  const { authStatus, isLoading, error, login, logout } = useSpotify()
 
-  // TODO: Добавить реальную логику проверки статуса авторизации Spotify
-  const spotifyAuthStatus = {
-    isAuthenticated: false,
-    username: null,
-    expiresAt: null,
+  const handleLogin = async () => {
+    try {
+      await login()
+    } catch (error) {
+      console.error('Login failed:', error)
+    }
+  }
+
+  const handleLogout = () => {
+    logout()
+    setIsOpen(false)
   }
 
   return (
@@ -51,31 +59,82 @@ export function NavActions() {
                 <Music className="h-4 w-4" />
                 <span className="text-sm">Spotify API</span>
               </div>
-              <span 
-                className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
-                  spotifyAuthStatus.isAuthenticated 
-                    ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300" 
-                    : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300"
-                }`}
-              >
-                {spotifyAuthStatus.isAuthenticated ? "Подключено" : "Не подключено"}
-              </span>
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <span 
+                  className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
+                    authStatus.isAuthenticated 
+                      ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300" 
+                      : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300"
+                  }`}
+                >
+                  {authStatus.isAuthenticated ? "Подключено" : "Не подключено"}
+                </span>
+              )}
             </div>
             
-            {spotifyAuthStatus.isAuthenticated && (
+            {error && (
+              <div className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-2 rounded">
+                Ошибка: {error}
+              </div>
+            )}
+            
+            {authStatus.isAuthenticated && authStatus.user && (
               <div className="text-xs text-muted-foreground space-y-1">
-                <div>Пользователь: {spotifyAuthStatus.username}</div>
-                {spotifyAuthStatus.expiresAt && (
-                  <div>Истекает: {new Date(spotifyAuthStatus.expiresAt).toLocaleDateString()}</div>
+                <div className="flex items-center gap-2">
+                  {authStatus.user.images && authStatus.user.images.length > 0 && (
+                    <img 
+                      src={authStatus.user.images[0].url} 
+                      alt="Profile" 
+                      className="w-6 h-6 rounded-full"
+                    />
+                  )}
+                  <div>
+                    <div className="font-medium">{authStatus.user.display_name}</div>
+                    <div>{authStatus.user.email}</div>
+                  </div>
+                </div>
+                {authStatus.expiresAt && (
+                  <div>Истекает: {new Date(authStatus.expiresAt).toLocaleDateString()}</div>
                 )}
               </div>
             )}
             
-            {!spotifyAuthStatus.isAuthenticated && (
+            {!authStatus.isAuthenticated && !isLoading && (
               <div className="text-xs text-muted-foreground">
                 Для полного доступа к функциям приложения необходимо авторизоваться в Spotify
               </div>
             )}
+            
+            <div className="flex gap-2">
+              {authStatus.isAuthenticated ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLogout}
+                  className="flex-1"
+                >
+                  <LogOut className="mr-2 h-3 w-3" />
+                  Выйти из Spotify
+                </Button>
+              ) : (
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={handleLogin}
+                  disabled={isLoading}
+                  className="flex-1"
+                >
+                  {isLoading ? (
+                    <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                  ) : (
+                    <LogIn className="mr-2 h-3 w-3" />
+                  )}
+                  Войти в Spotify
+                </Button>
+              )}
+            </div>
           </div>
           
           <Separator />
