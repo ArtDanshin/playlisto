@@ -1,9 +1,9 @@
 "use client"
 
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { SpotifyService } from '@/lib/spotify-service'
-import type { SpotifyAuthStatus, SpotifyUser } from '@/lib/spotify-service'
+import type { SpotifyAuthStatus } from '@/lib/spotify-service'
 
 interface SpotifyContextType {
   authStatus: SpotifyAuthStatus

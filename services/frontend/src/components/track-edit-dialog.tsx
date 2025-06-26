@@ -27,7 +27,6 @@ interface TrackEditDialogProps {
 
 export function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProps) {
   const [isOpen, setIsOpen] = React.useState(false)
-  const [isLoading, setIsLoading] = React.useState(false)
   const [isSearching, setIsSearching] = React.useState(false)
   const [searchResults, setSearchResults] = React.useState<SpotifyTrackData[]>([])
   const [showSearchResults, setShowSearchResults] = React.useState(false)
@@ -41,6 +40,28 @@ export function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDia
     artist: track.artist,
     duration: track.duration || 0
   })
+
+  // Обновляем форму при изменении трека
+  React.useEffect(() => {
+    setFormData({
+      title: track.title,
+      artist: track.artist,
+      duration: track.duration || 0
+    })
+    // Сбрасываем состояние поиска при смене трека
+    setSearchResults([])
+    setShowSearchResults(false)
+    setError(null)
+  }, [track.title, track.artist, track.duration, track.spotifyId])
+
+  // Сбрасываем состояние поиска при открытии/закрытии диалога
+  React.useEffect(() => {
+    if (!isOpen) {
+      setSearchResults([])
+      setShowSearchResults(false)
+      setError(null)
+    }
+  }, [isOpen])
 
   const handleInputChange = (field: keyof typeof formData, value: string | number) => {
     setFormData(prev => ({
@@ -235,11 +256,9 @@ export function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDia
 
                           {/* Track Info */}
                           <div className="flex-1 min-w-0">
-                            <p className="font-medium truncate">{spotifyTrack.name}</p>
-                            <p className="text-sm text-muted-foreground truncate">
-                              {spotifyTrack.artists.map(a => a.name).join(', ')}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
+                            <p className="font-medium break-words whitespace-normal">{spotifyTrack.name}</p>
+                            <p className="text-sm text-muted-foreground break-words whitespace-normal">{spotifyTrack.artists.map(a => a.name).join(', ')}</p>
+                            <p className="text-xs text-muted-foreground break-words whitespace-normal">
                               {spotifyTrack.album.name} • {formatDuration(Math.round(spotifyTrack.duration_ms / 1000))}
                             </p>
                           </div>

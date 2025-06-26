@@ -1,6 +1,5 @@
 "use client"
 
-import * as React from "react"
 import { Edit2, Music } from "lucide-react"
 import type { Track } from "@/lib/m3u-parser"
 import { formatDuration } from "@/lib/utils"
@@ -43,7 +42,7 @@ export function TrackList({ tracks }: TrackListProps) {
       <div className="grid gap-4">
         {tracks.map((track, index) => (
           <TrackItem 
-            key={index} 
+            key={`${track.title}-${track.artist}-${index}`} 
             track={track} 
             onTrackUpdate={(updatedTrack) => handleTrackUpdate(index, updatedTrack)}
           />
@@ -99,7 +98,11 @@ function TrackItem({ track, onTrackUpdate }: TrackItemProps) {
 
       {/* Edit Button */}
       <div className="flex-shrink-0">
-        <TrackEditDialog track={track} onTrackUpdate={onTrackUpdate}>
+        <TrackEditDialog 
+          key={`edit-${track.title}-${track.artist}-${track.spotifyId || 'no-spotify'}`}
+          track={track} 
+          onTrackUpdate={onTrackUpdate}
+        >
           <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
             <Edit2 className="h-4 w-4" />
           </Button>
