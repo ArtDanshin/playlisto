@@ -110,7 +110,7 @@ export function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDia
     // Выбираем наименьшую картинку
     const imagesSorted = [...spotifyTrack.album.images].sort((a, b) => a.width - b.width)
     const smallestImage = imagesSorted[0]
-    let coverKey: string | undefined = smallestImage?.url
+    const coverKey: string | undefined = smallestImage?.url
 
     // Сохраняем base64 в IndexedDB, если ещё нет
     if (smallestImage?.url) {
@@ -119,7 +119,7 @@ export function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDia
         try {
           const base64 = await fetchImageAsBase64(smallestImage.url)
           await playlistDB.addCover(smallestImage.url, base64)
-        } catch (e) {
+        } catch {
           // ignore, fallback на внешний url
         }
       }

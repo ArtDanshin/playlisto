@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { spotifyApi } from '@/infrastructure/api/spotify-api'
-import type { SpotifyAuthStatus, SpotifyUser } from '@/infrastructure/spotify/spotify-service'
+import type { SpotifyAuthStatus } from '@/infrastructure/spotify/spotify-service'
 
 interface SpotifyState {
   authStatus: SpotifyAuthStatus

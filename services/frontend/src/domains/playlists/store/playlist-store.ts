@@ -14,7 +14,7 @@ interface PlaylistState {
   loadPlaylists: () => Promise<void>
 }
 
-export const usePlaylistStore = create<PlaylistState>((set, get) => ({
+export const usePlaylistStore = create<PlaylistState>((set) => ({
   currentPlaylist: null,
   playlists: [],
   isLoading: true,

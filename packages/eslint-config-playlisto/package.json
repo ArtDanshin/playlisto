@@ -1,0 +1,30 @@
+{
+  "name": "eslint-config-playlisto",
+  "version": "1.0.0",
+  "description": "Base ESLint configuration for Playlisto monorepo",
+  "main": "index.js",
+  "type": "module",
+  "files": [
+    "index.js",
+    "react.js",
+    "typescript.js"
+  ],
+  "keywords": [
+    "eslint",
+    "eslint-config",
+    "playlisto"
+  ],
+  "author": "Playlisto Team",
+  "license": "MIT",
+  "dependencies": {
+    "@eslint/js": "9.25.0",
+    "eslint-plugin-react-hooks": "5.2.0",
+    "eslint-plugin-react-refresh": "0.4.20",
+    "globals": "16.2.0",
+    "typescript-eslint": "8.30.1"
+  },
+  "peerDependencies": {
+    "eslint": ">=9.0.0",
+    "typescript": ">=5.0.0"
+  }
+} 
