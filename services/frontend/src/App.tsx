@@ -1,23 +1,26 @@
-import { AppSidebar } from '@/components/app-sidebar'
-import { NavActions } from '@/components/nav-actions'
-import { TrackList } from '@/components/track-list'
-import { PlaylistProvider, usePlaylist } from '@/contexts/playlist-context'
-import { SpotifyProvider } from '@/contexts/spotify-context'
+import { AppSidebar } from '@/domains/playlists/components/app-sidebar'
+import { TrackList } from '@/domains/playlists/components/track-list'
+
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbList,
   BreadcrumbPage,
-} from '@/components/ui/Breadcrumb'
-import { Separator } from '@/components/ui/Separator'
+} from '@/shared/components/ui/Breadcrumb'
+import { Separator } from '@/shared/components/ui/Separator'
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from '@/components/ui/Sidebar'
+} from '@/shared/components/ui/Sidebar'
+import { usePlaylistStore } from '@/domains/playlists/store/playlist-store'
+import { Providers } from '@/providers'
+import { NavActions } from '@/shared/components/nav-actions'
+
+// TODO: Внедрить Zustand store для плейлистов и заменить временные заглушки на реальные данные из стора
 
 function AppContent() {
-  const { currentPlaylist } = usePlaylist()
+  const currentPlaylist = usePlaylistStore(state => state.currentPlaylist)
 
   return (
     <SidebarProvider>
@@ -60,10 +63,8 @@ function AppContent() {
 
 export default function Page() {
   return (
-    <SpotifyProvider>
-      <PlaylistProvider>
-        <AppContent />
-      </PlaylistProvider>
-    </SpotifyProvider>
+    <Providers>
+      <AppContent />
+    </Providers>
   )
 }
