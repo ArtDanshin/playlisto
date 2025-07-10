@@ -1,1 +1,8 @@
-export * from './Sheet';
+export { default as Sheet } from './Sheet';
+export { default as SheetTrigger } from './SheetTrigger';
+export { default as SheetClose } from './SheetClose';
+export { default as SheetContent } from './SheetContent';
+export { default as SheetHeader } from './SheetHeader';
+export { default as SheetFooter } from './SheetFooter';
+export { default as SheetTitle } from './SheetTitle';
+export { default as SheetDescription } from './SheetDescription';
