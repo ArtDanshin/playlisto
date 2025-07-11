@@ -7,7 +7,7 @@ import stylistic from './stylistic.js';
 
 export default tseslint.config(
   {
-    extends: [react],
+    extends: [react, stylistic],
     languageOptions: {
       ecmaVersion: 2020,
       globals: {
