@@ -1,6 +1,6 @@
 "use client"
 
-import * as React from "react"
+import { useState } from "react"
 import { User, Music, Info, LogOut, LogIn, Loader2 } from "lucide-react"
 
 import { Button } from '@/shared/components/ui/Button'
@@ -12,8 +12,8 @@ import {
 import { Separator } from '@/shared/components/ui/Separator'
 import { useSpotifyStore } from '@/domains/spotify/store/spotify-store'
 
-export function NavActions() {
-  const [isOpen, setIsOpen] = React.useState(false)
+function Settings() {
+  const [isOpen, setIsOpen] = useState(false)
   const { authStatus, isLoading, error, login, logout } = useSpotifyStore()
 
   const handleLogin = async () => {
@@ -148,3 +148,5 @@ export function NavActions() {
     </Popover>
   )
 }
+
+export default Settings;

@@ -5,7 +5,7 @@ import type { ComponentProps } from "react"
 import { cn } from "@/shared/utils/utils"
 import { useSidebar } from "./SidebarProvider"
 
-function SidebarRail({ className, ...props }: ComponentProps<"button">) {
+function SidebarRail({ className, type = "button", ...props }: ComponentProps<"button">) {
     const { toggleSidebar } = useSidebar()
   
     return (

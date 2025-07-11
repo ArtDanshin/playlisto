@@ -1,7 +1,8 @@
 "use client"
 
-import * as React from "react"
+import { useState, useRef } from "react"
 import { Upload, FileAudio } from "lucide-react"
+
 import type { ParsedPlaylist } from "@/shared/utils/m3u-parser"
 import { parseM3U } from "@/shared/utils/m3u-parser"
 import { Button } from "@/shared/components/ui/Button"
@@ -19,11 +20,11 @@ interface UploadPlaylistDialogProps {
   children: React.ReactNode
 }
 
-export function UploadPlaylistDialog({ onPlaylistUploaded, children }: UploadPlaylistDialogProps) {
-  const [isOpen, setIsOpen] = React.useState(false)
-  const [isLoading, setIsLoading] = React.useState(false)
-  const [error, setError] = React.useState<string | null>(null)
-  const fileInputRef = React.useRef<HTMLInputElement>(null)
+function UploadPlaylistDialog({ onPlaylistUploaded, children }: UploadPlaylistDialogProps) {
+  const [isOpen, setIsOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -115,4 +116,6 @@ export function UploadPlaylistDialog({ onPlaylistUploaded, children }: UploadPla
       </DialogContent>
     </Dialog>
   )
-} 
+}
+
+export default UploadPlaylistDialog;

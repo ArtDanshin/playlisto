@@ -1,12 +1,13 @@
-import js from '@eslint/js'
 import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
+import react from './react.js';
+import typescript from './typescript.js';
+import stylistic from './stylistic.js';
+
 export default tseslint.config(
-  { ignores: ['dist', 'node_modules', '*.config.js'] },
   {
-    extends: [js.configs.recommended, ...tseslint.configs.recommended],
-    files: ['**/*.{js,ts,tsx}'],
+    extends: [react],
     languageOptions: {
       ecmaVersion: 2020,
       globals: {
@@ -14,16 +15,16 @@ export default tseslint.config(
         ...globals.node,
       },
     },
-    rules: {
-      // TypeScript specific rules
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-      '@typescript-eslint/no-explicit-any': 'warn',
+    // rules: {
+    //   // TypeScript specific rules
+    //   '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    //   '@typescript-eslint/no-explicit-any': 'warn',
       
-      // General rules
-      'no-console': 'warn',
-      'no-debugger': 'error',
-      'prefer-const': 'error',
-      'no-var': 'error',
-    },
+    //   // General rules
+    //   'no-console': 'warn',
+    //   'no-debugger': 'error',
+    //   'prefer-const': 'error',
+    //   'no-var': 'error',
+    // },
   },
 ) 

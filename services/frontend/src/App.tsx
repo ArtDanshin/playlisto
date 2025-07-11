@@ -1,6 +1,5 @@
-import { AppSidebar } from '@/domains/playlists/components/app-sidebar'
-import { TrackList } from '@/domains/playlists/components/track-list'
-
+import SidebarWithPlaylists from '@/domains/playlists/components/SidebarWithPlaylists/SidebarWithPlaylists'
+import { TrackList } from '@/domains/playlists/components/TrackList'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -15,16 +14,14 @@ import {
 } from '@/shared/components/ui/Sidebar'
 import { usePlaylistStore } from '@/domains/playlists/store/playlist-store'
 import { Providers } from '@/providers'
-import { NavActions } from '@/shared/components/nav-actions'
-
-// TODO: Внедрить Zustand store для плейлистов и заменить временные заглушки на реальные данные из стора
+import { Settings } from '@/shared/components/Settings'
 
 function AppContent() {
   const currentPlaylist = usePlaylistStore(state => state.currentPlaylist)
 
   return (
     <SidebarProvider>
-      <AppSidebar />
+      <SidebarWithPlaylists />
       <SidebarInset>
         <header className="flex h-14 shrink-0 items-center gap-2">
           <div className="flex flex-1 items-center gap-2 px-3">
@@ -41,7 +38,7 @@ function AppContent() {
             </Breadcrumb>
           </div>
           <div className="ml-auto px-3">
-            <NavActions />
+            <Settings />
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 px-4 py-10">

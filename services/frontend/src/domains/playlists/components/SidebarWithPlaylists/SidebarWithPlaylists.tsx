@@ -1,7 +1,9 @@
 "use client"
 
-import * as React from "react"
+import type { ComponentProps } from "react"
+import { useEffect } from "react"
 import { Plus, Trash2 } from "lucide-react"
+
 import type { ParsedPlaylist } from "@/shared/utils/m3u-parser"
 import { Button } from "@/shared/components/ui/Button"
 import {
@@ -10,10 +12,11 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/shared/components/ui/Sidebar"
-import { UploadPlaylistDialog } from "./upload-playlist-dialog"
-import { usePlaylistStore } from "../store/playlist-store"
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+import { UploadPlaylistDialog } from "../UploadPlaylistDialog"
+import { usePlaylistStore } from "../../store/playlist-store"
+
+function SidebarWithPlaylists({ ...props }: ComponentProps<typeof Sidebar>) {
   const {
     addPlaylist,
     playlists,
@@ -23,7 +26,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     loadPlaylists,
   } = usePlaylistStore()
 
-  React.useEffect(() => {
+  useEffect(() => {
     loadPlaylists()
   }, [loadPlaylists])
 
@@ -92,4 +95,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarRail />
     </Sidebar>
   )
-} 
+}
+
+export default SidebarWithPlaylists;

@@ -1,7 +1,8 @@
 "use client"
 
-import * as React from "react"
+import { useState, useEffect } from "react"
 import { Search, Music, Loader2, ExternalLink } from "lucide-react"
+
 import type { Track, SpotifyTrackData } from "@/shared/utils/m3u-parser"
 import { spotifyApi } from "@/infrastructure/api/spotify-api"
 import { useSpotifyStore } from "@/domains/spotify/store/spotify-store"
@@ -27,24 +28,24 @@ interface TrackEditDialogProps {
   children: React.ReactNode
 }
 
-export function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProps) {
-  const [isOpen, setIsOpen] = React.useState(false)
-  const [isSearching, setIsSearching] = React.useState(false)
-  const [searchResults, setSearchResults] = React.useState<SpotifyTrackData[]>([])
-  const [showSearchResults, setShowSearchResults] = React.useState(false)
-  const [error, setError] = React.useState<string | null>(null)
+function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProps) {
+  const [isOpen, setIsOpen] = useState(false)
+  const [isSearching, setIsSearching] = useState(false)
+  const [searchResults, setSearchResults] = useState<SpotifyTrackData[]>([])
+  const [showSearchResults, setShowSearchResults] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   
   const { authStatus } = useSpotifyStore()
   
   // Form state
-  const [formData, setFormData] = React.useState({
+  const [formData, setFormData] = useState({
     title: track.title,
     artist: track.artist,
     duration: track.duration || 0
   })
 
   // Обновляем форму при изменении трека
-  React.useEffect(() => {
+  useEffect(() => {
     setFormData({
       title: track.title,
       artist: track.artist,
@@ -57,7 +58,7 @@ export function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDia
   }, [track.title, track.artist, track.duration, track.spotifyId])
 
   // Сбрасываем состояние поиска при открытии/закрытии диалога
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isOpen) {
       setSearchResults([])
       setShowSearchResults(false)
@@ -340,4 +341,6 @@ export function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDia
       </DialogContent>
     </Dialog>
   )
-} 
+}
+
+export default TrackEditDialog;
