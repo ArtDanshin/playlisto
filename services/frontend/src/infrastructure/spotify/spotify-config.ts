@@ -1,23 +1,23 @@
 // Spotify API Configuration
 
 // Валидация переменной окружения
-const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID
+const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
 
 if (!CLIENT_ID || CLIENT_ID === 'YOUR_SPOTIFY_CLIENT_ID') {
   console.warn(
-    '⚠️ Spotify CLIENT_ID не настроен! ' +
-    'Создайте файл .env и установите VITE_SPOTIFY_CLIENT_ID. ' +
-    'См. env.example для примера.'
-  )
+    '⚠️ Spotify CLIENT_ID не настроен! '
+    + 'Создайте файл .env и установите VITE_SPOTIFY_CLIENT_ID. '
+    + 'См. env.example для примера.',
+  );
 }
 
 export const SPOTIFY_CONFIG = {
   // Client ID из переменной окружения VITE_SPOTIFY_CLIENT_ID
   CLIENT_ID: CLIENT_ID || 'YOUR_SPOTIFY_CLIENT_ID',
-  
+
   // Redirect URI должен быть зарегистрирован в Spotify Developer Dashboard
   REDIRECT_URI: window.location.origin,
-  
+
   // Scopes для доступа к данным пользователя
   SCOPES: [
     'user-read-private',
@@ -25,14 +25,14 @@ export const SPOTIFY_CONFIG = {
     'playlist-read-private',
     'playlist-read-collaborative',
     'playlist-modify-public',
-    'playlist-modify-private'
+    'playlist-modify-private',
   ].join(' '),
-  
+
   // Spotify API endpoints
   AUTH_URL: 'https://accounts.spotify.com/authorize',
   TOKEN_URL: 'https://accounts.spotify.com/api/token',
   API_BASE_URL: 'https://api.spotify.com/v1',
-}
+};
 
 // Local storage keys
 export const SPOTIFY_STORAGE_KEYS = {
@@ -41,4 +41,4 @@ export const SPOTIFY_STORAGE_KEYS = {
   TOKEN_EXPIRES_AT: 'spotify_token_expires_at',
   CODE_VERIFIER: 'spotify_code_verifier',
   USER_PROFILE: 'spotify_user_profile',
-} 
+};

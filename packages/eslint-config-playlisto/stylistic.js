@@ -9,7 +9,14 @@ export default tseslint.config(
     },
     rules: {
       ...stylistic.configs.recommended.rules,
+      '@stylistic/arrow-parens': ['error', 'always'],
       '@stylistic/brace-style': ['error', '1tbs'],
+      'object-curly-newline': ['error', {
+        multiline: true,
+        minProperties: 5,
+        consistent: true
+      }],
+      '@stylistic/jsx-quotes': ['error', 'prefer-single'],
       '@stylistic/member-delimiter-style': ['error', {
         multiline: {
           delimiter: 'semi',

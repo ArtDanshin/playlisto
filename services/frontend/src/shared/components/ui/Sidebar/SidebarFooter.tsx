@@ -1,18 +1,18 @@
-"use client"
+'use client';
 
-import type { ComponentProps } from "react"
+import type { ComponentProps } from 'react';
 
-import { cn } from "@/shared/utils/utils"
+import { cn } from '@/shared/utils/utils';
 
-function SidebarFooter({ className, ...props }: ComponentProps<"div">) {
-    return (
-      <div
-        data-slot="sidebar-footer"
-        data-sidebar="footer"
-        className={cn("flex flex-col gap-2 p-2", className)}
-        {...props}
-      />
-    )
-  }
+function SidebarFooter({ className, ...props }: ComponentProps<'div'>) {
+  return (
+    <div
+      data-slot='sidebar-footer'
+      data-sidebar='footer'
+      className={cn('flex flex-col gap-2 p-2', className)}
+      {...props}
+    />
+  );
+}
 
 export default SidebarFooter;

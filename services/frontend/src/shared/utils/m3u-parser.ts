@@ -102,7 +102,7 @@ export function extractArtistAndTitle(trackInfo: string): { artist: string; titl
 
 // Helper function to parse simple M3U files (without extended info)
 export function parseSimpleM3U(content: string): ParsedPlaylist {
-  const lines = content.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+  const lines = content.split('\n').map((line) => line.trim()).filter((line) => line.length > 0);
   const tracks: Track[] = [];
 
   for (let i = 0; i < lines.length; i++) {
