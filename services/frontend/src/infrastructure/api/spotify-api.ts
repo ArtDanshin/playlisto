@@ -165,7 +165,7 @@ export class SpotifyApi implements SpotifyApiClient {
       };
     }
 
-    const expiresAtNumber = parseInt(expiresAt);
+    const expiresAtNumber = Number.parseInt(expiresAt);
     if (isTokenExpired(expiresAtNumber)) {
       return {
         isAuthenticated: false,

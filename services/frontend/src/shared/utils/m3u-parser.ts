@@ -88,8 +88,8 @@ export function extractArtistAndTitle(trackInfo: string): { artist: string; titl
 
   if (dashIndex !== -1) {
     return {
-      artist: trackInfo.substring(0, dashIndex).trim(),
-      title: trackInfo.substring(dashIndex + 3).trim(),
+      artist: trackInfo.slice(0, Math.max(0, dashIndex)).trim(),
+      title: trackInfo.slice(Math.max(0, dashIndex + 3)).trim(),
     };
   }
 
@@ -105,9 +105,7 @@ export function parseSimpleM3U(content: string): ParsedPlaylist {
   const lines = content.split('\n').map((line) => line.trim()).filter((line) => line.length > 0);
   const tracks: Track[] = [];
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-
+  for (const line of lines) {
     // Skip comments and empty lines
     if (line.startsWith('#') || line.length === 0) {
       continue;
@@ -117,7 +115,7 @@ export function parseSimpleM3U(content: string): ParsedPlaylist {
     if (line.startsWith('http') || line.startsWith('file://')) {
       // Try to extract title from filename
       const urlParts = line.split('/');
-      const filename = urlParts[urlParts.length - 1];
+      const filename = urlParts.at(-1);
       const title = filename.replace(/\.[^/.]+$/, ''); // Remove extension
 
       tracks.push({

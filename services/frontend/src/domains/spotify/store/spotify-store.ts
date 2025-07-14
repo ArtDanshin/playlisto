@@ -47,8 +47,8 @@ export const useSpotifyStore = create<SpotifyState>((set, get) => ({
           });
         }
       }
-    } catch (err: any) {
-      set({ error: err.message || 'Failed to initialize Spotify' });
+    } catch (error: any) {
+      set({ error: error.message || 'Failed to initialize Spotify' });
     } finally {
       set({ isLoading: false });
     }
@@ -78,8 +78,8 @@ export const useSpotifyStore = create<SpotifyState>((set, get) => ({
         } else {
           set({ error: 'Failed to complete Spotify authorization' });
         }
-      } catch (err: any) {
-        set({ error: err.message || 'Failed to complete Spotify authorization' });
+      } catch (error_: any) {
+        set({ error: error_.message || 'Failed to complete Spotify authorization' });
       } finally {
         set({ isLoading: false });
       }
@@ -90,8 +90,8 @@ export const useSpotifyStore = create<SpotifyState>((set, get) => ({
     set({ error: null });
     try {
       await spotifyApi.initiateAuth();
-    } catch (err: any) {
-      set({ error: err.message || 'Failed to initiate Spotify login' });
+    } catch (error: any) {
+      set({ error: error.message || 'Failed to initiate Spotify login' });
     }
   },
 
@@ -120,8 +120,8 @@ export const useSpotifyStore = create<SpotifyState>((set, get) => ({
           user,
         },
       }));
-    } catch (err: any) {
-      set({ error: err.message || 'Failed to refresh user profile' });
+    } catch (error: any) {
+      set({ error: error.message || 'Failed to refresh user profile' });
     }
   },
 }));

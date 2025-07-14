@@ -14,9 +14,9 @@ export async function generateCodeChallenge(codeVerifier: string): Promise<strin
   const digest = await crypto.subtle.digest('SHA-256', data);
 
   return btoa(String.fromCharCode(...new Uint8Array(digest)))
-    .replace(/=/g, '')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_');
+    .replaceAll('=', '')
+    .replaceAll('+', '-')
+    .replaceAll('/', '_');
 }
 
 // Token utilities
@@ -34,6 +34,6 @@ export function getUrlParams(): URLSearchParams {
 }
 
 export function getHashParams(): URLSearchParams {
-  const hash = window.location.hash.substring(1);
+  const hash = window.location.hash.slice(1);
   return new URLSearchParams(hash);
 }

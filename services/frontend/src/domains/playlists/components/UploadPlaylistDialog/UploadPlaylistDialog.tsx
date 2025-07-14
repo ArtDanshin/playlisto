@@ -49,9 +49,9 @@ function UploadPlaylistDialog({ onPlaylistUploaded, children }: UploadPlaylistDi
 
       onPlaylistUploaded(playlist);
       setIsOpen(false);
-    } catch (err) {
+    } catch (error_) {
       setError('Ошибка при чтении файла. Пожалуйста, попробуйте еще раз.');
-      console.error('Error parsing M3U file:', err);
+      console.error('Error parsing M3U file:', error_);
     } finally {
       setIsLoading(false);
     }

@@ -31,11 +31,11 @@ export const usePlaylistStore = create<PlaylistState>((set) => ({
       set((state) => {
         const existingIndex = state.playlists.findIndex((p) => p.name === playlist.name);
         let playlists;
-        if (existingIndex !== -1) {
+        if (existingIndex === -1) {
+          playlists = [...state.playlists, playlistWithId];
+        } else {
           playlists = [...state.playlists];
           playlists[existingIndex] = playlistWithId;
-        } else {
-          playlists = [...state.playlists, playlistWithId];
         }
         return { playlists, currentPlaylist: playlistWithId };
       });

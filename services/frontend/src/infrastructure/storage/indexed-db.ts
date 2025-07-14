@@ -15,6 +15,8 @@ export interface StorageService {
   getCover: (url: string) => Promise<string | undefined>;
 }
 
+/* eslint-disable unicorn/prefer-add-event-listener */
+/* Для IndexedDB нормально обращаться к событиями без addEventListener'а */
 export class IndexedDBStorage implements StorageService {
   private db: IDBDatabase | null = null;
 

@@ -100,8 +100,8 @@ function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProp
       const response = await spotifyApi.searchTracks(query);
       setSearchResults(response.tracks.items);
       setShowSearchResults(true);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Ошибка поиска в Spotify');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Ошибка поиска в Spotify');
     } finally {
       setIsSearching(false);
     }
@@ -147,12 +147,6 @@ function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProp
     setSearchResults([]);
   };
 
-  const formatDuration = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -195,7 +189,7 @@ function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProp
                 id='duration'
                 type='number'
                 value={formData.duration}
-                onChange={(e) => handleInputChange('duration', parseInt(e.target.value) || 0)}
+                onChange={(e) => handleInputChange('duration', Number.parseInt(e.target.value) || 0)}
                 placeholder='0'
               />
             </div>
@@ -349,5 +343,11 @@ function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProp
     </Dialog>
   );
 }
+
+const formatDuration = (seconds: number): string => {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
+};
 
 export default TrackEditDialog;
