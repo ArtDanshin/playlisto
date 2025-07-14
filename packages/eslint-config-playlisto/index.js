@@ -1,13 +1,14 @@
 import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
+import importConfig from './import.js';
 import react from './react.js';
 import typescript from './typescript.js';
 import stylistic from './stylistic.js';
 
 export default tseslint.config(
   {
-    extends: [react, stylistic],
+    extends: [importConfig, react, stylistic, typescript],
     languageOptions: {
       ecmaVersion: 2020,
       globals: {

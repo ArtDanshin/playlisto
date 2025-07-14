@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+
 import type { ParsedPlaylist } from '@/shared/utils/m3u-parser';
 import { playlistDB } from '@/infrastructure/storage/indexed-db';
 

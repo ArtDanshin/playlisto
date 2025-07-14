@@ -5,6 +5,7 @@ import { PanelLeftIcon } from 'lucide-react';
 
 import { cn } from '@/shared/utils/utils';
 import { Button } from '@/shared/components/ui/Button';
+
 import { useSidebar } from './SidebarProvider';
 
 function SidebarTrigger({

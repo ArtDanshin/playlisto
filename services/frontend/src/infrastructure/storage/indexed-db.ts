@@ -6,13 +6,13 @@ const PLAYLISTS_STORE = 'playlists';
 const COVERS_STORE = 'covers';
 
 export interface StorageService {
-  init(): Promise<void>;
-  addPlaylist(playlist: ParsedPlaylist): Promise<number>;
-  getAllPlaylists(): Promise<ParsedPlaylist[]>;
-  deletePlaylist(id: number): Promise<void>;
-  updatePlaylist(playlist: ParsedPlaylist): Promise<void>;
-  addCover(url: string, base64: string): Promise<void>;
-  getCover(url: string): Promise<string | undefined>;
+  init: () => Promise<void>;
+  addPlaylist: (playlist: ParsedPlaylist) => Promise<number>;
+  getAllPlaylists: () => Promise<ParsedPlaylist[]>;
+  deletePlaylist: (id: number) => Promise<void>;
+  updatePlaylist: (playlist: ParsedPlaylist) => Promise<void>;
+  addCover: (url: string, base64: string) => Promise<void>;
+  getCover: (url: string) => Promise<string | undefined>;
 }
 
 export class IndexedDBStorage implements StorageService {

@@ -6,17 +6,17 @@ import type { SpotifyTrackData } from '@/shared/utils/m3u-parser';
 import type { SpotifyUser, SpotifyAuthStatus, SpotifySearchResponse } from '@/infrastructure/spotify/spotify-service';
 
 export interface SpotifyApiClient {
-  initiateAuth(): Promise<void>;
-  handleCallback(): Promise<boolean>;
-  refreshToken(): Promise<boolean>;
-  fetchUserProfile(): Promise<SpotifyUser>;
-  getAuthStatus(): SpotifyAuthStatus;
-  logout(): void;
-  apiCall(endpoint: string, options?: RequestInit): Promise<any>;
-  getUserPlaylists(limit?: number, offset?: number): Promise<any>;
-  getPlaylist(playlistId: string): Promise<any>;
-  searchTracks(query: string, limit?: number): Promise<SpotifySearchResponse>;
-  getTrack(trackId: string): Promise<SpotifyTrackData>;
+  initiateAuth: () => Promise<void>;
+  handleCallback: () => Promise<boolean>;
+  refreshToken: () => Promise<boolean>;
+  fetchUserProfile: () => Promise<SpotifyUser>;
+  getAuthStatus: () => SpotifyAuthStatus;
+  logout: () => void;
+  apiCall: (endpoint: string, options?: RequestInit) => Promise<any>;
+  getUserPlaylists: (limit?: number, offset?: number) => Promise<any>;
+  getPlaylist: (playlistId: string) => Promise<any>;
+  searchTracks: (query: string, limit?: number) => Promise<SpotifySearchResponse>;
+  getTrack: (trackId: string) => Promise<SpotifyTrackData>;
 }
 
 export class SpotifyApi implements SpotifyApiClient {
