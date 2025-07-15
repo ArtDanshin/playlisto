@@ -20,6 +20,7 @@ import {
 import type { Track } from '@/shared/utils/m3u-parser';
 
 import { usePlaylistStore } from '../../store/playlist-store';
+import { BatchSpotifyRecognition } from '../BatchSpotifyRecognition';
 
 import SortableTrackItem from './SortableTrackItem.tsx';
 
@@ -82,7 +83,10 @@ function SortableTrackList({ tracks }: SortableTrackListProps) {
 
   return (
     <div className='space-y-4'>
-      <h2 className='text-2xl font-bold'>Треки</h2>
+      <div className='flex items-center justify-between'>
+        <h2 className='text-2xl font-bold'>Треки</h2>
+        <BatchSpotifyRecognition tracks={tracks} />
+      </div>
 
       <DndContext
         sensors={sensors}
