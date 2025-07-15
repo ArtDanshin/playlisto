@@ -34,6 +34,7 @@ export interface ParsedPlaylist {
   name: string;
   tracks: Track[];
   createdAt?: string;
+  order?: number; // порядок плейлиста в списке
 }
 
 export function parseM3U(content: string): ParsedPlaylist {

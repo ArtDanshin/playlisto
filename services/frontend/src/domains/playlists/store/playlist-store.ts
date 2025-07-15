@@ -14,9 +14,10 @@ interface PlaylistState {
   removePlaylist: (playlistId: number) => Promise<void>;
   updatePlaylist: (playlist: ParsedPlaylist) => Promise<void>;
   loadPlaylists: () => Promise<void>;
+  updatePlaylistsOrder: (orderedIds: number[]) => Promise<void>;
 }
 
-export const usePlaylistStore = create<PlaylistState>((set) => ({
+export const usePlaylistStore = create<PlaylistState>((set, get) => ({
   currentPlaylist: null,
   playlists: [],
   isLoading: true,
@@ -52,8 +53,14 @@ export const usePlaylistStore = create<PlaylistState>((set) => ({
   addPlaylist: async (playlist) => {
     set({ isLoading: true, error: null });
     try {
-      const playlistId = await playlistDB.addPlaylist(playlist);
-      const playlistWithId = { ...playlist, id: playlistId };
+      const { playlists } = get();
+      // Устанавливаем order для нового плейлиста (в конец списка)
+      const newOrder = playlists.length;
+      const playlistWithOrder = { ...playlist, order: newOrder };
+      
+      const playlistId = await playlistDB.addPlaylist(playlistWithOrder);
+      const playlistWithId = { ...playlistWithOrder, id: playlistId };
+      
       set((state) => {
         const existingIndex = state.playlists.findIndex((p) => p.name === playlist.name);
         let playlists;
@@ -114,14 +121,21 @@ export const usePlaylistStore = create<PlaylistState>((set) => ({
       await playlistDB.init();
       const savedPlaylists = await playlistDB.getAllPlaylists();
 
-      // Очищаем флаг isNew при загрузке из базы данных
-      const cleanPlaylists = savedPlaylists.map((playlist) => ({
-        ...playlist,
-        tracks: playlist.tracks.map((track) => ({
-          ...track,
-          isNew: undefined, // Удаляем флаг isNew при загрузке
-        })),
-      }));
+      // Очищаем флаг isNew при загрузке из базы данных и сортируем по order
+      const cleanPlaylists = savedPlaylists
+        .map((playlist) => ({
+          ...playlist,
+          tracks: playlist.tracks.map((track) => ({
+            ...track,
+            isNew: undefined, // Удаляем флаг isNew при загрузке
+          })),
+        }))
+        .sort((a, b) => {
+          // Сортируем по полю order, если оно есть
+          const orderA = a.order ?? Number.MAX_SAFE_INTEGER;
+          const orderB = b.order ?? Number.MAX_SAFE_INTEGER;
+          return orderA - orderB;
+        });
 
       set({ playlists: cleanPlaylists });
     } catch (error: any) {
@@ -129,5 +143,19 @@ export const usePlaylistStore = create<PlaylistState>((set) => ({
     } finally {
       set({ isLoading: false });
     }
+  },
+
+  updatePlaylistsOrder: async (orderedIds) => {
+    const { playlists } = get();
+    // Переставляем элементы в новом порядке и обновляем order
+    const ordered = orderedIds
+      .map((id, idx) => {
+        const p = playlists.find((pl) => pl.id === id);
+        return p ? { ...p, order: idx } : undefined;
+      })
+      .filter(Boolean) as ParsedPlaylist[];
+    set({ playlists: ordered });
+    // Сохраняем порядок в IndexedDB
+    await Promise.all(ordered.map((p) => p.id !== undefined ? playlistDB.updatePlaylist(p) : undefined));
   },
 }));

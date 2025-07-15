@@ -2,7 +2,21 @@
 
 import type { ComponentProps } from 'react';
 import { useEffect } from 'react';
-import { Plus, Trash2, RefreshCw } from 'lucide-react';
+import { Plus } from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import type { DragEndEvent } from '@dnd-kit/core';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 
 import type { ParsedPlaylist } from '@/shared/utils/m3u-parser';
 import { Button } from '@/shared/components/ui/Button';
@@ -14,19 +28,28 @@ import {
 } from '@/shared/components/ui/Sidebar';
 
 import { UploadPlaylistDialog } from '../UploadPlaylistDialog';
-import { UpdatePlaylistDialog } from '../UpdatePlaylistDialog';
 import { usePlaylistStore } from '../../store/playlist-store';
+import SortablePlaylistItem from './SortablePlaylistItem';
 
 function SidebarWithPlaylists({ ...props }: ComponentProps<typeof Sidebar>) {
   const {
     addPlaylist,
     playlists,
+    currentPlaylist,
     setCurrentPlaylist,
     removePlaylist,
     updatePlaylist,
     isLoading,
     loadPlaylists,
+    updatePlaylistsOrder,
   } = usePlaylistStore();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
 
   useEffect(() => {
     loadPlaylists();
@@ -60,6 +83,27 @@ function SidebarWithPlaylists({ ...props }: ComponentProps<typeof Sidebar>) {
     }
   };
 
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      const oldIndex = playlists.findIndex((playlist) => 
+        (playlist.id?.toString() || playlist.name) === active.id
+      );
+      const newIndex = playlists.findIndex((playlist) => 
+        (playlist.id?.toString() || playlist.name) === over?.id
+      );
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        // Новый порядок id
+        const ordered = [...playlists];
+        const [removed] = ordered.splice(oldIndex, 1);
+        ordered.splice(newIndex, 0, removed);
+        await updatePlaylistsOrder(ordered.map((p) => p.id!));
+      }
+    }
+  };
+
   return (
     <Sidebar className='border-r-0' {...props}>
       <SidebarHeader className='p-4'>
@@ -71,7 +115,7 @@ function SidebarWithPlaylists({ ...props }: ComponentProps<typeof Sidebar>) {
         </UploadPlaylistDialog>
       </SidebarHeader>
       <SidebarContent className='p-4'>
-        <h3 className='mb-2 text-sm font-medium text-muted-foreground'>
+        <h3 className='mb-2 text-sm font-medium text-muted-foreground select-none pointer-events-none'>
           Плейлисты
         </h3>
         <div className='flex flex-col gap-y-1'>
@@ -84,39 +128,27 @@ function SidebarWithPlaylists({ ...props }: ComponentProps<typeof Sidebar>) {
                   <div className='text-sm text-muted-foreground'>Нет плейлистов</div>
                 )
               : (
-                  playlists.map((playlist) => (
-                    <div key={playlist.id} className='flex items-center gap-2'>
-                      <Button
-                        variant='ghost'
-                        size='sm'
-                        className='flex-1 justify-start'
-                        onClick={() => setCurrentPlaylist(playlist)}
-                      >
-                        {playlist.name}
-                      </Button>
-                      <UpdatePlaylistDialog
-                        currentPlaylist={playlist}
-                        onPlaylistUpdated={handlePlaylistUpdated}
-                      >
-                        <Button
-                          variant='ghost'
-                          size='sm'
-                          className='h-8 w-8 p-0'
-                          title='Загрузить обновленный плейлист'
-                        >
-                          <RefreshCw className='h-4 w-4' />
-                        </Button>
-                      </UpdatePlaylistDialog>
-                      <Button
-                        variant='ghost'
-                        size='sm'
-                        className='h-8 w-8 p-0'
-                        onClick={() => handleRemovePlaylist(playlist)}
-                      >
-                        <Trash2 className='h-4 w-4' />
-                      </Button>
-                    </div>
-                  ))
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
+                  >
+                    <SortableContext
+                      items={playlists.map((playlist) => playlist.id?.toString() || playlist.name)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      {playlists.map((playlist) => (
+                        <SortablePlaylistItem
+                          key={playlist.id || playlist.name}
+                          playlist={playlist}
+                          isActive={currentPlaylist?.id === playlist.id}
+                          onSelect={setCurrentPlaylist}
+                          onRemove={handleRemovePlaylist}
+                          onUpdate={handlePlaylistUpdated}
+                        />
+                      ))}
+                    </SortableContext>
+                  </DndContext>
                 )}
         </div>
       </SidebarContent>
