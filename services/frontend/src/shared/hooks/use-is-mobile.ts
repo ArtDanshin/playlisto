@@ -12,7 +12,7 @@ export function useIsMobile() {
     };
 
     mql.addEventListener('change', onChange);
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT); // eslint-disable-line react-hooks-extra/no-direct-set-state-in-use-effect
 
     return () => mql.removeEventListener('change', onChange);
   }, []);

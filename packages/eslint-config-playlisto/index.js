@@ -1,15 +1,16 @@
-import globals from 'globals'
-import tseslint from 'typescript-eslint'
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
 
 import importConfig from './import.js';
 import react from './react.js';
+import javascript from './javascript.js';
 import typescript from './typescript.js';
 import stylistic from './stylistic.js';
 import unicorn from './unicorn.js';
 
 export default tseslint.config(
   {
-    extends: [importConfig, react, stylistic, typescript, unicorn],
+    extends: [importConfig, javascript, react, stylistic, typescript, unicorn],
     languageOptions: {
       ecmaVersion: 2020,
       globals: {
@@ -17,16 +18,5 @@ export default tseslint.config(
         ...globals.node,
       },
     },
-    // rules: {
-    //   // TypeScript specific rules
-    //   '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-    //   '@typescript-eslint/no-explicit-any': 'warn',
-      
-    //   // General rules
-    //   'no-console': 'warn',
-    //   'no-debugger': 'error',
-    //   'prefer-const': 'error',
-    //   'no-var': 'error',
-    // },
   },
-) 
+);

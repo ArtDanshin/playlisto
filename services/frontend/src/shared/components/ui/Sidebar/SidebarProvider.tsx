@@ -74,9 +74,10 @@ function SidebarProvider({
   );
 
   // Helper to toggle the sidebar.
-  const toggleSidebar = useCallback(() => {
-    return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open);
-  }, [isMobile, setOpen, setOpenMobile]);
+  const toggleSidebar = useCallback(
+    () => isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open),
+    [isMobile, setOpen, setOpenMobile],
+  );
 
   // Adds a keyboard shortcut to toggle the sidebar.
   useEffect(() => {
@@ -136,6 +137,8 @@ function SidebarProvider({
   );
 }
 
+/* eslint-disable react-refresh/only-export-components */
+/* TODO: Глянуть, как правильно экспортировать провайдеры контекста или переделать на zustand */
 export {
   SidebarProvider,
   useSidebar,

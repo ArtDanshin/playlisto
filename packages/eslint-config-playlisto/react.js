@@ -1,12 +1,12 @@
-import pluginReactClassic from 'eslint-plugin-react'
-import pluginReactNew from '@eslint-react/eslint-plugin'
-import pluginReactHooks from 'eslint-plugin-react-hooks'
-import pluginReactRefresh from 'eslint-plugin-react-refresh'
-import tseslint from 'typescript-eslint'
+import pluginReactClassic from 'eslint-plugin-react';
+import pluginReactNew from '@eslint-react/eslint-plugin';
+import pluginReactHooks from 'eslint-plugin-react-hooks';
+import pluginReactRefresh from 'eslint-plugin-react-refresh';
+import tseslint from 'typescript-eslint';
 
-import renameRules from './utils/renameRules.js'
+import renameRules from './utils/rename-rules.js';
 
-const pluginReactInstances = pluginReactNew.configs.all.plugins
+const pluginReactInstances = pluginReactNew.configs.all.plugins;
 
 export default tseslint.config({
   files: ['**/*.tsx'],
@@ -20,7 +20,7 @@ export default tseslint.config({
   },
   plugins: {
     'react-classic': pluginReactClassic,
-    'react': pluginReactInstances['@eslint-react'],
+    react: pluginReactInstances['@eslint-react'],
     'react-dom': pluginReactInstances['@eslint-react/dom'],
     'react-hooks-extra': pluginReactInstances['@eslint-react/hooks-extra'],
     'react-web-api': pluginReactInstances['@eslint-react/web-api'],
@@ -39,7 +39,7 @@ export default tseslint.config({
     }),
 
     ...renameRules(pluginReactClassic.configs.flat.recommended.rules, {
-      'react': 'react-classic'
+      react: 'react-classic',
     }),
     'react-classic/react-in-jsx-scope': 'off',
     'react-classic/forbid-prop-types': ['error', {
@@ -51,35 +51,13 @@ export default tseslint.config({
     'react-classic/jsx-closing-bracket-location': ['error', 'line-aligned'],
     'react-classic/jsx-closing-tag-location': 'error',
     'react-classic/jsx-curly-spacing': ['error', 'never', { allowMultiline: true }],
-    'react-classic/jsx-handler-names': ['off', {
-      eventHandlerPrefix: 'handle',
-      eventHandlerPropPrefix: 'on',
-    }],
     'react-classic/jsx-indent-props': ['error', 2],
     'react-classic/jsx-max-props-per-line': ['error', { maximum: 1, when: 'multiline' }],
     'react-classic/jsx-no-duplicate-props': ['error', { ignoreCase: true }],
-    'react-classic/jsx-no-literals': ['off', { noStrings: true }],
     'react-classic/jsx-no-undef': 'error',
     'react-classic/jsx-pascal-case': ['error', {
       allowAllCaps: true,
       ignore: [],
-    }],
-    'react-classic/sort-prop-types': ['off', {
-      ignoreCase: true,
-      callbacksLast: false,
-      requiredFirst: false,
-      sortShapeProp: true,
-    }],
-    'react-classic/jsx-sort-props': ['off', {
-      ignoreCase: true,
-      callbacksLast: false,
-      shorthandFirst: false,
-      shorthandLast: false,
-      noSortAlphabetically: false,
-      reservedFirst: true,
-    }],
-    'react-classic/jsx-sort-default-props': ['off', {
-      ignoreCase: true,
     }],
     'react-classic/jsx-uses-react': ['error'],
     'react-classic/jsx-uses-vars': 'error',
@@ -125,4 +103,4 @@ export default tseslint.config({
     ...pluginReactHooks.configs.recommended.rules,
     ...pluginReactRefresh.configs.recommended.rules,
   },
-})
+});

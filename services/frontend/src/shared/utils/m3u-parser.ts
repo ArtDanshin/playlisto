@@ -41,7 +41,7 @@ export function parseM3U(content: string): ParsedPlaylist {
   parser.push(content);
   parser.end();
 
-  const manifest = parser.manifest;
+  const { manifest } = parser;
   const tracks: Track[] = [];
 
   // Process segments from the manifest

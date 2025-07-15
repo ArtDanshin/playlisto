@@ -1,15 +1,15 @@
-import tseslint from 'typescript-eslint'
-import importPlugin from 'eslint-plugin-import'
+import tseslint from 'typescript-eslint';
+import importPlugin from 'eslint-plugin-import';
 
 export default tseslint.config(
   {
     extends: [importPlugin.flatConfigs.recommended, importPlugin.flatConfigs.typescript],
     files: ['**/*.{js,ts,tsx}'],
     settings: {
-        "import/resolver": {
-            typescript: true,
-            node: true,
-        },
+      'import/resolver': {
+        typescript: true,
+        node: true,
+      },
     },
     rules: {
       'import/first': 'error',
@@ -26,10 +26,10 @@ export default tseslint.config(
       'import/no-unresolved': ['error', { commonjs: true, caseSensitive: true }],
       'import/newline-after-import': 'error',
       'import/order': [2, {
-            groups: [["builtin", "external"], "internal", "parent", "unknown", ["sibling", "index"]],
-            "newlines-between": "always",
-            warnOnUnassignedImports: true
-        }],
+        groups: [['builtin', 'external'], 'internal', 'parent', 'unknown', ['sibling', 'index']],
+        'newlines-between': 'always',
+        warnOnUnassignedImports: true,
+      }],
     },
   },
-) 
+);

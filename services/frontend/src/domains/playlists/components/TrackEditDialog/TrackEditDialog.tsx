@@ -28,6 +28,14 @@ interface TrackEditDialogProps {
   children: React.ReactNode;
 }
 
+const formatDuration = (seconds: number): string => {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
+};
+
+/* eslint-disable react-hooks-extra/no-direct-set-state-in-use-effect */
+/* TODO: Глянуть логику заполнения формы при изменении трека */
 function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
@@ -189,7 +197,7 @@ function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProp
                 id='duration'
                 type='number'
                 value={formData.duration}
-                onChange={(e) => handleInputChange('duration', Number.parseInt(e.target.value) || 0)}
+                onChange={(e) => handleInputChange('duration', Number.parseInt(e.target.value, 10) || 0)}
                 placeholder='0'
               />
             </div>
@@ -243,58 +251,60 @@ function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProp
                 <h4 className='text-sm font-medium'>Результаты поиска:</h4>
                 <ScrollArea className='h-48'>
                   <div className='space-y-2'>
-                    {searchResults.length === 0 ? (
-                      <p className='text-sm text-muted-foreground'>Ничего не найдено</p>
-                    ) : (
-                      searchResults.map((spotifyTrack) => (
-                        <div
-                          key={spotifyTrack.id}
-                          className='flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50 cursor-pointer'
-                          onClick={() => handleSelectSpotifyTrack(spotifyTrack)}
-                        >
-                          {/* Album Cover */}
-                          <div className='flex-shrink-0'>
-                            {spotifyTrack.album.images.length > 0
-                              ? (
-                                  <img
-                                    src={spotifyTrack.album.images[0].url}
-                                    alt={spotifyTrack.album.name}
-                                    className='w-12 h-12 rounded'
-                                  />
-                                )
-                              : (
-                                  <div className='w-12 h-12 bg-muted rounded flex items-center justify-center'>
-                                    <Music className='h-6 w-6 text-muted-foreground' />
-                                  </div>
-                                )}
-                          </div>
+                    {searchResults.length === 0
+                      ? (
+                          <p className='text-sm text-muted-foreground'>Ничего не найдено</p>
+                        )
+                      : (
+                          searchResults.map((spotifyTrack) => (
+                            <div
+                              key={spotifyTrack.id}
+                              className='flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50 cursor-pointer'
+                              onClick={() => handleSelectSpotifyTrack(spotifyTrack)}
+                            >
+                              {/* Album Cover */}
+                              <div className='flex-shrink-0'>
+                                {spotifyTrack.album.images.length > 0
+                                  ? (
+                                      <img
+                                        src={spotifyTrack.album.images[0].url}
+                                        alt={spotifyTrack.album.name}
+                                        className='w-12 h-12 rounded'
+                                      />
+                                    )
+                                  : (
+                                      <div className='w-12 h-12 bg-muted rounded flex items-center justify-center'>
+                                        <Music className='h-6 w-6 text-muted-foreground' />
+                                      </div>
+                                    )}
+                              </div>
 
-                          {/* Track Info */}
-                          <div className='flex-1 min-w-0'>
-                            <p className='font-medium break-words whitespace-normal'>{spotifyTrack.name}</p>
-                            <p className='text-sm text-muted-foreground break-words whitespace-normal'>{spotifyTrack.artists.map((a) => a.name).join(', ')}</p>
-                            <p className='text-xs text-muted-foreground break-words whitespace-normal'>
-                              {spotifyTrack.album.name}
-                              {' '}
-                              •
-                              {formatDuration(Math.round(spotifyTrack.duration_ms / 1000))}
-                            </p>
-                          </div>
+                              {/* Track Info */}
+                              <div className='flex-1 min-w-0'>
+                                <p className='font-medium break-words whitespace-normal'>{spotifyTrack.name}</p>
+                                <p className='text-sm text-muted-foreground break-words whitespace-normal'>{spotifyTrack.artists.map((a) => a.name).join(', ')}</p>
+                                <p className='text-xs text-muted-foreground break-words whitespace-normal'>
+                                  {spotifyTrack.album.name}
+                                  {' '}
+                                  •
+                                  {formatDuration(Math.round(spotifyTrack.duration_ms / 1000))}
+                                </p>
+                              </div>
 
-                          {/* External Link */}
-                          <Button
-                            variant='ghost'
-                            size='sm'
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              window.open(spotifyTrack.external_urls.spotify, '_blank');
-                            }}
-                          >
-                            <ExternalLink className='h-4 w-4' />
-                          </Button>
-                        </div>
-                      ))
-                    )}
+                              {/* External Link */}
+                              <Button
+                                variant='ghost'
+                                size='sm'
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  window.open(spotifyTrack.external_urls.spotify, '_blank');
+                                }}
+                              >
+                                <ExternalLink className='h-4 w-4' />
+                              </Button>
+                            </div>
+                          ))
+                        )}
                   </div>
                 </ScrollArea>
               </div>
@@ -343,11 +353,5 @@ function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProp
     </Dialog>
   );
 }
-
-const formatDuration = (seconds: number): string => {
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `${mins}:${secs.toString().padStart(2, '0')}`;
-};
 
 export default TrackEditDialog;

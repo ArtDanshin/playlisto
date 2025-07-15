@@ -165,7 +165,7 @@ export class SpotifyApi implements SpotifyApiClient {
       };
     }
 
-    const expiresAtNumber = Number.parseInt(expiresAt);
+    const expiresAtNumber = Number.parseInt(expiresAt, 10);
     if (isTokenExpired(expiresAtNumber)) {
       return {
         isAuthenticated: false,
@@ -200,7 +200,7 @@ export class SpotifyApi implements SpotifyApiClient {
     const response = await fetch(`${SPOTIFY_CONFIG.API_BASE_URL}${endpoint}`, {
       ...options,
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
         ...options.headers,
       },
@@ -213,9 +213,9 @@ export class SpotifyApi implements SpotifyApiClient {
         if (refreshed) {
           // Повторяем запрос с новым токеном
           return this.apiCall(endpoint, options);
-        } else {
-          throw new Error('Authentication failed');
         }
+
+        throw new Error('Authentication failed');
       }
       throw new Error(`API call failed: ${response.status}`);
     }

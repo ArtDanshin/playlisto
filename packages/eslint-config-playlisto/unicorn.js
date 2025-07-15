@@ -1,11 +1,11 @@
-import tseslint from 'typescript-eslint'
-import unicornPlugin from 'eslint-plugin-unicorn'
+import tseslint from 'typescript-eslint';
+import unicornPlugin from 'eslint-plugin-unicorn';
 
 export default tseslint.config(
   {
     files: ['**/*.{js,ts,tsx}'],
     plugins: {
-        'unicorn': unicornPlugin
+      unicorn: unicornPlugin,
     },
     rules: {
       ...unicornPlugin.configs.recommended.rules,
@@ -27,6 +27,8 @@ export default tseslint.config(
       'unicorn/numeric-separators-style': [0], // Отключает - Задает стиль разделения частей чисел
       'unicorn/prefer-global-this': [0], // Отключает - Использовать только globalThis вместо глобальных переменных
       'unicorn/no-document-cookie': [0], // Отключает - Использовать вместо document.cookie Cookie Store API. Еще очень новая штука
+      'unicorn/no-nested-ternary': [0], // Отключает - Запрещает использовать вложенные тернарные операторы
+      'unicorn/prefer-code-point': [0], // Отключает - Запрещает использовать коды символов вместо символов
     },
   },
-) 
+);

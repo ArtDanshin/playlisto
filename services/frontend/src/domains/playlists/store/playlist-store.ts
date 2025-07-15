@@ -69,7 +69,7 @@ export const usePlaylistStore = create<PlaylistState>((set) => ({
     try {
       await playlistDB.updatePlaylist(playlist);
       set((state) => {
-        const playlists = state.playlists.map((p) => p.id === playlist.id ? playlist : p);
+        const playlists = state.playlists.map((p) => (p.id === playlist.id ? playlist : p));
         const currentPlaylist = state.currentPlaylist?.id === playlist.id ? playlist : state.currentPlaylist;
         return { playlists, currentPlaylist };
       });

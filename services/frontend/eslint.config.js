@@ -5,4 +5,9 @@ export default tseslint.config({
   extends: [playlistoReactConfig],
   ignores: ['dist/**', 'node_modules/**', '*.config.js'],
   files: ['**/*.{js,ts,tsx}'],
+  settings: {
+    react: {
+      version: '19.1.0',
+    },
+  }
 })

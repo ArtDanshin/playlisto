@@ -40,7 +40,7 @@ function TrackList({ tracks }: TrackListProps) {
       <div className='grid gap-4'>
         {tracks.map((track, index) => (
           <TrackItem
-            key={`${track.title}-${track.artist}-${index}`}
+            key={`${track.title}-${track.artist}-${index}`} // eslint-disable-line react/no-array-index-key
             track={track}
             onTrackUpdate={(updatedTrack) => handleTrackUpdate(index, updatedTrack)}
           />

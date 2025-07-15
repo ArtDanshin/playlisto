@@ -176,7 +176,7 @@ export class SpotifyService {
       };
     }
 
-    const expiresAtNumber = Number.parseInt(expiresAt);
+    const expiresAtNumber = Number.parseInt(expiresAt, 10);
     if (isTokenExpired(expiresAtNumber)) {
       return {
         isAuthenticated: false,
@@ -211,7 +211,7 @@ export class SpotifyService {
     }
 
     // Проверяем, не истек ли токен
-    if (expiresAt && isTokenExpired(Number.parseInt(expiresAt))) {
+    if (expiresAt && isTokenExpired(Number.parseInt(expiresAt, 10))) {
       const refreshed = await this.refreshToken();
       if (!refreshed) {
         throw new Error('Token expired and refresh failed');
@@ -226,7 +226,7 @@ export class SpotifyService {
     const response = await fetch(`${SPOTIFY_CONFIG.API_BASE_URL}${endpoint}`, {
       ...options,
       headers: {
-        'Authorization': `Bearer ${currentToken}`,
+        Authorization: `Bearer ${currentToken}`,
         'Content-Type': 'application/json',
         ...options.headers,
       },
