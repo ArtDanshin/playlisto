@@ -176,17 +176,19 @@ function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProp
 
     const updatedTrack: Track = {
       ...track,
-      title: spotifyTrack.name,
-      artist: spotifyTrack.artists.map((a) => a.name).join(', '),
+      // Сохраняем оригинальные названия, не заменяем на данные из Spotify
+      title: track.title,
+      artist: track.artist,
       duration: Math.round(spotifyTrack.duration_ms / 1000),
       spotifyId: spotifyTrack.id,
       spotifyData: spotifyTrack,
       coverKey,
     };
 
+    // Не обновляем форму данными из Spotify, оставляем оригинальные названия
     setFormData({
-      title: spotifyTrack.name,
-      artist: spotifyTrack.artists.map((a) => a.name).join(', '),
+      title: track.title,
+      artist: track.artist,
       duration: Math.round(spotifyTrack.duration_ms / 1000),
     });
 

@@ -113,8 +113,9 @@ function BatchSpotifyRecognition({ tracks }: BatchSpotifyRecognitionProps) {
             // Обновляем трек
             const updatedTrack = {
               ...track,
-              title: exactMatch.name,
-              artist: exactMatch.artists.map((a) => a.name).join(', '),
+              // Сохраняем оригинальные названия, не заменяем на данные из Spotify
+              title: track.title,
+              artist: track.artist,
               duration: Math.round(exactMatch.duration_ms / 1000),
               spotifyId: exactMatch.id,
               spotifyData: exactMatch,
