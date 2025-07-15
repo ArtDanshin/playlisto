@@ -2,7 +2,7 @@
 
 import type { ComponentProps } from 'react';
 import { useEffect } from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, RefreshCw } from 'lucide-react';
 
 import type { ParsedPlaylist } from '@/shared/utils/m3u-parser';
 import { Button } from '@/shared/components/ui/Button';
@@ -14,6 +14,7 @@ import {
 } from '@/shared/components/ui/Sidebar';
 
 import { UploadPlaylistDialog } from '../UploadPlaylistDialog';
+import { UpdatePlaylistDialog } from '../UpdatePlaylistDialog';
 import { usePlaylistStore } from '../../store/playlist-store';
 
 function SidebarWithPlaylists({ ...props }: ComponentProps<typeof Sidebar>) {
@@ -22,6 +23,7 @@ function SidebarWithPlaylists({ ...props }: ComponentProps<typeof Sidebar>) {
     playlists,
     setCurrentPlaylist,
     removePlaylist,
+    updatePlaylist,
     isLoading,
     loadPlaylists,
   } = usePlaylistStore();
@@ -45,6 +47,15 @@ function SidebarWithPlaylists({ ...props }: ComponentProps<typeof Sidebar>) {
       await removePlaylist(playlist.id);
     } catch (error) {
       console.error('Failed to remove playlist:', error);
+      // Здесь можно добавить уведомление пользователю об ошибке
+    }
+  };
+
+  const handlePlaylistUpdated = async (updatedPlaylist: ParsedPlaylist) => {
+    try {
+      await updatePlaylist(updatedPlaylist);
+    } catch (error) {
+      console.error('Failed to update playlist:', error);
       // Здесь можно добавить уведомление пользователю об ошибке
     }
   };
@@ -83,6 +94,19 @@ function SidebarWithPlaylists({ ...props }: ComponentProps<typeof Sidebar>) {
                       >
                         {playlist.name}
                       </Button>
+                      <UpdatePlaylistDialog
+                        currentPlaylist={playlist}
+                        onPlaylistUpdated={handlePlaylistUpdated}
+                      >
+                        <Button
+                          variant='ghost'
+                          size='sm'
+                          className='h-8 w-8 p-0'
+                          title='Загрузить обновленный плейлист'
+                        >
+                          <RefreshCw className='h-4 w-4' />
+                        </Button>
+                      </UpdatePlaylistDialog>
                       <Button
                         variant='ghost'
                         size='sm'

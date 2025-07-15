@@ -21,7 +21,21 @@ export const usePlaylistStore = create<PlaylistState>((set) => ({
   isLoading: true,
   error: null,
 
-  setCurrentPlaylist: (playlist) => set({ currentPlaylist: playlist }),
+  setCurrentPlaylist: (playlist) => {
+    if (playlist) {
+      // Очищаем флаг isNew при переключении на плейлист
+      const cleanPlaylist = {
+        ...playlist,
+        tracks: playlist.tracks.map((track) => ({
+          ...track,
+          isNew: undefined, // Удаляем флаг isNew
+        })),
+      };
+      set({ currentPlaylist: cleanPlaylist });
+    } else {
+      set({ currentPlaylist: null });
+    }
+  },
 
   addPlaylist: async (playlist) => {
     set({ isLoading: true, error: null });
@@ -67,9 +81,10 @@ export const usePlaylistStore = create<PlaylistState>((set) => ({
   updatePlaylist: async (playlist) => {
     set({ isLoading: true, error: null });
     try {
+      // Сохраняем плейлист с флагом isNew для отображения
       await playlistDB.updatePlaylist(playlist);
       set((state) => {
-        const playlists = state.playlists.map((p) => (p.id === playlist.id ? playlist : p));
+        const playlists = state.playlists.map((p) => p.id === playlist.id ? playlist : p);
         const currentPlaylist = state.currentPlaylist?.id === playlist.id ? playlist : state.currentPlaylist;
         return { playlists, currentPlaylist };
       });
@@ -86,7 +101,17 @@ export const usePlaylistStore = create<PlaylistState>((set) => ({
     try {
       await playlistDB.init();
       const savedPlaylists = await playlistDB.getAllPlaylists();
-      set({ playlists: savedPlaylists });
+
+      // Очищаем флаг isNew при загрузке из базы данных
+      const cleanPlaylists = savedPlaylists.map((playlist) => ({
+        ...playlist,
+        tracks: playlist.tracks.map((track) => ({
+          ...track,
+          isNew: undefined, // Удаляем флаг isNew при загрузке
+        })),
+      }));
+
+      set({ playlists: cleanPlaylists });
     } catch (error: any) {
       set({ error: error.message || 'Failed to load playlists' });
     } finally {

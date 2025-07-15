@@ -25,6 +25,8 @@ export interface Track {
   spotifyId?: string;
   spotifyData?: SpotifyTrackData;
   coverKey?: string; // ключ к обложке в IndexedDB
+  // UI flags
+  isNew?: boolean; // флаг для подсветки новых треков
 }
 
 export interface ParsedPlaylist {
@@ -116,7 +118,7 @@ export function parseSimpleM3U(content: string): ParsedPlaylist {
       // Try to extract title from filename
       const urlParts = line.split('/');
       const filename = urlParts.at(-1);
-      const title = filename.replace(/\.[^/.]+$/, ''); // Remove extension
+      const title = filename?.replace(/\.[^/.]+$/, '') || 'Unknown Title'; // Remove extension
 
       tracks.push({
         title: title || 'Unknown Title',

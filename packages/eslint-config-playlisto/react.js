@@ -48,7 +48,6 @@ export default tseslint.config({
       checkChildContextTypes: true,
     }],
     'react-classic/jsx-boolean-value': ['error', 'never', { always: [] }],
-    'react-classic/jsx-closing-bracket-location': ['error', 'line-aligned'],
     'react-classic/jsx-closing-tag-location': 'error',
     'react-classic/jsx-curly-spacing': ['error', 'never', { allowMultiline: true }],
     'react-classic/jsx-indent-props': ['error', 2],

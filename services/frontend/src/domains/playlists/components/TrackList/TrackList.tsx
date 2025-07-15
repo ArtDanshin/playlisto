@@ -42,6 +42,7 @@ function TrackList({ tracks }: TrackListProps) {
           <TrackItem
             key={`${track.title}-${track.artist}-${index}`} // eslint-disable-line react/no-array-index-key
             track={track}
+            trackIndex={index}
             onTrackUpdate={(updatedTrack) => handleTrackUpdate(index, updatedTrack)}
           />
         ))}

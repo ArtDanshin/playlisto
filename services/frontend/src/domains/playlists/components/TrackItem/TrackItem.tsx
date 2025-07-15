@@ -12,10 +12,11 @@ import { TrackEditDialog } from '../TrackEditDialog';
 
 interface TrackItemProps {
   track: Track;
+  trackIndex: number;
   onTrackUpdate: (updatedTrack: Track) => void;
 }
 
-function TrackItem({ track, onTrackUpdate }: TrackItemProps) {
+function TrackItem({ track, trackIndex, onTrackUpdate }: TrackItemProps) {
   const [coverBase64, setCoverBase64] = useState<string | null>(null);
 
   useEffect(() => {
@@ -35,7 +36,22 @@ function TrackItem({ track, onTrackUpdate }: TrackItemProps) {
   }, [track.coverKey]);
 
   return (
-    <div className='flex items-center space-x-4 rounded-lg border p-4 hover:bg-muted/50 transition-colors'>
+    <div className={`flex items-center space-x-4 rounded-lg border p-4 hover:bg-muted/50 transition-colors ${
+      track.isNew ? 'bg-green-50 border-green-200' : ''
+    }`}
+    >
+      {/* Track Number */}
+      <div className='flex-shrink-0 w-8 text-center'>
+        <div className='flex items-center justify-center gap-1'>
+          <span className={`text-sm font-medium ${track.isNew ? 'text-green-600' : 'text-muted-foreground'}`}>
+            {trackIndex + 1}
+          </span>
+          {track.isNew && (
+            <div className='w-2 h-2 bg-green-500 rounded-full' title='Новый трек' />
+          )}
+        </div>
+      </div>
+
       {/* Album Cover */}
       <div className='flex-shrink-0'>
         {coverBase64
@@ -64,7 +80,14 @@ function TrackItem({ track, onTrackUpdate }: TrackItemProps) {
       {/* Track Info */}
       <div className='flex-1 min-w-0'>
         <div className='flex items-center gap-2'>
-          <h3 className='text-lg font-semibold truncate'>{track.title}</h3>
+          <h3 className={`text-lg font-semibold truncate ${track.isNew ? 'text-green-700' : ''}`}>
+            {track.title}
+          </h3>
+          {track.isNew && (
+            <span className='text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full'>
+              Новый
+            </span>
+          )}
           {track.spotifyId && (
             <div title='Связан со Spotify'>
               <Music className='h-4 w-4 text-green-600' />

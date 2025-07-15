@@ -21,6 +21,7 @@ export default tseslint.config(
         consistent: true,
       }],
       '@stylistic/implicit-arrow-linebreak': ['error', 'beside'],
+      '@stylistic/jsx-one-expression-per-line': ['off'], // Плохо дружит с текстовым контектом с переменными внутри
       '@stylistic/jsx-max-props-per-line': ['error', { maximum: 3 }],
       '@stylistic/jsx-quotes': ['error', 'prefer-single'],
       '@stylistic/member-delimiter-style': ['error', {
