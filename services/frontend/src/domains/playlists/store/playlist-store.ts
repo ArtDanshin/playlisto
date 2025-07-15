@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-import type { ParsedPlaylist } from '@/shared/utils/m3u-parser';
+import type { ParsedPlaylist, Track } from '@/shared/utils/m3u-parser';
 import { playlistDB } from '@/infrastructure/storage/indexed-db';
 
 interface PlaylistState {
@@ -9,6 +9,7 @@ interface PlaylistState {
   isLoading: boolean;
   error: string | null;
   setCurrentPlaylist: (playlist: ParsedPlaylist | null) => void;
+  updateCurrentPlaylistTracks: (tracks: Track[]) => void;
   addPlaylist: (playlist: ParsedPlaylist) => Promise<void>;
   removePlaylist: (playlistId: number) => Promise<void>;
   updatePlaylist: (playlist: ParsedPlaylist) => Promise<void>;
@@ -35,6 +36,17 @@ export const usePlaylistStore = create<PlaylistState>((set) => ({
     } else {
       set({ currentPlaylist: null });
     }
+  },
+
+  updateCurrentPlaylistTracks: (tracks) => {
+    set((state) => ({
+      currentPlaylist: state.currentPlaylist
+        ? {
+            ...state.currentPlaylist,
+            tracks,
+          }
+        : null,
+    }));
   },
 
   addPlaylist: async (playlist) => {
@@ -85,8 +97,8 @@ export const usePlaylistStore = create<PlaylistState>((set) => ({
       await playlistDB.updatePlaylist(playlist);
       set((state) => {
         const playlists = state.playlists.map((p) => p.id === playlist.id ? playlist : p);
-        const currentPlaylist = state.currentPlaylist?.id === playlist.id ? playlist : state.currentPlaylist;
-        return { playlists, currentPlaylist };
+        // Убираем обновление currentPlaylist из updatePlaylist
+        return { playlists };
       });
     } catch (error: any) {
       set({ error: error.message || 'Failed to update playlist' });

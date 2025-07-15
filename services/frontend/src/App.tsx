@@ -1,5 +1,5 @@
 import SidebarWithPlaylists from '@/domains/playlists/components/SidebarWithPlaylists/SidebarWithPlaylists';
-import { TrackList } from '@/domains/playlists/components/TrackList';
+import { SortableTrackList } from '@/domains/playlists/components/SortableTrackList';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -46,7 +46,7 @@ function App() {
             {currentPlaylist
               ? (
                   <div className='mx-auto w-full max-w-4xl'>
-                    <TrackList tracks={currentPlaylist.tracks} />
+                    <SortableTrackList tracks={currentPlaylist.tracks} />
                   </div>
                 )
               : (
