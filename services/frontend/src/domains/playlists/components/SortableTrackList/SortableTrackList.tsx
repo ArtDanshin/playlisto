@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -31,6 +31,11 @@ interface SortableTrackListProps {
 function SortableTrackList({ tracks }: SortableTrackListProps) {
   const { currentPlaylist, updateCurrentPlaylistTracks, updatePlaylist } = usePlaylistStore();
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+
+  // Сброс scroll-позиции окна при переключении плейлиста
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [currentPlaylist?.id]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
