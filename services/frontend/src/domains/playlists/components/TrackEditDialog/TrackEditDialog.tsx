@@ -1,11 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, Music, Loader2, ExternalLink } from 'lucide-react';
+import {
+  Search, Music, Loader2, ExternalLink, Link,
+} from 'lucide-react';
 
 import type { Track, SpotifyTrackData } from '@/shared/utils/m3u-parser';
 import { spotifyApi } from '@/infrastructure/api/spotify-api';
 import { useSpotifyStore } from '@/domains/spotify/store/spotify-store';
+import { playlistDB } from '@/infrastructure/storage/indexed-db';
+import { fetchImageAsBase64 } from '@/shared/utils/image-utils';
+import { extractTrackIdFromUrl, isValidSpotifyTrackUrl } from '@/shared/utils/spotify-url-utils';
 import { Button } from '@/shared/components/ui/Button';
 import {
   Dialog,
@@ -19,8 +24,6 @@ import { Input } from '@/shared/components/ui/Input';
 import { Label } from '@/shared/components/ui/Label';
 import { Separator } from '@/shared/components/ui/Separator';
 import { ScrollArea } from '@/shared/components/ui/ScrollArea';
-import { playlistDB } from '@/infrastructure/storage/indexed-db';
-import { fetchImageAsBase64 } from '@/shared/utils/image-utils';
 
 interface TrackEditDialogProps {
   track: Track;
@@ -39,9 +42,11 @@ const formatDuration = (seconds: number): string => {
 function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+  const [isSearchingByUrl, setIsSearchingByUrl] = useState(false);
   const [searchResults, setSearchResults] = useState<SpotifyTrackData[]>([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [spotifyUrl, setSpotifyUrl] = useState('');
 
   const { authStatus } = useSpotifyStore();
 
@@ -63,6 +68,7 @@ function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProp
     setSearchResults([]);
     setShowSearchResults(false);
     setError(null);
+    setSpotifyUrl('');
   }, [track.title, track.artist, track.duration, track.spotifyId]);
 
   // Сбрасываем состояние поиска при открытии/закрытии диалога
@@ -71,6 +77,7 @@ function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProp
       setSearchResults([]);
       setShowSearchResults(false);
       setError(null);
+      setSpotifyUrl('');
     }
   }, [isOpen]);
 
@@ -115,6 +122,39 @@ function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProp
     }
   };
 
+  const handleSearchByUrl = async () => {
+    if (!spotifyUrl.trim() || !authStatus.isAuthenticated) {
+      setError('Введите Spotify URL трека для поиска');
+      return;
+    }
+
+    if (!isValidSpotifyTrackUrl(spotifyUrl)) {
+      setError('Неверный формат Spotify URL. Поддерживаются ссылки вида: https://open.spotify.com/track/ID');
+      return;
+    }
+
+    setIsSearchingByUrl(true);
+    setError(null);
+    setSearchResults([]);
+    setShowSearchResults(false);
+
+    try {
+      const trackId = extractTrackIdFromUrl(spotifyUrl);
+      if (!trackId) {
+        setError('Не удалось извлечь ID трека из URL');
+        return;
+      }
+
+      const spotifyTrack = await spotifyApi.getTrack(trackId);
+      setSearchResults([spotifyTrack]);
+      setShowSearchResults(true);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Ошибка поиска трека по URL');
+    } finally {
+      setIsSearchingByUrl(false);
+    }
+  };
+
   const handleSelectSpotifyTrack = async (spotifyTrack: SpotifyTrackData) => {
     // Выбираем наименьшую картинку
     const imagesSorted = [...spotifyTrack.album.images].sort((a, b) => a.width - b.width);
@@ -153,6 +193,7 @@ function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProp
     onTrackUpdate(updatedTrack);
     setShowSearchResults(false);
     setSearchResults([]);
+    setSpotifyUrl('');
   };
 
   return (
@@ -223,6 +264,43 @@ function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProp
               </div>
             )}
 
+            {/* Search by URL */}
+            <div className='space-y-2'>
+              <Label htmlFor='spotify-url'>Spotify URL трека</Label>
+              <div className='flex gap-2'>
+                <Input
+                  id='spotify-url'
+                  value={spotifyUrl}
+                  onChange={(e) => setSpotifyUrl(e.target.value)}
+                  placeholder='https://open.spotify.com/track/...'
+                  className='flex-1'
+                />
+                <Button
+                  onClick={handleSearchByUrl}
+                  disabled={isSearchingByUrl || !authStatus.isAuthenticated || !spotifyUrl.trim()}
+                  variant='outline'
+                  size='sm'
+                >
+                  {isSearchingByUrl
+                    ? (
+                        <Loader2 className='h-4 w-4 animate-spin' />
+                      )
+                    : (
+                        <Link className='h-4 w-4' />
+                      )}
+                </Button>
+              </div>
+              <p className='text-xs text-muted-foreground'>
+                Вставьте ссылку на трек из Spotify для точного поиска
+              </p>
+            </div>
+
+            <div className='flex items-center gap-2'>
+              <div className='flex-1 h-px bg-border' />
+              <span className='text-xs text-muted-foreground px-2'>или</span>
+              <div className='flex-1 h-px bg-border' />
+            </div>
+
             <Button
               onClick={handleSearch}
               disabled={isSearching || !authStatus.isAuthenticated}
@@ -236,7 +314,7 @@ function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProp
                 : (
                     <Search className='mr-2 h-4 w-4' />
                   )}
-              Найти в Spotify
+              Найти в Spotify по названию
             </Button>
 
             {!authStatus.isAuthenticated && (
