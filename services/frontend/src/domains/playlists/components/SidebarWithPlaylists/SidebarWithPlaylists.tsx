@@ -29,6 +29,7 @@ import {
 
 import { UploadPlaylistDialog } from '../UploadPlaylistDialog';
 import { usePlaylistStore } from '../../store/playlist-store';
+
 import SortablePlaylistItem from './SortablePlaylistItem';
 
 function SidebarWithPlaylists({ ...props }: ComponentProps<typeof Sidebar>) {
@@ -87,12 +88,8 @@ function SidebarWithPlaylists({ ...props }: ComponentProps<typeof Sidebar>) {
     const { active, over } = event;
 
     if (active.id !== over?.id) {
-      const oldIndex = playlists.findIndex((playlist) => 
-        (playlist.id?.toString() || playlist.name) === active.id
-      );
-      const newIndex = playlists.findIndex((playlist) => 
-        (playlist.id?.toString() || playlist.name) === over?.id
-      );
+      const oldIndex = playlists.findIndex((playlist) => (playlist.id?.toString() || playlist.name) === active.id);
+      const newIndex = playlists.findIndex((playlist) => (playlist.id?.toString() || playlist.name) === over?.id);
 
       if (oldIndex !== -1 && newIndex !== -1) {
         // Новый порядок id

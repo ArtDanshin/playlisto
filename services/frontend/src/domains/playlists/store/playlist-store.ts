@@ -57,10 +57,10 @@ export const usePlaylistStore = create<PlaylistState>((set, get) => ({
       // Устанавливаем order для нового плейлиста (в конец списка)
       const newOrder = playlists.length;
       const playlistWithOrder = { ...playlist, order: newOrder };
-      
+
       const playlistId = await playlistDB.addPlaylist(playlistWithOrder);
       const playlistWithId = { ...playlistWithOrder, id: playlistId };
-      
+
       set((state) => {
         const existingIndex = state.playlists.findIndex((p) => p.name === playlist.name);
         let playlists;
@@ -156,6 +156,6 @@ export const usePlaylistStore = create<PlaylistState>((set, get) => ({
       .filter(Boolean) as ParsedPlaylist[];
     set({ playlists: ordered });
     // Сохраняем порядок в IndexedDB
-    await Promise.all(ordered.map((p) => p.id !== undefined ? playlistDB.updatePlaylist(p) : undefined));
+    await Promise.all(ordered.map((p) => p.id === undefined ? undefined : playlistDB.updatePlaylist(p)));
   },
 }));

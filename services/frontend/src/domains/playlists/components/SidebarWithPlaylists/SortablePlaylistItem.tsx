@@ -6,6 +6,7 @@ import { GripVertical, Trash2, RefreshCw } from 'lucide-react';
 
 import type { ParsedPlaylist } from '@/shared/utils/m3u-parser';
 import { Button } from '@/shared/components/ui/Button';
+
 import { UpdatePlaylistDialog } from '../UpdatePlaylistDialog';
 
 interface SortablePlaylistItemProps {
@@ -95,4 +96,4 @@ function SortablePlaylistItem({
   );
 }
 
-export default SortablePlaylistItem; 
+export default SortablePlaylistItem;

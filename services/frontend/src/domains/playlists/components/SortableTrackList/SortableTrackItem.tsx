@@ -199,19 +199,11 @@ function SortableTrackItem({
                 className='w-16 h-16 rounded-lg object-cover'
               />
             )
-          : track.spotifyData?.album.images && track.spotifyData.album.images.length > 0
-            ? (
-                <img
-                  src={track.spotifyData.album.images[0].url}
-                  alt={track.spotifyData.album.name}
-                  className='w-16 h-16 rounded-lg object-cover'
-                />
-              )
-            : (
-                <div className='w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-lg'>
-                  {track.artist.charAt(0).toUpperCase()}
-                </div>
-              )}
+          : (
+              <div className='w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-lg'>
+                {track.artist.charAt(0).toUpperCase()}
+              </div>
+            )}
       </div>
 
       {/* Track Info */}
