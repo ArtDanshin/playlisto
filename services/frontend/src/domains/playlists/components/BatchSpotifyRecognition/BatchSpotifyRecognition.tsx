@@ -51,6 +51,13 @@ function BatchSpotifyRecognition({ tracks }: BatchSpotifyRecognitionProps) {
   const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [result, setResult] = useState<RecognitionResult | null>(null);
 
+  // Функция для очистки состояния диалога
+  const resetDialogState = () => {
+    setIsRecognizing(false);
+    setProgress({ current: 0, total: 0 });
+    setResult(null);
+  };
+
   // Функция пакетного распознавания треков
   const handleBatchRecognition = async () => {
     if (!authStatus.isAuthenticated) {
@@ -61,26 +68,27 @@ function BatchSpotifyRecognition({ tracks }: BatchSpotifyRecognitionProps) {
 
     if (!currentPlaylist) return;
 
+    // Получаем список нераспознанных треков на момент начала распознавания
+    const tracksToRecognize = tracks.filter((track) => !track.spotifyId);
+
     setIsRecognizing(true);
-    setProgress({ current: 0, total: tracks.length });
+    setProgress({ current: 0, total: tracksToRecognize.length });
     setResult(null);
 
     const updatedTracks = [...tracks];
     const recognized: Track[] = [];
     const unrecognized: Track[] = [];
+    let processedCount = 0;
 
     try {
-      for (let i = 0; i < tracks.length; i++) {
-        const track = tracks[i];
-
+      for (const [i, track] of tracks.entries()) {
         // Пропускаем треки, которые уже связаны со Spotify
         if (track.spotifyId) {
-          setProgress({ current: i + 1, total: tracks.length });
           continue;
         }
 
         // Добавляем задержку между запросами, чтобы не забомбить API
-        if (i > 0) {
+        if (processedCount > 0) {
           await new Promise((resolve) => setTimeout(resolve, 200));
         }
 
@@ -132,7 +140,8 @@ function BatchSpotifyRecognition({ tracks }: BatchSpotifyRecognitionProps) {
           unrecognized.push(track);
         }
 
-        setProgress({ current: i + 1, total: tracks.length });
+        processedCount++;
+        setProgress({ current: processedCount, total: tracksToRecognize.length });
       }
 
       // Обновляем плейлист с распознанными треками
@@ -147,7 +156,7 @@ function BatchSpotifyRecognition({ tracks }: BatchSpotifyRecognitionProps) {
       setResult({
         recognized,
         unrecognized,
-        total: tracks.length,
+        total: tracksToRecognize.length,
       });
     } catch (error) {
       console.error('Batch recognition error:', error);
@@ -161,8 +170,16 @@ function BatchSpotifyRecognition({ tracks }: BatchSpotifyRecognitionProps) {
   // Фильтруем треки, которые можно распознать (без связи со Spotify)
   const unrecognizedTracks = tracks.filter((track) => !track.spotifyId);
 
+  const handleDialogOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (open) {
+      // Очищаем состояние при открытии диалога
+      resetDialogState();
+    }
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleDialogOpenChange}>
       <DialogTrigger asChild>
         <Button
           onClick={() => setIsOpen(true)}
