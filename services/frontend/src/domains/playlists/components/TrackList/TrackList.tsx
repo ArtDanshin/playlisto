@@ -1,9 +1,13 @@
 'use client';
 
+import { Music } from 'lucide-react';
+
 import type { Track } from '@/shared/utils/m3u-parser';
+import { Button } from '@/shared/components/ui/Button';
 
 import { usePlaylistStore } from '../../store/playlist-store';
 import { TrackItem } from '../TrackItem';
+import { ExportToSpotifyDialog } from '../ExportToSpotifyDialog';
 
 interface TrackListProps {
   tracks: Track[];
@@ -36,7 +40,17 @@ function TrackList({ tracks }: TrackListProps) {
 
   return (
     <div className='space-y-4'>
-      <h2 className='text-2xl font-bold'>Треки</h2>
+      <div className='flex items-center justify-between'>
+        <h2 className='text-2xl font-bold'>Треки</h2>
+        {currentPlaylist && (
+          <ExportToSpotifyDialog playlist={currentPlaylist}>
+            <Button variant='outline' size='sm'>
+              <Music className='mr-2 h-4 w-4' />
+              Экспорт в Spotify
+            </Button>
+          </ExportToSpotifyDialog>
+        )}
+      </div>
       <div className='grid gap-4'>
         {tracks.map((track, index) => (
           <TrackItem

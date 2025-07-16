@@ -16,11 +16,14 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
+import { Music } from 'lucide-react';
 
 import type { Track } from '@/shared/utils/m3u-parser';
+import { Button } from '@/shared/components/ui/Button';
 
 import { usePlaylistStore } from '../../store/playlist-store';
 import { BatchSpotifyRecognition } from '../BatchSpotifyRecognition';
+import { ExportToSpotifyDialog } from '../ExportToSpotifyDialog';
 
 import SortableTrackItem from './SortableTrackItem.tsx';
 
@@ -90,7 +93,17 @@ function SortableTrackList({ tracks }: SortableTrackListProps) {
     <div className='space-y-4'>
       <div className='flex items-center justify-between'>
         <h2 className='text-2xl font-bold'>Треки</h2>
-        <BatchSpotifyRecognition tracks={tracks} />
+        <div className='flex items-center gap-2'>
+          <BatchSpotifyRecognition tracks={tracks} />
+          {currentPlaylist && (
+            <ExportToSpotifyDialog playlist={currentPlaylist}>
+              <Button variant='outline' size='sm'>
+                <Music className='mr-2 h-4 w-4' />
+                Экспорт в Spotify
+              </Button>
+            </ExportToSpotifyDialog>
+          )}
+        </div>
       </div>
 
       <DndContext
