@@ -7,12 +7,14 @@ import {
   GripVertical, Edit2, Music, X, Check,
 } from 'lucide-react';
 
-import type { Track } from '@/shared/utils/m3u-parser';
+import type { Track } from '@/shared/types';
 import { formatDuration } from '@/shared/utils/utils';
 import { Button } from '@/shared/components/ui/Button';
 import { Input } from '@/shared/components/ui/Input';
 import { playlistDB } from '@/infrastructure/storage/indexed-db';
+import { getTrackDuration, isTrackLinkedToSpotify, createTrackKey } from '@/shared/utils/playlist-utils';
 
+import { usePlaylistStore } from '../../store/playlist-store';
 import { TrackEditDialog } from '../TrackEditDialog';
 
 interface SortableTrackItemProps {
@@ -34,6 +36,7 @@ function SortableTrackItem({
   onOrderChange,
   onTrackUpdate,
 }: SortableTrackItemProps) {
+  const { newTracks } = usePlaylistStore();
   const [coverBase64, setCoverBase64] = useState<string | null>(null);
   const [manualOrder, setManualOrder] = useState<string>((trackIndex + 1).toString());
   const inputRef = useRef<HTMLInputElement>(null);
@@ -61,7 +64,7 @@ function SortableTrackItem({
       inputRef.current.focus();
       inputRef.current.select();
       // Инициализируем значение только при начале редактирования
-      const initialValue = (trackIndex + 1).toString();
+      const initialValue = track.position.toString();
       // Используем setTimeout для избежания прямого вызова setState в useEffect
       timeoutId = setTimeout(() => {
         setManualOrder(initialValue);
@@ -70,7 +73,7 @@ function SortableTrackItem({
     return () => {
       !!timeoutId && clearTimeout(timeoutId);
     };
-  }, [isEditing, trackIndex]); // Возвращаем trackIndex для правильной инициализации
+  }, [isEditing, track.position]); // Используем track.position для правильной инициализации
 
   const {
     attributes,
@@ -90,7 +93,7 @@ function SortableTrackItem({
 
   const handleOrderSubmit = () => {
     const newOrder = Number.parseInt(manualOrder, 10);
-    if (!Number.isNaN(newOrder) && newOrder > 0 && newOrder !== trackIndex + 1) {
+    if (!Number.isNaN(newOrder) && newOrder > 0 && newOrder !== track.position) {
       onOrderChange(newOrder);
     }
     onEditCancel();
@@ -114,13 +117,17 @@ function SortableTrackItem({
     setManualOrder(value);
   };
 
+  const duration = getTrackDuration(track);
+  const isLinkedToSpotify = isTrackLinkedToSpotify(track);
+  const isNewTrack = newTracks.has(createTrackKey(track));
+
   return (
     <div
       ref={setNodeRef}
       style={style}
       className={`flex items-center space-x-4 rounded-lg border p-4 hover:bg-muted/50 transition-colors ${
-        track.isNew ? 'bg-green-50 border-green-200' : ''
-      } ${isDragging ? 'opacity-50' : ''}`}
+        isDragging ? 'opacity-50' : ''
+      } ${isNewTrack ? 'bg-green-50 border-green-200' : ''}`}
     >
       {/* Drag Handle */}
       <div
@@ -134,12 +141,12 @@ function SortableTrackItem({
       {/* Track Number */}
       <div className='flex-shrink-0 w-16 text-center relative'>
         <div className='flex items-center justify-center gap-1 group'>
-          <span className={`text-sm font-medium ${track.isNew ? 'text-green-600' : 'text-muted-foreground'}`}>
-            {trackIndex + 1}
+          <span className={`text-sm font-medium ${
+            isNewTrack ? 'text-green-600' : 'text-muted-foreground'
+          }`}
+          >
+            {track.position}
           </span>
-          {track.isNew && (
-            <div className='w-2 h-2 bg-green-500 rounded-full' title='Новый трек' />
-          )}
           <Button
             size='sm'
             variant='ghost'
@@ -195,7 +202,7 @@ function SortableTrackItem({
           ? (
               <img
                 src={coverBase64}
-                alt={track.spotifyData?.album.name || track.title}
+                alt={track.album || track.title}
                 className='w-16 h-16 rounded-lg object-cover'
               />
             )
@@ -209,35 +216,30 @@ function SortableTrackItem({
       {/* Track Info */}
       <div className='flex-1 min-w-0'>
         <div className='flex items-center gap-2'>
-          <h3 className={`text-lg font-semibold truncate ${track.isNew ? 'text-green-700' : ''}`}>
+          <h3 className='text-lg font-semibold truncate'>
             {track.title}
           </h3>
-          {track.isNew && (
-            <span className='text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full'>
-              Новый
-            </span>
-          )}
-          {track.spotifyId && (
+          {isLinkedToSpotify && (
             <div title='Связан со Spotify'>
               <Music className='h-4 w-4 text-green-600' />
             </div>
           )}
         </div>
         <p className='text-sm text-muted-foreground truncate'>{track.artist}</p>
-        {track.spotifyData?.album.name && (
-          <p className='text-xs text-muted-foreground truncate'>{track.spotifyData.album.name}</p>
+        {track.album && (
+          <p className='text-xs text-muted-foreground truncate'>{track.album}</p>
         )}
       </div>
 
       {/* Duration */}
       <div className='flex-shrink-0 text-sm text-muted-foreground'>
-        {track.duration && formatDuration(track.duration)}
+        {duration && formatDuration(duration)}
       </div>
 
       {/* Edit Button */}
       <div className='flex-shrink-0'>
         <TrackEditDialog
-          key={`edit-${track.title}-${track.artist}-${track.spotifyId || 'no-spotify'}`}
+          key={`edit-${track.title}-${track.artist}-${track.spotifyData?.id || 'no-spotify'}`}
           track={track}
           onTrackUpdate={onTrackUpdate}
         >

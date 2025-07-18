@@ -3,9 +3,10 @@
 import { useState } from 'react';
 import { Music, Loader2, ExternalLink } from 'lucide-react';
 
-import type { ParsedPlaylist } from '@/shared/utils/m3u-parser';
+import type { Playlist, Track } from '@/shared/types';
 import { spotifyApi } from '@/infrastructure/api/spotify-api';
 import { useSpotifyStore } from '@/domains/spotify/store/spotify-store';
+import { getSpotifyId } from '@/shared/utils/playlist-utils';
 import { Button } from '@/shared/components/ui/Button';
 import {
   Dialog,
@@ -21,7 +22,7 @@ import { Checkbox } from '@/shared/components/ui/Checkbox';
 import { Separator } from '@/shared/components/ui/Separator';
 
 interface ExportToSpotifyDialogProps {
-  playlist: ParsedPlaylist;
+  playlist: Playlist;
   children: React.ReactNode;
 }
 
@@ -133,24 +134,24 @@ function ExportToSpotifyDialog({ playlist, children }: ExportToSpotifyDialogProp
     if (!spotifyPlaylist) return null;
 
     // Сопоставляем треки по Spotify ID
-    const appTracksWithSpotifyId = playlist.tracks.filter((t) => t.spotifyId);
-    const appSpotifyIds = new Set(appTracksWithSpotifyId.map((t) => t.spotifyId));
-    const spotifyTrackIds = new Set(spotifyPlaylist.tracks.map((t) => t.id));
+    const appTracksWithSpotifyId = playlist.tracks.filter((t: Track) => getSpotifyId(t));
+    const appSpotifyIds = new Set(appTracksWithSpotifyId.map((t: Track) => getSpotifyId(t)));
+    const spotifyTrackIds = new Set(spotifyPlaylist.tracks.map((t: SpotifyTrack) => t.id));
 
     // Новые треки - есть в приложении, но нет в Spotify плейлисте
-    const newTracks = appTracksWithSpotifyId.filter((t) => !spotifyTrackIds.has(t.spotifyId!));
+    const newTracks = appTracksWithSpotifyId.filter((t: Track) => !spotifyTrackIds.has(getSpotifyId(t)!));
 
     // Отсутствующие треки - есть в Spotify плейлисте, но нет в приложении
-    const missingTracks = spotifyPlaylist.tracks.filter((t) => !appSpotifyIds.has(t.id));
+    const missingTracks = spotifyPlaylist.tracks.filter((t: SpotifyTrack) => !appSpotifyIds.has(t.id));
 
     // Общие треки - есть и в приложении, и в Spotify плейлисте
-    const commonTracks = appTracksWithSpotifyId.filter((t) => spotifyTrackIds.has(t.spotifyId!));
+    const commonTracks = appTracksWithSpotifyId.filter((t: Track) => spotifyTrackIds.has(getSpotifyId(t)!));
 
     // Проверяем различия в порядке треков по Spotify ID
-    const appCommonSpotifyIds = commonTracks.map((t) => t.spotifyId);
+    const appCommonSpotifyIds = commonTracks.map((t: Track) => getSpotifyId(t));
     const spotifyCommonIds = spotifyPlaylist.tracks
-      .filter((t) => appSpotifyIds.has(t.id))
-      .map((t) => t.id);
+      .filter((t: SpotifyTrack) => appSpotifyIds.has(t.id))
+      .map((t: SpotifyTrack) => t.id);
 
     const hasOrderDifference = appCommonSpotifyIds.length > 0
       && JSON.stringify(appCommonSpotifyIds) !== JSON.stringify(spotifyCommonIds);
@@ -172,7 +173,7 @@ function ExportToSpotifyDialog({ playlist, children }: ExportToSpotifyDialogProp
   };
 
   const createNewPlaylist = async (): Promise<string> => {
-    const recognizedTracks = playlist.tracks.filter((track) => track.spotifyId);
+    const recognizedTracks = playlist.tracks.filter((track) => getSpotifyId(track));
 
     if (recognizedTracks.length === 0) {
       throw new Error('Нет распознанных треков для экспорта');
@@ -189,7 +190,7 @@ function ExportToSpotifyDialog({ playlist, children }: ExportToSpotifyDialogProp
     });
 
     // Добавляем треки в плейлист
-    const trackUris = recognizedTracks.map((track) => `spotify:track:${track.spotifyId}`);
+    const trackUris = recognizedTracks.map((track) => `spotify:track:${getSpotifyId(track)}`);
 
     await spotifyApi.apiCall(`/playlists/${playlistData.id}/tracks`, {
       method: 'POST',
@@ -204,7 +205,7 @@ function ExportToSpotifyDialog({ playlist, children }: ExportToSpotifyDialogProp
   const updateExistingPlaylist = async (): Promise<void> => {
     if (!spotifyPlaylist) return;
 
-    const recognizedTracks = playlist.tracks.filter((track) => track.spotifyId);
+    const recognizedTracks = playlist.tracks.filter((track) => getSpotifyId(track));
     const comparison = getTrackComparison();
 
     if (!comparison) return;
@@ -215,7 +216,7 @@ function ExportToSpotifyDialog({ playlist, children }: ExportToSpotifyDialogProp
       // Синхронизируем порядок как в приложении по Spotify ID
 
       finalTracks = recognizedTracks.map((appTrack) => {
-        const existingTrack = spotifyPlaylist.tracks.find((spotifyTrack) => spotifyTrack.id === appTrack.spotifyId);
+        const existingTrack = spotifyPlaylist.tracks.find((spotifyTrack) => spotifyTrack.id === getSpotifyId(appTrack));
 
         if (existingTrack) {
           return existingTrack;
@@ -223,7 +224,7 @@ function ExportToSpotifyDialog({ playlist, children }: ExportToSpotifyDialogProp
 
         // Новый трек - будет добавлен в конец
         return {
-          id: appTrack.spotifyId!,
+          id: getSpotifyId(appTrack)!,
           name: appTrack.title,
           artist: appTrack.artist,
         };
@@ -231,7 +232,7 @@ function ExportToSpotifyDialog({ playlist, children }: ExportToSpotifyDialogProp
 
       // Добавляем треки, которых нет в приложении, в конец
       if (syncOptions.addNewTracks) {
-        const appSpotifyIds = new Set(recognizedTracks.map((t) => t.spotifyId));
+        const appSpotifyIds = new Set(recognizedTracks.map((t) => getSpotifyId(t)));
         const missingTracks = spotifyPlaylist.tracks.filter((spotifyTrack) => !appSpotifyIds.has(spotifyTrack.id));
         finalTracks.push(...missingTracks);
       }
@@ -239,11 +240,11 @@ function ExportToSpotifyDialog({ playlist, children }: ExportToSpotifyDialogProp
       // Простое объединение
       if (syncOptions.addNewTracks) {
         recognizedTracks.forEach((appTrack) => {
-          const exists = spotifyPlaylist.tracks.some((spotifyTrack) => spotifyTrack.id === appTrack.spotifyId);
+          const exists = spotifyPlaylist.tracks.some((spotifyTrack) => spotifyTrack.id === getSpotifyId(appTrack));
 
           if (!exists) {
             finalTracks.push({
-              id: appTrack.spotifyId!,
+              id: getSpotifyId(appTrack)!,
               name: appTrack.title,
               artist: appTrack.artist,
             });
@@ -253,7 +254,7 @@ function ExportToSpotifyDialog({ playlist, children }: ExportToSpotifyDialogProp
     }
 
     if (syncOptions.removeMissingTracks) {
-      const appSpotifyIds = new Set(recognizedTracks.map((t) => t.spotifyId));
+      const appSpotifyIds = new Set(recognizedTracks.map((t) => getSpotifyId(t)));
       finalTracks = finalTracks.filter((spotifyTrack) => appSpotifyIds.has(spotifyTrack.id));
     }
 
@@ -323,67 +324,59 @@ function ExportToSpotifyDialog({ playlist, children }: ExportToSpotifyDialogProp
   };
 
   const comparison = getTrackComparison();
-  const recognizedTracks = playlist.tracks.filter((track) => track.spotifyId);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleDialogOpenChange}>
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className='sm:max-w-md'>
+      <DialogContent className='max-w-2xl max-h-[80vh] overflow-hidden'>
         <DialogHeader>
           <DialogTitle>Экспорт в Spotify</DialogTitle>
           <DialogDescription>
-            Экспортируйте плейлист &quot;{playlist.name}&quot; в ваш аккаунт Spotify
+            Создайте новый плейлист в Spotify или обновите существующий
           </DialogDescription>
         </DialogHeader>
 
         <div className='space-y-4'>
           {error && (
-            <div className='p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md'>
+            <div className='text-sm text-red-600 bg-red-50 p-3 rounded'>
               {error}
             </div>
           )}
 
           {successMessage && (
-            <div className='p-3 text-sm text-green-600 bg-green-50 border border-green-200 rounded-md'>
-              <div className='flex items-center justify-between'>
-                <span>{successMessage}</span>
-                {createdPlaylistId && (
-                  <Button
-                    variant='outline'
-                    size='sm'
-                    onClick={() => window.open(`https://open.spotify.com/playlist/${createdPlaylistId}`, '_blank')}
-                    className='ml-2'
+            <div className='text-sm text-green-600 bg-green-50 p-3 rounded'>
+              {successMessage}
+              {createdPlaylistId && (
+                <div className='mt-2'>
+                  <a
+                    href={`https://open.spotify.com/playlist/${createdPlaylistId}`}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    className='text-blue-600 hover:underline flex items-center gap-1'
                   >
-                    <ExternalLink className='mr-1 h-3 w-3' />
+                    <ExternalLink className='h-3 w-3' />
                     Открыть в Spotify
-                  </Button>
-                )}
-              </div>
+                  </a>
+                </div>
+              )}
             </div>
           )}
 
-          {!authStatus.isAuthenticated && (
-            <div className='p-3 text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-md'>
-              Для экспорта необходимо авторизоваться в Spotify
-            </div>
-          )}
-
+          {/* Export Mode Selection */}
           <div className='space-y-3'>
-            <Label className='text-sm font-medium'>Режим экспорта:</Label>
+            <Label>Режим экспорта</Label>
             <div className='flex gap-2'>
               <Button
                 variant={exportMode === 'new' ? 'default' : 'outline'}
-                size='sm'
                 onClick={() => setExportMode('new')}
                 className='flex-1'
               >
-                Создать новый
+                Создать новый плейлист
               </Button>
               <Button
                 variant={exportMode === 'existing' ? 'default' : 'outline'}
-                size='sm'
                 onClick={() => setExportMode('existing')}
                 className='flex-1'
               >
@@ -394,120 +387,111 @@ function ExportToSpotifyDialog({ playlist, children }: ExportToSpotifyDialogProp
 
           {exportMode === 'existing' && (
             <div className='space-y-3'>
-              <Label htmlFor='playlist-url'>Ссылка на плейлист Spotify:</Label>
-              <Input
-                id='playlist-url'
-                placeholder='https://open.spotify.com/playlist/...'
-                value={playlistUrl}
-                onChange={(e) => handlePlaylistUrlChange(e.target.value)}
-                disabled={isLoading}
-              />
+              <div className='space-y-2'>
+                <Label htmlFor='playlist-url'>Ссылка на плейлист Spotify</Label>
+                <Input
+                  id='playlist-url'
+                  value={playlistUrl}
+                  onChange={(e) => handlePlaylistUrlChange(e.target.value)}
+                  placeholder='https://open.spotify.com/playlist/...'
+                />
+                <p className='text-xs text-muted-foreground'>
+                  Вставьте ссылку на плейлист, который хотите обновить
+                </p>
+              </div>
 
               {isLoading && (
                 <div className='flex items-center gap-2 text-sm text-muted-foreground'>
                   <Loader2 className='h-4 w-4 animate-spin' />
-                  Загрузка информации о плейлисте...
+                  Загружаем информацию о плейлисте...
                 </div>
               )}
 
               {spotifyPlaylist && comparison && (
-                <>
-                  <Separator />
-                  <div className='space-y-3'>
-                    <h4 className='text-sm font-medium'>Опции синхронизации:</h4>
-
-                    <div className='space-y-2'>
-                      {!comparison.showOrderOnly && (
-                        <>
-                          <div className='flex items-center space-x-2'>
-                            <Checkbox
-                              id='addNewTracks'
-                              checked={syncOptions.addNewTracks}
-                              onChange={(e) => handleSyncOptionsChange('addNewTracks', e.target.checked)}
-                            />
-                            <Label htmlFor='addNewTracks' className='text-sm'>
-                              Добавить новые треки ({comparison.totalNew})
-                            </Label>
-                          </div>
-
-                          <div className='flex items-center space-x-2'>
-                            <Checkbox
-                              id='removeMissingTracks'
-                              checked={syncOptions.removeMissingTracks}
-                              onChange={(e) => handleSyncOptionsChange('removeMissingTracks', e.target.checked)}
-                            />
-                            <Label htmlFor='removeMissingTracks' className='text-sm'>
-                              Удалить отсутствующие треки ({comparison.totalMissing})
-                            </Label>
-                          </div>
-                        </>
+                <div className='space-y-3'>
+                  <div className='p-3 border rounded-lg'>
+                    <h4 className='font-medium mb-2'>Сравнение плейлистов</h4>
+                    <div className='space-y-1 text-sm'>
+                      <div className='flex justify-between'>
+                        <span>Новых треков:</span>
+                        <span className='font-medium text-green-600'>{comparison.totalNew}</span>
+                      </div>
+                      <div className='flex justify-between'>
+                        <span>Удаляемых треков:</span>
+                        <span className='font-medium text-red-600'>{comparison.totalMissing}</span>
+                      </div>
+                      <div className='flex justify-between'>
+                        <span>Общих треков:</span>
+                        <span className='font-medium'>{comparison.totalCommon}</span>
+                      </div>
+                      {comparison.hasOrderDifference && (
+                        <div className='flex justify-between'>
+                          <span>Различия в порядке:</span>
+                          <span className='font-medium text-orange-600'>Да</span>
+                        </div>
                       )}
+                    </div>
+                  </div>
 
-                      <div className='flex items-center space-x-2'>
+                  <Separator />
+
+                  <div className='space-y-3'>
+                    <Label>Параметры синхронизации</Label>
+                    <div className='space-y-2'>
+                      {comparison.totalNew > 0 && (
+                        <label className='flex items-center space-x-2'>
+                          <Checkbox
+                            checked={syncOptions.addNewTracks}
+                            onChange={(e) => handleSyncOptionsChange('addNewTracks', e.target.checked)}
+                          />
+                          <span className='text-sm'>Добавить новые треки ({comparison.totalNew})</span>
+                        </label>
+                      )}
+                      {comparison.totalMissing > 0 && (
+                        <label className='flex items-center space-x-2'>
+                          <Checkbox
+                            checked={syncOptions.removeMissingTracks}
+                            onChange={(e) => handleSyncOptionsChange('removeMissingTracks', e.target.checked)}
+                          />
+                          <span className='text-sm'>Удалить отсутствующие треки ({comparison.totalMissing})</span>
+                        </label>
+                      )}
+                      {comparison.totalNew === 0 && comparison.totalMissing === 0 && (
+                        <div className='text-sm text-muted-foreground p-2 bg-muted rounded'>
+                          Плейлисты идентичны по составу треков
+                        </div>
+                      )}
+                      <label className='flex items-center space-x-2'>
                         <Checkbox
-                          id='syncOrder'
                           checked={syncOptions.syncOrder}
                           onChange={(e) => handleSyncOptionsChange('syncOrder', e.target.checked)}
                         />
-                        <Label htmlFor='syncOrder' className='text-sm'>
-                          {comparison.showOrderOnly ? 'Синхронизировать порядок треков' : 'Синхронизировать порядок треков'}
-                        </Label>
-                      </div>
-                    </div>
-
-                    <div className='text-xs text-muted-foreground space-y-1'>
-                      {comparison.showOrderOnly
-                        ? (
-                            <>
-                              <p>• Общих треков: {comparison.totalCommon}</p>
-                              <p className='text-blue-600'>• Различается только порядок треков</p>
-                            </>
-                          )
-                        : (
-                            <>
-                              <p>• Новых треков: {comparison.totalNew}</p>
-                              <p>• Отсутствующих треков: {comparison.totalMissing}</p>
-                              <p>• Общих треков: {comparison.totalCommon}</p>
-                              {comparison.hasOrderDifference && (
-                                <p className='text-blue-600'>• Различается порядок треков</p>
-                              )}
-                            </>
-                          )}
+                        <span className='text-sm'>Синхронизировать порядок треков</span>
+                      </label>
                     </div>
                   </div>
-                </>
+                </div>
               )}
             </div>
           )}
 
-          <div className='text-xs text-muted-foreground'>
-            <p>• Распознанных треков: {recognizedTracks.length} из {playlist.tracks.length}</p>
-            {recognizedTracks.length === 0 && (
-              <p className='text-amber-600'>⚠️ Нет распознанных треков для экспорта</p>
-            )}
-          </div>
-
+          {/* Export Button */}
           <div className='flex justify-end gap-2 pt-4'>
             <Button variant='outline' onClick={() => setIsOpen(false)}>
               Отмена
             </Button>
             <Button
               onClick={handleExport}
-              disabled={isLoading || !authStatus.isAuthenticated || recognizedTracks.length === 0}
+              disabled={isLoading || (exportMode === 'existing' && !spotifyPlaylist)}
             >
               {isLoading
                 ? (
-                    <div className='flex items-center'>
-                      <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                      Экспорт...
-                    </div>
+                    <Loader2 className='mr-2 h-4 w-4 animate-spin' />
                   )
                 : (
-                    <div className='flex items-center'>
-                      <Music className='mr-2 h-4 w-4' />
-                      Экспортировать
-                    </div>
+                    <Music className='mr-2 h-4 w-4' />
                   )}
+              {exportMode === 'new' ? 'Создать плейлист' : 'Обновить плейлист'}
             </Button>
           </div>
         </div>

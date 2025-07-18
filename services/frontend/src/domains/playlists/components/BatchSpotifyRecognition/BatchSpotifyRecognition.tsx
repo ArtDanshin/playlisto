@@ -5,11 +5,10 @@ import {
   Music, Loader2, X, CheckCircle, AlertCircle,
 } from 'lucide-react';
 
-import type { Track } from '@/shared/utils/m3u-parser';
+import type { Track } from '@/shared/types';
 import { spotifyApi } from '@/infrastructure/api/spotify-api';
 import { useSpotifyStore } from '@/domains/spotify/store/spotify-store';
-import { playlistDB } from '@/infrastructure/storage/indexed-db';
-import { fetchImageAsBase64 } from '@/shared/utils/image-utils';
+import { updateTrackWithSpotify, isExactMatch } from '@/shared/utils/playlist-utils';
 import { Button } from '@/shared/components/ui/Button';
 import {
   Dialog,
@@ -32,16 +31,6 @@ interface RecognitionResult {
   unrecognized: Track[];
   total: number;
 }
-
-// Функция для проверки точного совпадения трека
-const isExactMatch = (track: Track, spotifyTrack: any): boolean => {
-  const trackTitle = track.title.toLowerCase().trim();
-  const trackArtist = track.artist.toLowerCase().trim();
-  const spotifyTitle = spotifyTrack.name.toLowerCase().trim();
-  const spotifyArtist = spotifyTrack.artists[0]?.name.toLowerCase().trim();
-
-  return trackTitle === spotifyTitle && trackArtist === spotifyArtist;
-};
 
 function BatchSpotifyRecognition({ tracks }: BatchSpotifyRecognitionProps) {
   const { currentPlaylist, updateCurrentPlaylistTracks, updatePlaylist } = usePlaylistStore();
@@ -69,7 +58,7 @@ function BatchSpotifyRecognition({ tracks }: BatchSpotifyRecognitionProps) {
     if (!currentPlaylist) return;
 
     // Получаем список нераспознанных треков на момент начала распознавания
-    const tracksToRecognize = tracks.filter((track) => !track.spotifyId);
+    const tracksToRecognize = tracks.filter((track) => !track.spotifyData);
 
     setIsRecognizing(true);
     setProgress({ current: 0, total: tracksToRecognize.length });
@@ -83,7 +72,7 @@ function BatchSpotifyRecognition({ tracks }: BatchSpotifyRecognitionProps) {
     try {
       for (const [i, track] of tracks.entries()) {
         // Пропускаем треки, которые уже связаны со Spotify
-        if (track.spotifyId) {
+        if (track.spotifyData) {
           continue;
         }
 
@@ -100,36 +89,8 @@ function BatchSpotifyRecognition({ tracks }: BatchSpotifyRecognitionProps) {
           const exactMatch = response.tracks.items.find((spotifyTrack) => isExactMatch(track, spotifyTrack));
 
           if (exactMatch) {
-            // Выбираем наименьшую картинку
-            const imagesSorted = [...exactMatch.album.images].sort((a, b) => a.width - b.width);
-            const smallestImage = imagesSorted[0];
-            const coverKey: string | undefined = smallestImage?.url;
-
-            // Сохраняем base64 в IndexedDB, если ещё нет
-            if (smallestImage?.url) {
-              const existing = await playlistDB.getCover(smallestImage.url);
-              if (!existing) {
-                try {
-                  const base64 = await fetchImageAsBase64(smallestImage.url);
-                  await playlistDB.addCover(smallestImage.url, base64);
-                } catch {
-                  // ignore, fallback на внешний url
-                }
-              }
-            }
-
-            // Обновляем трек
-            const updatedTrack = {
-              ...track,
-              // Сохраняем оригинальные названия, не заменяем на данные из Spotify
-              title: track.title,
-              artist: track.artist,
-              duration: Math.round(exactMatch.duration_ms / 1000),
-              spotifyId: exactMatch.id,
-              spotifyData: exactMatch,
-              coverKey,
-            };
-
+            // Обновляем трек с данными из Spotify
+            const updatedTrack = await updateTrackWithSpotify(track, exactMatch);
             updatedTracks[i] = updatedTrack;
             recognized.push(updatedTrack);
           } else {
@@ -168,7 +129,7 @@ function BatchSpotifyRecognition({ tracks }: BatchSpotifyRecognitionProps) {
   };
 
   // Фильтруем треки, которые можно распознать (без связи со Spotify)
-  const unrecognizedTracks = tracks.filter((track) => !track.spotifyId);
+  const unrecognizedTracks = tracks.filter((track) => !track.spotifyData);
 
   const handleDialogOpenChange = (open: boolean) => {
     setIsOpen(open);

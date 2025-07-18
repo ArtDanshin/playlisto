@@ -3,8 +3,9 @@
 import { useState, useRef } from 'react';
 import { Upload, FileAudio, RefreshCw } from 'lucide-react';
 
-import type { ParsedPlaylist, Track } from '@/shared/utils/m3u-parser';
+import type { Playlist, Track } from '@/shared/types';
 import { parseM3U } from '@/shared/utils/m3u-parser';
+import { createTrackKey } from '@/shared/utils/playlist-utils';
 import { Button } from '@/shared/components/ui/Button';
 import {
   Dialog,
@@ -18,9 +19,11 @@ import { Checkbox } from '@/shared/components/ui/Checkbox';
 import { Label } from '@/shared/components/ui/Label';
 import { Separator } from '@/shared/components/ui/Separator';
 
+import { usePlaylistStore } from '../../store/playlist-store';
+
 interface UpdatePlaylistDialogProps {
-  currentPlaylist: ParsedPlaylist;
-  onPlaylistUpdated: (updatedPlaylist: ParsedPlaylist) => void;
+  currentPlaylist: Playlist;
+  onPlaylistUpdated: (updatedPlaylist: Playlist) => void;
   children: React.ReactNode;
 }
 
@@ -30,17 +33,12 @@ interface SyncOptions {
   syncOrder: boolean;
 }
 
-const createTrackKey = (track: Track): string => {
-  const artist = track.artist?.toLowerCase().trim() || 'unknown artist';
-  const title = track.title?.toLowerCase().trim() || 'unknown title';
-  return `${artist} - ${title}`;
-};
-
 function UpdatePlaylistDialog({ currentPlaylist, onPlaylistUpdated, children }: UpdatePlaylistDialogProps) {
+  const { setNewTracks } = usePlaylistStore();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [uploadedPlaylist, setUploadedPlaylist] = useState<ParsedPlaylist | null>(null);
+  const [uploadedPlaylist, setUploadedPlaylist] = useState<Playlist | null>(null);
   const [syncOptions, setSyncOptions] = useState<SyncOptions>({
     addNewTracks: true,
     removeMissingTracks: true,
@@ -89,7 +87,7 @@ function UpdatePlaylistDialog({ currentPlaylist, onPlaylistUpdated, children }: 
     }));
   };
 
-  const mergePlaylists = (existing: ParsedPlaylist, uploaded: ParsedPlaylist): ParsedPlaylist => {
+  const mergePlaylists = (existing: Playlist, uploaded: Playlist): Playlist => {
     const existingTracks = [...existing.tracks];
     const uploadedTracks = [...uploaded.tracks];
 
@@ -111,22 +109,23 @@ function UpdatePlaylistDialog({ currentPlaylist, onPlaylistUpdated, children }: 
 
     if (syncOptions.syncOrder) {
       // Синхронизируем порядок как в загруженном плейлисте
-      mergedTracks = uploadedTracks.map((uploadedTrack) => {
+      mergedTracks = uploadedTracks.map((uploadedTrack, index) => {
         const trackKey = createTrackKey(uploadedTrack);
         const existingTrack = existingTracksMap.get(trackKey);
         if (existingTrack) {
           // Сохраняем существующие данные (Spotify, обложки и т.д.)
           return {
             ...uploadedTrack,
-            spotifyId: existingTrack.spotifyId,
+            position: index + 1, // Обновляем позицию
             spotifyData: existingTrack.spotifyData,
             coverKey: existingTrack.coverKey,
+            album: existingTrack.album,
           };
         }
-        // Помечаем как новый трек (только для отображения)
+        // Новый трек
         return {
           ...uploadedTrack,
-          isNew: true,
+          position: index + 1,
         };
       });
 
@@ -136,7 +135,12 @@ function UpdatePlaylistDialog({ currentPlaylist, onPlaylistUpdated, children }: 
           const trackKey = createTrackKey(existingTrack);
           return !uploadedTracksMap.has(trackKey);
         });
-        mergedTracks.push(...missingTracks);
+        // Обновляем позиции для недостающих треков
+        const missingTracksWithUpdatedPositions = missingTracks.map((track, index) => ({
+          ...track,
+          position: mergedTracks.length + index + 1,
+        }));
+        mergedTracks.push(...missingTracksWithUpdatedPositions);
       }
     } else {
       // Простое объединение без изменения порядка
@@ -149,7 +153,7 @@ function UpdatePlaylistDialog({ currentPlaylist, onPlaylistUpdated, children }: 
           if (!existingTracksMap.has(trackKey)) {
             mergedTracks.push({
               ...uploadedTrack,
-              isNew: true,
+              position: mergedTracks.length + 1,
             });
           }
         });
@@ -170,13 +174,45 @@ function UpdatePlaylistDialog({ currentPlaylist, onPlaylistUpdated, children }: 
     };
   };
 
+  const resetDialogState = () => {
+    setUploadedPlaylist(null);
+    setError(null);
+    setIsLoading(false);
+    setSyncOptions({
+      addNewTracks: true,
+      removeMissingTracks: true,
+      syncOrder: true,
+    });
+    // Сбрасываем input файла
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const handleUpdatePlaylist = () => {
     if (!uploadedPlaylist) return;
 
     const updatedPlaylist = mergePlaylists(currentPlaylist, uploadedPlaylist);
+
+    // Определяем новые треки для подсветки
+    const existingTrackKeys = new Set(currentPlaylist.tracks.map((t) => createTrackKey(t)));
+    const newTrackKeys = updatedPlaylist.tracks
+      .filter((t) => !existingTrackKeys.has(createTrackKey(t)))
+      .map((t) => createTrackKey(t));
+
+    // Устанавливаем новые треки в store для подсветки
+    setNewTracks(newTrackKeys);
+
     onPlaylistUpdated(updatedPlaylist);
     setIsOpen(false);
-    setUploadedPlaylist(null);
+    resetDialogState();
+  };
+
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (!open) {
+      resetDialogState();
+    }
   };
 
   const getTrackComparison = () => {
@@ -213,26 +249,26 @@ function UpdatePlaylistDialog({ currentPlaylist, onPlaylistUpdated, children }: 
   const comparison = getTrackComparison();
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className='sm:max-w-md'>
+      <DialogContent className='max-w-2xl max-h-[80vh] overflow-hidden'>
         <DialogHeader>
-          <DialogTitle>Загрузить обновленный плейлист</DialogTitle>
+          <DialogTitle>Обновить плейлист</DialogTitle>
           <DialogDescription>
-            Выберите файл формата M3U или M3U8 для обновления плейлиста &quot;{currentPlaylist.name}&quot;.
-            Треки сопоставляются по исполнителю и названию.
+            Загрузите новый M3U файл для обновления плейлиста &quot;{currentPlaylist.name}&quot;
           </DialogDescription>
         </DialogHeader>
 
         <div className='space-y-4'>
           {error && (
-            <div className='p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md'>
+            <div className='text-sm text-red-600 bg-red-50 p-3 rounded'>
               {error}
             </div>
           )}
 
+          {/* File Upload */}
           <div className='flex flex-col items-center justify-center p-6 border-2 border-dashed border-muted-foreground/25 rounded-lg'>
             <FileAudio className='h-12 w-12 text-muted-foreground mb-4' />
             <p className='text-sm text-muted-foreground mb-4 text-center'>
@@ -257,77 +293,90 @@ function UpdatePlaylistDialog({ currentPlaylist, onPlaylistUpdated, children }: 
                     </div>
                   )}
             </Button>
+            <input
+              ref={fileInputRef}
+              type='file'
+              accept='.m3u,.m3u8'
+              onChange={handleFileSelect}
+              className='hidden'
+            />
           </div>
 
+          {/* Uploaded Playlist Info */}
           {uploadedPlaylist && comparison && (
             <>
               <Separator />
 
               <div className='space-y-3'>
-                <h4 className='text-sm font-medium'>Опции синхронизации:</h4>
+                <div className='flex items-center gap-2'>
+                  <FileAudio className='h-4 w-4' />
+                  <span className='font-medium'>Загруженный плейлист: {uploadedPlaylist.name}</span>
+                </div>
 
-                <div className='space-y-2'>
-                  <div className='flex items-center space-x-2'>
-                    <Checkbox
-                      id='addNewTracks'
-                      checked={syncOptions.addNewTracks}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleSyncOptionsChange('addNewTracks', e.target.checked)}
-                    />
-                    <Label htmlFor='addNewTracks' className='text-sm'>
-                      Добавить новые треки ({comparison.totalNew})
-                    </Label>
-                  </div>
-
-                  <div className='flex items-center space-x-2'>
-                    <Checkbox
-                      id='removeMissingTracks'
-                      checked={syncOptions.removeMissingTracks}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleSyncOptionsChange('removeMissingTracks', e.target.checked)}
-                    />
-                    <Label htmlFor='removeMissingTracks' className='text-sm'>
-                      Удалить отсутствующие треки ({comparison.totalMissing})
-                    </Label>
-                  </div>
-
-                  <div className='flex items-center space-x-2'>
-                    <Checkbox
-                      id='syncOrder'
-                      checked={syncOptions.syncOrder}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleSyncOptionsChange('syncOrder', e.target.checked)}
-                    />
-                    <Label htmlFor='syncOrder' className='text-sm'>
-                      Синхронизировать порядок треков
-                    </Label>
+                <div className='p-3 border rounded-lg'>
+                  <h4 className='font-medium mb-2'>Сравнение плейлистов</h4>
+                  <div className='space-y-1 text-sm'>
+                    <div className='flex justify-between'>
+                      <span>Новых треков:</span>
+                      <span className='font-medium text-green-600'>{comparison.totalNew}</span>
+                    </div>
+                    <div className='flex justify-between'>
+                      <span>Удаляемых треков:</span>
+                      <span className='font-medium text-red-600'>{comparison.totalMissing}</span>
+                    </div>
+                    <div className='flex justify-between'>
+                      <span>Общих треков:</span>
+                      <span className='font-medium'>{comparison.totalCommon}</span>
+                    </div>
                   </div>
                 </div>
 
-                <div className='text-xs text-muted-foreground space-y-1'>
-                  <p>• Новых треков: {comparison.totalNew}</p>
-                  <p>• Отсутствующих треков: {comparison.totalMissing}</p>
-                  <p>• Общих треков: {comparison.totalCommon}</p>
-                </div>
-              </div>
+                <Separator />
 
-              <div className='flex justify-end gap-2 pt-4'>
-                <Button variant='outline' onClick={() => setIsOpen(false)}>
-                  Отмена
-                </Button>
-                <Button onClick={handleUpdatePlaylist}>
-                  <RefreshCw className='mr-2 h-4 w-4' />
-                  Обновить плейлист
-                </Button>
+                <div className='space-y-3'>
+                  <Label>Параметры синхронизации</Label>
+                  <div className='space-y-2'>
+                    <label className='flex items-center space-x-2'>
+                      <Checkbox
+                        checked={syncOptions.addNewTracks}
+                        onChange={(e) => handleSyncOptionsChange('addNewTracks', e.target.checked)}
+                      />
+                      <span className='text-sm'>Добавить новые треки</span>
+                    </label>
+                    <label className='flex items-center space-x-2'>
+                      <Checkbox
+                        checked={syncOptions.removeMissingTracks}
+                        onChange={(e) => handleSyncOptionsChange('removeMissingTracks', e.target.checked)}
+                      />
+                      <span className='text-sm'>Удалить отсутствующие треки</span>
+                    </label>
+                    <label className='flex items-center space-x-2'>
+                      <Checkbox
+                        checked={syncOptions.syncOrder}
+                        onChange={(e) => handleSyncOptionsChange('syncOrder', e.target.checked)}
+                      />
+                      <span className='text-sm'>Синхронизировать порядок треков</span>
+                    </label>
+                  </div>
+                </div>
               </div>
             </>
           )}
-        </div>
 
-        <input
-          ref={fileInputRef}
-          type='file'
-          accept='.m3u,.m3u8'
-          onChange={handleFileSelect}
-          className='hidden'
-        />
+          {/* Action Buttons */}
+          <div className='flex justify-end gap-2 pt-4'>
+            <Button variant='outline' onClick={() => handleOpenChange(false)}>
+              Отмена
+            </Button>
+            <Button
+              onClick={handleUpdatePlaylist}
+              disabled={!uploadedPlaylist}
+            >
+              <RefreshCw className='mr-2 h-4 w-4' />
+              Обновить плейлист
+            </Button>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );

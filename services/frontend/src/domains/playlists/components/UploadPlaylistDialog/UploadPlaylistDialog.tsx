@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react';
 import { Upload, FileAudio } from 'lucide-react';
 
-import type { ParsedPlaylist } from '@/shared/utils/m3u-parser';
+import type { Playlist } from '@/shared/types';
 import { parseM3U } from '@/shared/utils/m3u-parser';
 import { Button } from '@/shared/components/ui/Button';
 import {
@@ -16,7 +16,7 @@ import {
 } from '@/shared/components/ui/Dialog';
 
 interface UploadPlaylistDialogProps {
-  onPlaylistUploaded: (playlist: ParsedPlaylist) => void;
+  onPlaylistUploaded: (playlist: Playlist) => void;
   children: React.ReactNode;
 }
 

@@ -1,20 +1,23 @@
 import { create } from 'zustand';
 
-import type { ParsedPlaylist, Track } from '@/shared/utils/m3u-parser';
+import type { Playlist, Track } from '@/shared/types';
 import { playlistDB } from '@/infrastructure/storage/indexed-db';
 
 interface PlaylistState {
-  currentPlaylist: ParsedPlaylist | null;
-  playlists: ParsedPlaylist[];
+  currentPlaylist: Playlist | null;
+  playlists: Playlist[];
   isLoading: boolean;
   error: string | null;
-  setCurrentPlaylist: (playlist: ParsedPlaylist | null) => void;
+  newTracks: Set<string>; // Set of track keys for new tracks
+  setCurrentPlaylist: (playlist: Playlist | null) => void;
   updateCurrentPlaylistTracks: (tracks: Track[]) => void;
-  addPlaylist: (playlist: ParsedPlaylist) => Promise<void>;
+  addPlaylist: (playlist: Playlist) => Promise<void>;
   removePlaylist: (playlistId: number) => Promise<void>;
-  updatePlaylist: (playlist: ParsedPlaylist) => Promise<void>;
+  updatePlaylist: (playlist: Playlist) => Promise<void>;
   loadPlaylists: () => Promise<void>;
   updatePlaylistsOrder: (orderedIds: number[]) => Promise<void>;
+  setNewTracks: (trackKeys: string[]) => void;
+  clearNewTracks: () => void;
 }
 
 export const usePlaylistStore = create<PlaylistState>((set, get) => ({
@@ -22,21 +25,10 @@ export const usePlaylistStore = create<PlaylistState>((set, get) => ({
   playlists: [],
   isLoading: true,
   error: null,
+  newTracks: new Set<string>(),
 
   setCurrentPlaylist: (playlist) => {
-    if (playlist) {
-      // Очищаем флаг isNew при переключении на плейлист
-      const cleanPlaylist = {
-        ...playlist,
-        tracks: playlist.tracks.map((track) => ({
-          ...track,
-          isNew: undefined, // Удаляем флаг isNew
-        })),
-      };
-      set({ currentPlaylist: cleanPlaylist });
-    } else {
-      set({ currentPlaylist: null });
-    }
+    set({ currentPlaylist: playlist, newTracks: new Set() });
   },
 
   updateCurrentPlaylistTracks: (tracks) => {
@@ -100,12 +92,11 @@ export const usePlaylistStore = create<PlaylistState>((set, get) => ({
   updatePlaylist: async (playlist) => {
     set({ isLoading: true, error: null });
     try {
-      // Сохраняем плейлист с флагом isNew для отображения
       await playlistDB.updatePlaylist(playlist);
       set((state) => {
         const playlists = state.playlists.map((p) => p.id === playlist.id ? playlist : p);
-        // Убираем обновление currentPlaylist из updatePlaylist
-        return { playlists };
+        const currentPlaylist = state.currentPlaylist?.id === playlist.id ? playlist : state.currentPlaylist;
+        return { playlists, currentPlaylist };
       });
     } catch (error: any) {
       set({ error: error.message || 'Failed to update playlist' });
@@ -121,23 +112,15 @@ export const usePlaylistStore = create<PlaylistState>((set, get) => ({
       await playlistDB.init();
       const savedPlaylists = await playlistDB.getAllPlaylists();
 
-      // Очищаем флаг isNew при загрузке из базы данных и сортируем по order
-      const cleanPlaylists = savedPlaylists
-        .map((playlist) => ({
-          ...playlist,
-          tracks: playlist.tracks.map((track) => ({
-            ...track,
-            isNew: undefined, // Удаляем флаг isNew при загрузке
-          })),
-        }))
+      // Сортируем по полю order
+      const sortedPlaylists = savedPlaylists
         .sort((a, b) => {
-          // Сортируем по полю order, если оно есть
           const orderA = a.order ?? Number.MAX_SAFE_INTEGER;
           const orderB = b.order ?? Number.MAX_SAFE_INTEGER;
           return orderA - orderB;
         });
 
-      set({ playlists: cleanPlaylists });
+      set({ playlists: sortedPlaylists });
     } catch (error: any) {
       set({ error: error.message || 'Failed to load playlists' });
     } finally {
@@ -153,9 +136,17 @@ export const usePlaylistStore = create<PlaylistState>((set, get) => ({
         const p = playlists.find((pl) => pl.id === id);
         return p ? { ...p, order: idx } : undefined;
       })
-      .filter(Boolean) as ParsedPlaylist[];
+      .filter(Boolean) as Playlist[];
     set({ playlists: ordered });
     // Сохраняем порядок в IndexedDB
     await Promise.all(ordered.map((p) => p.id === undefined ? undefined : playlistDB.updatePlaylist(p)));
+  },
+
+  setNewTracks: (trackKeys) => {
+    set({ newTracks: new Set(trackKeys) });
+  },
+
+  clearNewTracks: () => {
+    set({ newTracks: new Set() });
   },
 }));

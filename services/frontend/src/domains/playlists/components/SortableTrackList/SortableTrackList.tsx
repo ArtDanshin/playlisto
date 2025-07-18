@@ -18,7 +18,7 @@ import {
 } from '@dnd-kit/sortable';
 import { Music } from 'lucide-react';
 
-import type { Track } from '@/shared/utils/m3u-parser';
+import type { Track } from '@/shared/types';
 import { Button } from '@/shared/components/ui/Button';
 
 import { usePlaylistStore } from '../../store/playlist-store';
@@ -50,9 +50,15 @@ function SortableTrackList({ tracks }: SortableTrackListProps) {
   const updatePlaylistOrder = async (newTracks: Track[]) => {
     if (!currentPlaylist) return;
 
+    // Обновляем позиции всех треков в соответствии с новым порядком
+    const updatedTracks = newTracks.map((track, index) => ({
+      ...track,
+      position: index + 1,
+    }));
+
     const updatedPlaylist = {
       ...currentPlaylist,
-      tracks: newTracks,
+      tracks: updatedTracks,
     };
 
     updateCurrentPlaylistTracks(updatedPlaylist.tracks);
@@ -85,7 +91,13 @@ function SortableTrackList({ tracks }: SortableTrackListProps) {
     const track = newTracks.splice(trackIndex, 1)[0];
     newTracks.splice(newOrder - 1, 0, track);
 
-    await updatePlaylistOrder(newTracks);
+    // Обновляем позиции всех треков в соответствии с новым порядком
+    const updatedTracks = newTracks.map((track, index) => ({
+      ...track,
+      position: index + 1,
+    }));
+
+    await updatePlaylistOrder(updatedTracks);
     setEditingIndex(null);
   };
 

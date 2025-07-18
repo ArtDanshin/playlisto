@@ -5,11 +5,10 @@ import {
   Search, Music, Loader2, ExternalLink, Link,
 } from 'lucide-react';
 
-import type { Track, SpotifyTrackData } from '@/shared/utils/m3u-parser';
+import type { Track, SpotifyTrackData } from '@/shared/types';
 import { spotifyApi } from '@/infrastructure/api/spotify-api';
 import { useSpotifyStore } from '@/domains/spotify/store/spotify-store';
-import { playlistDB } from '@/infrastructure/storage/indexed-db';
-import { fetchImageAsBase64 } from '@/shared/utils/image-utils';
+import { updateTrackWithSpotify } from '@/shared/utils/playlist-utils';
 import { extractTrackIdFromUrl, isValidSpotifyTrackUrl } from '@/shared/utils/spotify-url-utils';
 import { Button } from '@/shared/components/ui/Button';
 import {
@@ -54,7 +53,7 @@ function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProp
   const [formData, setFormData] = useState({
     title: track.title,
     artist: track.artist,
-    duration: track.duration || 0,
+    album: track.album,
   });
 
   // Обновляем форму при изменении трека
@@ -62,14 +61,14 @@ function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProp
     setFormData({
       title: track.title,
       artist: track.artist,
-      duration: track.duration || 0,
+      album: track.album,
     });
     // Сбрасываем состояние поиска при смене трека
     setSearchResults([]);
     setShowSearchResults(false);
     setError(null);
     setSpotifyUrl('');
-  }, [track.title, track.artist, track.duration, track.spotifyId]);
+  }, [track.title, track.artist, track.album, track.spotifyData?.id]);
 
   // Сбрасываем состояние поиска при открытии/закрытии диалога
   useEffect(() => {
@@ -81,7 +80,7 @@ function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProp
     }
   }, [isOpen]);
 
-  const handleInputChange = (field: keyof typeof formData, value: string | number) => {
+  const handleInputChange = (field: keyof typeof formData, value: string) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -93,7 +92,7 @@ function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProp
       ...track,
       title: formData.title,
       artist: formData.artist,
-      duration: formData.duration || undefined,
+      album: formData.album,
     };
     onTrackUpdate(updatedTrack);
     setIsOpen(false);
@@ -156,46 +155,23 @@ function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProp
   };
 
   const handleSelectSpotifyTrack = async (spotifyTrack: SpotifyTrackData) => {
-    // Выбираем наименьшую картинку
-    const imagesSorted = [...spotifyTrack.album.images].sort((a, b) => a.width - b.width);
-    const smallestImage = imagesSorted[0];
-    const coverKey: string | undefined = smallestImage?.url;
+    try {
+      const updatedTrack = await updateTrackWithSpotify(track, spotifyTrack);
 
-    // Сохраняем base64 в IndexedDB, если ещё нет
-    if (smallestImage?.url) {
-      const existing = await playlistDB.getCover(smallestImage.url);
-      if (!existing) {
-        try {
-          const base64 = await fetchImageAsBase64(smallestImage.url);
-          await playlistDB.addCover(smallestImage.url, base64);
-        } catch {
-          // ignore, fallback на внешний url
-        }
-      }
+      // Обновляем форму с данными из Spotify
+      setFormData({
+        title: track.title, // Сохраняем оригинальное название
+        artist: track.artist, // Сохраняем оригинального исполнителя
+        album: spotifyTrack.album.name, // Обновляем альбом из Spotify
+      });
+
+      onTrackUpdate(updatedTrack);
+      setShowSearchResults(false);
+      setSearchResults([]);
+      setSpotifyUrl('');
+    } catch {
+      setError('Ошибка при связывании трека со Spotify');
     }
-
-    const updatedTrack: Track = {
-      ...track,
-      // Сохраняем оригинальные названия, не заменяем на данные из Spotify
-      title: track.title,
-      artist: track.artist,
-      duration: Math.round(spotifyTrack.duration_ms / 1000),
-      spotifyId: spotifyTrack.id,
-      spotifyData: spotifyTrack,
-      coverKey,
-    };
-
-    // Не обновляем форму данными из Spotify, оставляем оригинальные названия
-    setFormData({
-      title: track.title,
-      artist: track.artist,
-      duration: Math.round(spotifyTrack.duration_ms / 1000),
-    });
-
-    onTrackUpdate(updatedTrack);
-    setShowSearchResults(false);
-    setSearchResults([]);
-    setSpotifyUrl('');
   };
 
   return (
@@ -235,13 +211,12 @@ function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProp
             </div>
 
             <div className='grid gap-2'>
-              <Label htmlFor='duration'>Длительность (секунды)</Label>
+              <Label htmlFor='album'>Альбом</Label>
               <Input
-                id='duration'
-                type='number'
-                value={formData.duration}
-                onChange={(e) => handleInputChange('duration', Number.parseInt(e.target.value, 10) || 0)}
-                placeholder='0'
+                id='album'
+                value={formData.album}
+                onChange={(e) => handleInputChange('album', e.target.value)}
+                placeholder='Альбом'
               />
             </div>
           </div>
@@ -253,7 +228,7 @@ function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProp
             <div className='flex items-center gap-2'>
               <Music className='h-4 w-4' />
               <span className='font-medium'>Spotify</span>
-              {track.spotifyId && (
+              {track.spotifyData && (
                 <span className='text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full'>
                   Связан
                 </span>
@@ -395,23 +370,26 @@ function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProp
               <div className='space-y-2'>
                 <h4 className='text-sm font-medium'>Связанный трек в Spotify:</h4>
                 <div className='flex items-center gap-3 p-3 border rounded-lg bg-muted/20'>
-                  {track.spotifyData.album.images.length > 0 && (
+                  {track.spotifyData.coverUrl && (
                     <img
-                      src={track.spotifyData.album.images[0].url}
-                      alt={track.spotifyData.album.name}
+                      src={track.spotifyData.coverUrl}
+                      alt={track.spotifyData.album}
                       className='w-12 h-12 rounded'
                     />
                   )}
                   <div className='flex-1'>
-                    <p className='font-medium'>{track.spotifyData.name}</p>
+                    <p className='font-medium'>{track.spotifyData.title}</p>
                     <p className='text-sm text-muted-foreground'>
-                      {track.spotifyData.artists.map((a) => a.name).join(', ')}
+                      {track.spotifyData.artist}
+                    </p>
+                    <p className='text-xs text-muted-foreground'>
+                      {track.spotifyData.album}
                     </p>
                   </div>
                   <Button
                     variant='ghost'
                     size='sm'
-                    onClick={() => window.open(track.spotifyData!.external_urls.spotify, '_blank')}
+                    onClick={() => window.open(`https://open.spotify.com/track/${track.spotifyData!.id}`, '_blank')}
                   >
                     <ExternalLink className='h-4 w-4' />
                   </Button>

@@ -3,20 +3,22 @@
 import { useEffect, useState } from 'react';
 import { Edit2, Music } from 'lucide-react';
 
-import type { Track } from '@/shared/utils/m3u-parser';
+import type { Track } from '@/shared/types';
 import { formatDuration } from '@/shared/utils/utils';
 import { Button } from '@/shared/components/ui/Button';
 import { playlistDB } from '@/infrastructure/storage/indexed-db';
+import { getTrackDuration, isTrackLinkedToSpotify, createTrackKey } from '@/shared/utils/playlist-utils';
 
+import { usePlaylistStore } from '../../store/playlist-store';
 import { TrackEditDialog } from '../TrackEditDialog';
 
 interface TrackItemProps {
   track: Track;
-  trackIndex: number;
   onTrackUpdate: (updatedTrack: Track) => void;
 }
 
-function TrackItem({ track, trackIndex, onTrackUpdate }: TrackItemProps) {
+function TrackItem({ track, onTrackUpdate }: TrackItemProps) {
+  const { newTracks } = usePlaylistStore();
   const [coverBase64, setCoverBase64] = useState<string | null>(null);
 
   useEffect(() => {
@@ -35,20 +37,25 @@ function TrackItem({ track, trackIndex, onTrackUpdate }: TrackItemProps) {
     };
   }, [track.coverKey]);
 
+  const isNewTrack = newTracks.has(createTrackKey(track));
+
+  const duration = getTrackDuration(track);
+  const isLinkedToSpotify = isTrackLinkedToSpotify(track);
+
   return (
     <div className={`flex items-center space-x-4 rounded-lg border p-4 hover:bg-muted/50 transition-colors ${
-      track.isNew ? 'bg-green-50 border-green-200' : ''
+      isNewTrack ? 'bg-green-50 border-green-200' : ''
     }`}
     >
       {/* Track Number */}
       <div className='flex-shrink-0 w-8 text-center'>
         <div className='flex items-center justify-center gap-1'>
-          <span className={`text-sm font-medium ${track.isNew ? 'text-green-600' : 'text-muted-foreground'}`}>
-            {trackIndex + 1}
+          <span className={`text-sm font-medium ${
+            isNewTrack ? 'text-green-600' : 'text-muted-foreground'
+          }`}
+          >
+            {track.position}
           </span>
-          {track.isNew && (
-            <div className='w-2 h-2 bg-green-500 rounded-full' title='Новый трек' />
-          )}
         </div>
       </div>
 
@@ -58,7 +65,7 @@ function TrackItem({ track, trackIndex, onTrackUpdate }: TrackItemProps) {
           ? (
               <img
                 src={coverBase64}
-                alt={track.spotifyData?.album.name || track.title}
+                alt={track.album || track.title}
                 className='w-16 h-16 rounded-lg object-cover'
               />
             )
@@ -72,35 +79,30 @@ function TrackItem({ track, trackIndex, onTrackUpdate }: TrackItemProps) {
       {/* Track Info */}
       <div className='flex-1 min-w-0'>
         <div className='flex items-center gap-2'>
-          <h3 className={`text-lg font-semibold truncate ${track.isNew ? 'text-green-700' : ''}`}>
+          <h3 className='text-lg font-semibold truncate'>
             {track.title}
           </h3>
-          {track.isNew && (
-            <span className='text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full'>
-              Новый
-            </span>
-          )}
-          {track.spotifyId && (
+          {isLinkedToSpotify && (
             <div title='Связан со Spotify'>
               <Music className='h-4 w-4 text-green-600' />
             </div>
           )}
         </div>
         <p className='text-sm text-muted-foreground truncate'>{track.artist}</p>
-        {track.spotifyData?.album.name && (
-          <p className='text-xs text-muted-foreground truncate'>{track.spotifyData.album.name}</p>
+        {track.album && (
+          <p className='text-xs text-muted-foreground truncate'>{track.album}</p>
         )}
       </div>
 
       {/* Duration */}
       <div className='flex-shrink-0 text-sm text-muted-foreground'>
-        {track.duration && formatDuration(track.duration)}
+        {duration && formatDuration(duration)}
       </div>
 
       {/* Edit Button */}
       <div className='flex-shrink-0'>
         <TrackEditDialog
-          key={`edit-${track.title}-${track.artist}-${track.spotifyId || 'no-spotify'}`}
+          key={`edit-${track.title}-${track.artist}-${track.spotifyData?.id || 'no-spotify'}`}
           track={track}
           onTrackUpdate={onTrackUpdate}
         >

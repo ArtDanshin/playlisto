@@ -18,7 +18,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 
-import type { ParsedPlaylist } from '@/shared/utils/m3u-parser';
+import type { Playlist } from '@/shared/types';
 import { Button } from '@/shared/components/ui/Button';
 import {
   Sidebar,
@@ -56,7 +56,7 @@ function SidebarWithPlaylists({ ...props }: ComponentProps<typeof Sidebar>) {
     loadPlaylists();
   }, [loadPlaylists]);
 
-  const handlePlaylistUploaded = async (playlist: ParsedPlaylist) => {
+  const handlePlaylistUploaded = async (playlist: Playlist) => {
     try {
       await addPlaylist(playlist);
     } catch (error) {
@@ -65,7 +65,7 @@ function SidebarWithPlaylists({ ...props }: ComponentProps<typeof Sidebar>) {
     }
   };
 
-  const handleRemovePlaylist = async (playlist: ParsedPlaylist) => {
+  const handleRemovePlaylist = async (playlist: Playlist) => {
     if (!playlist.id) return;
     try {
       await removePlaylist(playlist.id);
@@ -75,7 +75,7 @@ function SidebarWithPlaylists({ ...props }: ComponentProps<typeof Sidebar>) {
     }
   };
 
-  const handlePlaylistUpdated = async (updatedPlaylist: ParsedPlaylist) => {
+  const handlePlaylistUpdated = async (updatedPlaylist: Playlist) => {
     try {
       await updatePlaylist(updatedPlaylist);
     } catch (error) {

@@ -1,4 +1,4 @@
-import type { ParsedPlaylist } from '@/shared/utils/m3u-parser';
+import type { Playlist } from '@/shared/types';
 
 const DB_NAME = 'playlisto-db';
 const DB_VERSION = 1;
@@ -7,10 +7,10 @@ const COVERS_STORE = 'covers';
 
 export interface StorageService {
   init: () => Promise<void>;
-  addPlaylist: (playlist: ParsedPlaylist) => Promise<number>;
-  getAllPlaylists: () => Promise<ParsedPlaylist[]>;
+  addPlaylist: (playlist: Playlist) => Promise<number>;
+  getAllPlaylists: () => Promise<Playlist[]>;
   deletePlaylist: (id: number) => Promise<void>;
-  updatePlaylist: (playlist: ParsedPlaylist) => Promise<void>;
+  updatePlaylist: (playlist: Playlist) => Promise<void>;
   addCover: (url: string, base64: string) => Promise<void>;
   getCover: (url: string) => Promise<string | undefined>;
 }
@@ -22,7 +22,7 @@ export class IndexedDBStorage implements StorageService {
 
   async init(): Promise<void> {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open(DB_NAME, DB_VERSION + 1);
+      const request = indexedDB.open(DB_NAME, DB_VERSION);
 
       request.onerror = () => reject(request.error);
       request.onsuccess = () => {
@@ -46,7 +46,7 @@ export class IndexedDBStorage implements StorageService {
     });
   }
 
-  async addPlaylist(playlist: ParsedPlaylist): Promise<number> {
+  async addPlaylist(playlist: Playlist): Promise<number> {
     if (!this.db) throw new Error('Database not initialized');
 
     return new Promise((resolve, reject) => {
@@ -63,7 +63,7 @@ export class IndexedDBStorage implements StorageService {
     });
   }
 
-  async getAllPlaylists(): Promise<ParsedPlaylist[]> {
+  async getAllPlaylists(): Promise<Playlist[]> {
     if (!this.db) throw new Error('Database not initialized');
 
     return new Promise((resolve, reject) => {
@@ -71,7 +71,10 @@ export class IndexedDBStorage implements StorageService {
       const store = transaction.objectStore(PLAYLISTS_STORE);
       const request = store.getAll();
 
-      request.onsuccess = () => resolve(request.result);
+      request.onsuccess = () => {
+        const playlists = request.result;
+        resolve(playlists);
+      };
       request.onerror = () => reject(request.error);
     });
   }
@@ -89,7 +92,7 @@ export class IndexedDBStorage implements StorageService {
     });
   }
 
-  async updatePlaylist(playlist: ParsedPlaylist): Promise<void> {
+  async updatePlaylist(playlist: Playlist): Promise<void> {
     if (!this.db) throw new Error('Database not initialized');
     if (!playlist.id) throw new Error('Playlist must have an ID to update');
 

@@ -2,7 +2,7 @@
 
 import { Music } from 'lucide-react';
 
-import type { Track } from '@/shared/utils/m3u-parser';
+import type { Track } from '@/shared/types';
 import { Button } from '@/shared/components/ui/Button';
 
 import { usePlaylistStore } from '../../store/playlist-store';
@@ -56,7 +56,6 @@ function TrackList({ tracks }: TrackListProps) {
           <TrackItem
             key={`${track.title}-${track.artist}-${index}`} // eslint-disable-line react/no-array-index-key
             track={track}
-            trackIndex={index}
             onTrackUpdate={(updatedTrack) => handleTrackUpdate(index, updatedTrack)}
           />
         ))}

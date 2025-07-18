@@ -4,17 +4,17 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, Trash2, RefreshCw } from 'lucide-react';
 
-import type { ParsedPlaylist } from '@/shared/utils/m3u-parser';
+import type { Playlist } from '@/shared/types';
 import { Button } from '@/shared/components/ui/Button';
 
 import { UpdatePlaylistDialog } from '../UpdatePlaylistDialog';
 
 interface SortablePlaylistItemProps {
-  playlist: ParsedPlaylist;
+  playlist: Playlist;
   isActive: boolean;
-  onSelect: (playlist: ParsedPlaylist) => void;
-  onRemove: (playlist: ParsedPlaylist) => void;
-  onUpdate: (updatedPlaylist: ParsedPlaylist) => void;
+  onSelect: (playlist: Playlist) => void;
+  onRemove: (playlist: Playlist) => void;
+  onUpdate: (updatedPlaylist: Playlist) => void;
 }
 
 function SortablePlaylistItem({
