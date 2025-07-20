@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import {
-  User, Music, Info, LogOut, LogIn, Loader2,
+  User, Music, Info, LogOut, LogIn, Loader2, Database,
 } from 'lucide-react';
 
 import { Button } from '@/shared/components/ui/Button';
@@ -13,9 +13,11 @@ import {
 } from '@/shared/components/ui/Popover';
 import { Separator } from '@/shared/components/ui/Separator';
 import { useSpotifyStore } from '@/domains/spotify/store/spotify-store';
+import { DatabaseBackup } from '@/shared/components/DatabaseBackup/DatabaseBackup';
 
 function Settings() {
   const [isOpen, setIsOpen] = useState(false);
+  const [backupError, setBackupError] = useState<string | null>(null);
   const {
     authStatus, isLoading, error, login, logout,
   } = useSpotifyStore();
@@ -33,6 +35,14 @@ function Settings() {
     setIsOpen(false);
   };
 
+  const handleBackupSuccess = () => {
+    setBackupError(null);
+  };
+
+  const handleBackupError = (error: string) => {
+    setBackupError(error);
+  };
+
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
@@ -46,7 +56,7 @@ function Settings() {
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className='w-80 p-4'
+        className='w-96 p-4'
         align='end'
       >
         <div className='space-y-4'>
@@ -150,6 +160,28 @@ function Settings() {
                     </Button>
                   )}
             </div>
+          </div>
+
+          <Separator />
+
+          <div className='space-y-3'>
+            <div className='flex items-center gap-2'>
+              <Database className='h-4 w-4' />
+              <span className='font-medium'>База данных</span>
+            </div>
+
+            <DatabaseBackup
+              onSuccess={handleBackupSuccess}
+              onError={handleBackupError}
+            />
+
+            {backupError && (
+              <div className='text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-2 rounded'>
+                Ошибка:
+                {' '}
+                {backupError}
+              </div>
+            )}
           </div>
 
           <Separator />

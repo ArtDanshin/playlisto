@@ -13,6 +13,8 @@ export interface StorageService {
   updatePlaylist: (playlist: Playlist) => Promise<void>;
   addCover: (url: string, base64: string) => Promise<void>;
   getCover: (url: string) => Promise<string | undefined>;
+  getAllCovers: () => Promise<Array<{ url: string; base64: string; }>>;
+  clearDatabase: () => Promise<void>;
 }
 
 /* eslint-disable unicorn/prefer-add-event-listener */
@@ -128,6 +130,44 @@ export class IndexedDBStorage implements StorageService {
       const req = store.get(url);
       req.onsuccess = () => resolve(req.result?.base64);
       req.onerror = () => reject(req.error);
+    });
+  }
+
+  async getAllCovers(): Promise<Array<{ url: string; base64: string; }>> {
+    if (!this.db) throw new Error('Database not initialized');
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction([COVERS_STORE], 'readonly');
+      const store = transaction.objectStore(COVERS_STORE);
+      const request = store.getAll();
+
+      request.onsuccess = () => {
+        const covers = request.result.map((item) => ({
+          url: item.url,
+          base64: item.base64,
+        }));
+        resolve(covers);
+      };
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async clearDatabase(): Promise<void> {
+    if (!this.db) throw new Error('Database not initialized');
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction([PLAYLISTS_STORE, COVERS_STORE], 'readwrite');
+
+      // Очищаем плейлисты
+      const playlistsStore = transaction.objectStore(PLAYLISTS_STORE);
+      playlistsStore.clear();
+
+      // Очищаем обложки
+      const coversStore = transaction.objectStore(COVERS_STORE);
+      coversStore.clear();
+
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
     });
   }
 }
