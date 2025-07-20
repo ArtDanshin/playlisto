@@ -27,7 +27,7 @@ import {
   SidebarRail,
 } from '@/shared/components/ui/Sidebar';
 
-import { UploadPlaylistDialog } from '../UploadPlaylistDialog';
+import { UniversalAddPlaylistDialog } from '../UniversalAddPlaylistDialog';
 import { usePlaylistStore } from '../../store/playlist-store';
 
 import SortablePlaylistItem from './SortablePlaylistItem';
@@ -39,7 +39,6 @@ function SidebarWithPlaylists({ ...props }: ComponentProps<typeof Sidebar>) {
     currentPlaylist,
     setCurrentPlaylist,
     removePlaylist,
-    updatePlaylist,
     isLoading,
     loadPlaylists,
     updatePlaylistsOrder,
@@ -75,15 +74,6 @@ function SidebarWithPlaylists({ ...props }: ComponentProps<typeof Sidebar>) {
     }
   };
 
-  const handlePlaylistUpdated = async (updatedPlaylist: Playlist) => {
-    try {
-      await updatePlaylist(updatedPlaylist);
-    } catch (error) {
-      console.error('Failed to update playlist:', error);
-      // Здесь можно добавить уведомление пользователю об ошибке
-    }
-  };
-
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
 
@@ -104,12 +94,12 @@ function SidebarWithPlaylists({ ...props }: ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar className='border-r-0' {...props}>
       <SidebarHeader className='p-4'>
-        <UploadPlaylistDialog onPlaylistUploaded={handlePlaylistUploaded}>
+        <UniversalAddPlaylistDialog onPlaylistAdded={handlePlaylistUploaded}>
           <Button className='w-full'>
             <Plus className='mr-2 h-4 w-4' />
             Добавить плейлист
           </Button>
-        </UploadPlaylistDialog>
+        </UniversalAddPlaylistDialog>
       </SidebarHeader>
       <SidebarContent className='p-4'>
         <h3 className='mb-2 text-sm font-medium text-muted-foreground select-none pointer-events-none'>
@@ -141,7 +131,6 @@ function SidebarWithPlaylists({ ...props }: ComponentProps<typeof Sidebar>) {
                           isActive={currentPlaylist?.id === playlist.id}
                           onSelect={setCurrentPlaylist}
                           onRemove={handleRemovePlaylist}
-                          onUpdate={handlePlaylistUpdated}
                         />
                       ))}
                     </SortableContext>
