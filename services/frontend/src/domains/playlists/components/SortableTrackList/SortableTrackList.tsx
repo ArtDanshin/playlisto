@@ -22,9 +22,9 @@ import type { Track } from '@/shared/types';
 import { Button } from '@/shared/components/ui/Button';
 
 import { usePlaylistStore } from '../../store/playlist-store';
-import { BatchSpotifyRecognition } from '../BatchSpotifyRecognition';
 import { ExportToSpotifyDialog } from '../ExportToSpotifyDialog';
 import { UniversalUpdatePlaylistDialog } from '../UniversalUpdatePlaylistDialog';
+import UniversalPlaylistUpdate from '../UniversalPlaylistUpdate/UniversalPlaylistUpdate';
 
 import SortableTrackItem from './SortableTrackItem.tsx';
 
@@ -114,11 +114,11 @@ function SortableTrackList({ tracks }: SortableTrackListProps) {
             >
               <Button variant='outline' size='sm'>
                 <RefreshCw className='mr-2 h-4 w-4' />
-                Обновить плейлист
+                Обновить состав треков
               </Button>
             </UniversalUpdatePlaylistDialog>
           )}
-          <BatchSpotifyRecognition tracks={tracks} />
+          <UniversalPlaylistUpdate tracks={tracks} />
           {currentPlaylist && (
             <ExportToSpotifyDialog playlist={currentPlaylist}>
               <Button variant='outline' size='sm'>
