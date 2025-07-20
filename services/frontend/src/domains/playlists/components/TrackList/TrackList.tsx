@@ -7,7 +7,7 @@ import { Button } from '@/shared/components/ui/Button';
 
 import { usePlaylistStore } from '../../store/playlist-store';
 import { TrackItem } from '../TrackItem';
-import { ExportToSpotifyDialog } from '../ExportToSpotifyDialog';
+import { UniversalExportDialog } from '../UniversalExportDialog';
 
 interface TrackListProps {
   tracks: Track[];
@@ -43,12 +43,12 @@ function TrackList({ tracks }: TrackListProps) {
       <div className='flex items-center justify-between'>
         <h2 className='text-2xl font-bold'>Треки</h2>
         {currentPlaylist && (
-          <ExportToSpotifyDialog playlist={currentPlaylist}>
+          <UniversalExportDialog playlist={currentPlaylist}>
             <Button variant='outline' size='sm'>
               <Music className='mr-2 h-4 w-4' />
-              Экспорт в Spotify
+              Экспорт
             </Button>
-          </ExportToSpotifyDialog>
+          </UniversalExportDialog>
         )}
       </div>
       <div className='grid gap-4'>

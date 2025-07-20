@@ -22,7 +22,7 @@ import type { Track } from '@/shared/types';
 import { Button } from '@/shared/components/ui/Button';
 
 import { usePlaylistStore } from '../../store/playlist-store';
-import { ExportToSpotifyDialog } from '../ExportToSpotifyDialog';
+import { UniversalExportDialog } from '../UniversalExportDialog';
 import { UniversalUpdatePlaylistDialog } from '../UniversalUpdatePlaylistDialog';
 import UniversalPlaylistUpdate from '../UniversalPlaylistUpdate/UniversalPlaylistUpdate';
 
@@ -120,12 +120,12 @@ function SortableTrackList({ tracks }: SortableTrackListProps) {
           )}
           <UniversalPlaylistUpdate tracks={tracks} />
           {currentPlaylist && (
-            <ExportToSpotifyDialog playlist={currentPlaylist}>
+            <UniversalExportDialog playlist={currentPlaylist}>
               <Button variant='outline' size='sm'>
                 <Music className='mr-2 h-4 w-4' />
-                Экспорт в Spotify
+                Экспорт
               </Button>
-            </ExportToSpotifyDialog>
+            </UniversalExportDialog>
           )}
         </div>
       </div>
