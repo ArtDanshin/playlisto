@@ -107,6 +107,156 @@ const createTrackKeyForSource = (track: Track): string => {
 };
 ```
 
+### 6. Ограничение на 100 треков при импорте из Spotify
+
+**Проблема**: Spotify API возвращает только первые 100 треков за один запрос. При импорте плейлистов с большим количеством треков (например, 223 трека) остальные треки не загружались.
+
+**Причина**: Использовался только один запрос к API без пагинации.
+
+**Решение**: 
+- Добавил новый метод `getPlaylistTracks` в Spotify API для получения треков с поддержкой пагинации
+- Создал функцию `getAllPlaylistTracks` которая автоматически получает все треки плейлиста
+- Обновил оба диалога (`UniversalUpdatePlaylistDialog` и `UniversalAddPlaylistDialog`) для использования новой функции
+
+```typescript
+// Новый метод в Spotify API
+async getPlaylistTracks(playlistId: string, limit: number = 50, offset: number = 0): Promise<any> {
+  // Запрашиваем только необходимые поля для оптимизации размера ответа
+  const fields = [
+    'items(track(id,name,artists(id,name),album(id,name,images)))',
+    'total',
+    'limit',
+    'offset',
+    'next',
+    'previous'
+  ].join(',');
+  
+  return this.apiCall(`/playlists/${playlistId}/tracks?limit=${limit}&offset=${offset}&fields=${encodeURIComponent(fields)}`);
+}
+
+// Функция для получения всех треков с пагинацией
+const getAllPlaylistTracks = async (playlistId: string): Promise<any[]> => {
+  const allTracks: any[] = [];
+  let offset = 0;
+  const limit = 50; // Максимальное количество треков за запрос согласно Spotify API
+
+  while (true) {
+    const response = await spotifyApi.getPlaylistTracks(playlistId, limit, offset);
+    
+    if (!response.items || response.items.length === 0) {
+      break; // Больше треков нет
+    }
+
+    allTracks.push(...response.items);
+    offset += limit;
+
+    // Если получили меньше треков чем limit, значит это последняя страница
+    if (response.items.length < limit) {
+      break;
+    }
+  }
+
+  return allTracks;
+};
+```
+
+### 7. Оптимизация запросов к Spotify API
+
+**Проблема**: Запросы к Spotify API возвращали избыточные данные, что увеличивало размер ответов и время загрузки.
+
+**Причина**: Не использовался параметр `fields` для ограничения возвращаемых полей.
+
+**Решение**: 
+- Обновил метод `getPlaylistTracks` для запроса только необходимых полей
+- Обновил метод `getPlaylist` для получения только основной информации о плейлисте
+- Исправил лимит с 100 на 50 согласно официальной документации Spotify API
+
+```typescript
+// Оптимизированный запрос треков плейлиста
+async getPlaylistTracks(playlistId: string, limit: number = 50, offset: number = 0): Promise<any> {
+  const fields = [
+    'items(track(id,name,artists(id,name),album(id,name,images)))',
+    'total',
+    'limit',
+    'offset',
+    'next',
+    'previous'
+  ].join(',');
+  
+  return this.apiCall(`/playlists/${playlistId}/tracks?limit=${limit}&offset=${offset}&fields=${encodeURIComponent(fields)}`);
+}
+
+// Оптимизированный запрос информации о плейлисте
+async getPlaylist(playlistId: string): Promise<any> {
+  const fields = [
+    'id',
+    'name',
+    'description',
+    'images',
+    'owner(id,display_name)',
+    'tracks(total)'
+  ].join(',');
+  
+  return this.apiCall(`/playlists/${playlistId}?fields=${encodeURIComponent(fields)}`);
+}
+
+### 8. Добавление длительности треков из Spotify
+
+**Проблема**: При импорте треков из Spotify не заполнялось поле длительности, хотя эта информация доступна в API.
+
+**Причина**: Поле `duration_ms` не запрашивалось из API и не сохранялось в данных трека.
+
+**Решение**: 
+- Добавил поле `duration` в интерфейс `SpotifyData`
+- Обновил запрос к API для получения `duration_ms`
+- Обновил функции конвертации для сохранения длительности
+- Обновил функцию `getTrackDuration` для поддержки длительности из Spotify
+
+```typescript
+// Обновленный интерфейс SpotifyData
+export interface SpotifyData {
+  id: string;
+  title: string;
+  artist: string;
+  album: string;
+  coverUrl: string;
+  duration: number; // Длительность трека в миллисекундах
+}
+
+// Обновленная функция конвертации
+const convertSpotifyTrackToTrack = async (spotifyTrack: any, position: number): Promise<Track> => {
+  const track: Track = {
+    title: spotifyTrack.track.name,
+    artist: spotifyTrack.track.artists[0]?.name || 'Unknown Artist',
+    album: spotifyTrack.track.album?.name || '',
+    position,
+    coverKey: '',
+    spotifyData: {
+      id: spotifyTrack.track.id,
+      title: spotifyTrack.track.name,
+      artist: spotifyTrack.track.artists[0]?.name || 'Unknown Artist',
+      album: spotifyTrack.track.album?.name || '',
+      coverUrl: spotifyTrack.track.album?.images?.[0]?.url || '',
+      duration: spotifyTrack.track.duration_ms || 0, // Добавлена длительность
+    },
+  };
+  // ... остальной код
+};
+
+// Обновленная функция получения длительности
+export function getTrackDuration(track: Track): number | undefined {
+  if (track.m3uData?.duration) {
+    return track.m3uData.duration; // В секундах
+  }
+  // Для Spotify данных длительность в миллисекундах, конвертируем в секунды
+  if (track.spotifyData?.duration) {
+    return Math.round(track.spotifyData.duration / 1000);
+  }
+  return undefined;
+}
+```
+```
+
 ## Новые функции
 
 ### Индикатор прогресса
@@ -194,5 +344,8 @@ const getStepDescription = () => {
 - ✅ Добавлен индикатор прогресса
 - ✅ Данные внешних сервисов сохраняются при обновлении
 - ✅ Исправлена логика сопоставления треков для разных источников
+- ✅ Добавлена поддержка пагинации для импорта всех треков из Spotify
+- ✅ Оптимизированы запросы к Spotify API (лимит 50, поля fields)
+- ✅ Добавлена поддержка длительности треков из Spotify
 
-Приложение теперь предоставляет более удобный и интуитивный интерфейс для работы с плейлистами. Логика обновления плейлистов теперь корректно работает для всех источников данных. 
+Приложение теперь предоставляет более удобный и интуитивный интерфейс для работы с плейлистами. Логика обновления плейлистов теперь корректно работает для всех источников данных, а импорт из Spotify поддерживает плейлисты любого размера с оптимизированными запросами и полной информацией о треках. 

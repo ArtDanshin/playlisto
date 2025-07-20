@@ -15,6 +15,7 @@ export interface SpotifyApiClient {
   apiCall: (endpoint: string, options?: RequestInit) => Promise<any>;
   getUserPlaylists: (limit?: number, offset?: number) => Promise<any>;
   getPlaylist: (playlistId: string) => Promise<any>;
+  getPlaylistTracks: (playlistId: string, limit?: number, offset?: number) => Promise<any>;
   searchTracks: (query: string, limit?: number) => Promise<SpotifySearchResponse>;
   getTrack: (trackId: string) => Promise<SpotifyTrackData>;
 }
@@ -230,7 +231,32 @@ export class SpotifyApi implements SpotifyApiClient {
 
   // Получение конкретного плейлиста
   async getPlaylist(playlistId: string): Promise<any> {
-    return this.apiCall(`/playlists/${playlistId}`);
+    // Запрашиваем только основную информацию о плейлисте
+    const fields = [
+      'id',
+      'name',
+      'description',
+      'images',
+      'owner(id,display_name)',
+      'tracks(total)',
+    ].join(',');
+
+    return this.apiCall(`/playlists/${playlistId}?fields=${encodeURIComponent(fields)}`);
+  }
+
+  // Получение треков плейлиста с поддержкой пагинации
+  async getPlaylistTracks(playlistId: string, limit: number = 50, offset: number = 0): Promise<any> {
+    // Запрашиваем только необходимые поля для оптимизации размера ответа
+    const fields = [
+      'items(track(id,name,artists(id,name),album(id,name,images),duration_ms))',
+      'total',
+      'limit',
+      'offset',
+      'next',
+      'previous',
+    ].join(',');
+
+    return this.apiCall(`/playlists/${playlistId}/tracks?limit=${limit}&offset=${offset}&fields=${encodeURIComponent(fields)}`);
   }
 
   // Поиск треков

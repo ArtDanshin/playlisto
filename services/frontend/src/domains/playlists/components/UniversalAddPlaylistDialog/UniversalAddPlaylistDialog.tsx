@@ -45,6 +45,7 @@ const convertSpotifyTrackToTrack = async (spotifyTrack: any, position: number): 
       artist: spotifyTrack.track.artists[0]?.name || 'Unknown Artist',
       album: spotifyTrack.track.album?.name || '',
       coverUrl: spotifyTrack.track.album?.images?.[0]?.url || '',
+      duration: spotifyTrack.track.duration_ms || 0,
     },
   };
 
@@ -72,6 +73,31 @@ const convertSpotifyTrackToTrack = async (spotifyTrack: any, position: number): 
   }
 
   return track;
+};
+
+// Функция для получения всех треков плейлиста с пагинацией
+const getAllPlaylistTracks = async (playlistId: string): Promise<any[]> => {
+  const allTracks: any[] = [];
+  let offset = 0;
+  const limit = 50; // Максимальное количество треков за запрос согласно Spotify API
+
+  while (true) {
+    const response = await spotifyApi.getPlaylistTracks(playlistId, limit, offset);
+
+    if (!response.items || response.items.length === 0) {
+      break; // Больше треков нет
+    }
+
+    allTracks.push(...response.items);
+    offset += limit;
+
+    // Если получили меньше треков чем limit, значит это последняя страница
+    if (response.items.length < limit) {
+      break;
+    }
+  }
+
+  return allTracks;
 };
 
 function UniversalAddPlaylistDialog({ onPlaylistAdded, children }: UniversalAddPlaylistDialogProps) {
@@ -143,10 +169,12 @@ function UniversalAddPlaylistDialog({ onPlaylistAdded, children }: UniversalAddP
         throw new Error('Плейлист не найден или недоступен');
       }
 
+      // Получаем все треки плейлиста с пагинацией
+      const allTracks = await getAllPlaylistTracks(playlistId);
+
       // Конвертируем треки
       const tracks: Track[] = [];
-      for (let i = 0; i < playlistData.tracks.items.length; i++) {
-        const spotifyTrack = playlistData.tracks.items[i];
+      for (const [i, spotifyTrack] of allTracks.entries()) {
         if (spotifyTrack.track) {
           const track = await convertSpotifyTrackToTrack(spotifyTrack, i + 1);
           tracks.push(track);

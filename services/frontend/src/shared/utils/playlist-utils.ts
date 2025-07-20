@@ -48,6 +48,7 @@ export async function createTrackFromSpotify(
     artist: spotifyTrack.artists[0]?.name || 'Unknown Artist',
     album: spotifyTrack.album.name,
     coverUrl: smallestImage?.url || '',
+    duration: spotifyTrack.duration_ms || 0,
   };
 
   return {
@@ -90,6 +91,7 @@ export async function updateTrackWithSpotify(
     artist: spotifyTrack.artists[0]?.name || 'Unknown Artist',
     album: spotifyTrack.album.name,
     coverUrl: smallestImage?.url || '',
+    duration: spotifyTrack.duration_ms || 0,
   };
 
   return {
@@ -124,7 +126,10 @@ export function getTrackDuration(track: Track): number | undefined {
   if (track.m3uData?.duration) {
     return track.m3uData.duration;
   }
-  // Для Spotify данных длительность должна быть сохранена в m3uData при привязке
+  // Для Spotify данных длительность в миллисекундах, конвертируем в секунды
+  if (track.spotifyData?.duration) {
+    return Math.round(track.spotifyData.duration / 1000);
+  }
   return undefined;
 }
 

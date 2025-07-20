@@ -31,6 +31,7 @@ export interface SpotifyData {
   artist: string; // Исполнитель
   album: string; // Название альбома
   coverUrl: string; // URL обложки трека(берется самая маленькая обложка из списка album.images)
+  duration: number; // Длительность трека в миллисекундах
 }
 
 // Полные данные трека из Spotify API для внутреннего использования
