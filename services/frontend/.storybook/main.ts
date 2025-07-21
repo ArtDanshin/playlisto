@@ -1,0 +1,14 @@
+import type { StorybookConfig } from "@storybook/react-vite";
+
+const config: StorybookConfig = {
+  stories: [
+    "../src/shared/components/ui/**/*.stories.@(js|jsx|ts|tsx)"
+  ],
+  addons: [],
+  framework: {
+    name: "@storybook/react-vite",
+    options: {}
+  },
+  docs: {}
+};
+export default config; 
