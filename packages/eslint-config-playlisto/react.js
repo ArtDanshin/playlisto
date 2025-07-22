@@ -70,6 +70,7 @@ export default tseslint.config({
     'react-classic/require-render-return': 'error',
     'react-classic/self-closing-comp': 'error',
     'react-classic/jsx-fragments': ['error', 'syntax'],
+    'react-classic/jsx-key': 'off',
     'react-classic/jsx-no-script-url': ['error', [
       {
         name: 'Link',
