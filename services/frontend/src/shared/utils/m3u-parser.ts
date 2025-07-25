@@ -1,26 +1,8 @@
 import { Parser, type Segment } from 'm3u8-parser';
 
-import type { Playlist, Track, M3UData } from '@/shared/types';
+import type { TrackM3UData } from '@/shared/types/file-source';
 
-import { createTrackFromM3U } from './playlist-utils';
-
-export interface SpotifyTrackData {
-  id: string;
-  name: string;
-  artists: Array<{ id: string; name: string; }>;
-  album: {
-    id: string;
-    name: string;
-    images: Array<{ url: string; height: number; width: number; }>;
-  };
-  duration_ms: number;
-  external_urls: {
-    spotify: string;
-  };
-  uri: string;
-}
-
-export function parseM3U(content: string): Playlist {
+export function parseM3U(content: string): TrackM3UData[] {
   const parser = new Parser();
 
   // Push the content to the parser
@@ -28,7 +10,7 @@ export function parseM3U(content: string): Playlist {
   parser.end();
 
   const { manifest } = parser;
-  const tracks: Track[] = [];
+  const tracks: TrackM3UData[] = [];
 
   // Process segments from the manifest
   if (manifest.segments && manifest.segments.length > 0) {
@@ -38,9 +20,9 @@ export function parseM3U(content: string): Playlist {
 
       // Try to extract title from segment title
       if (segment.title) {
-        const artistTitle = extractArtistAndTitle(segment.title);
-        title = artistTitle.title;
-        artist = artistTitle.artist;
+        const parsedTitle = extractArtistAndTitle(segment.title);
+        title = parsedTitle.title;
+        artist = parsedTitle.artist;
       }
 
       // If no title in segment, try to extract from URI
@@ -49,14 +31,14 @@ export function parseM3U(content: string): Playlist {
         title = filename.replace(/\.[^/.]+$/, ''); // Remove extension
       }
 
-      const m3uData: M3UData = {
+      const trackM3UData: TrackM3UData = {
         title,
         artist,
         url: segment.uri || '',
         duration: segment.duration || 0,
       };
 
-      tracks.push(createTrackFromM3U(m3uData, index + 1));
+      tracks.push(trackM3UData);
     });
   }
 
@@ -65,14 +47,10 @@ export function parseM3U(content: string): Playlist {
     return parseSimpleM3U(content);
   }
 
-  return {
-    name: 'Imported Playlist',
-    order: 0,
-    tracks,
-  };
+  return tracks
 }
 
-export function extractArtistAndTitle(trackInfo: string): { artist: string; title: string; } {
+function extractArtistAndTitle(trackInfo: string): { artist: string; title: string; } {
   const dashIndex = trackInfo.indexOf(' - ');
 
   if (dashIndex !== -1) {
@@ -90,9 +68,9 @@ export function extractArtistAndTitle(trackInfo: string): { artist: string; titl
 }
 
 // Helper function to parse simple M3U files (without extended info)
-export function parseSimpleM3U(content: string): Playlist {
+function parseSimpleM3U(content: string): TrackM3UData[] {
   const lines = content.split('\n').map((line) => line.trim()).filter((line) => line.length > 0);
-  const tracks: Track[] = [];
+  const tracks: TrackM3UData[] = [];
 
   let trackIndex = 0;
   for (const line of lines) {
@@ -108,21 +86,17 @@ export function parseSimpleM3U(content: string): Playlist {
       const filename = urlParts.at(-1);
       const title = filename?.replace(/\.[^/.]+$/, '') || 'Unknown Title'; // Remove extension
 
-      const m3uData: M3UData = {
+      const trackM3UData: TrackM3UData = {
         title: title || 'Unknown Title',
         artist: 'Unknown Artist',
         url: line,
         duration: 0,
       };
 
-      tracks.push(createTrackFromM3U(m3uData, trackIndex + 1));
+      tracks.push(trackM3UData);
       trackIndex++;
     }
   }
 
-  return {
-    name: 'Imported Playlist',
-    order: 0,
-    tracks,
-  };
+  return tracks;
 }

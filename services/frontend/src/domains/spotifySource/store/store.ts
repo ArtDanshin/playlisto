@@ -1,9 +1,9 @@
-import { create } from 'zustand';
+import type { StateCreator } from 'zustand';
 
-import { spotifyApi } from '@/infrastructure/api/spotify-api';
-import type { SpotifyAuthStatus } from '@/infrastructure/spotify/spotify-service';
+import { spotifyApi } from '@/infrastructure/api/spotify';
+import type { SpotifyAuthStatus } from '@/infrastructure/api/spotify';
 
-interface SpotifyState {
+export interface SpotifyState {
   authStatus: SpotifyAuthStatus;
   isLoading: boolean;
   error: string | null;
@@ -14,7 +14,7 @@ interface SpotifyState {
   handleSpotifyCallback: () => Promise<void>;
 }
 
-export const useSpotifyStore = create<SpotifyState>((set, get) => ({
+export const store: StateCreator<SpotifyState> = (set, get) => ({
   authStatus: {
     isAuthenticated: false,
     user: null,
@@ -124,4 +124,4 @@ export const useSpotifyStore = create<SpotifyState>((set, get) => ({
       set({ error: error.message || 'Failed to refresh user profile' });
     }
   },
-}));
+});

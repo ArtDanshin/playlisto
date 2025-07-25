@@ -5,11 +5,11 @@ import {
   Search, Music, Loader2, ExternalLink, Link, FileText, Info,
 } from 'lucide-react';
 
-import type { Track, SpotifyTrackData } from '@/shared/types';
-import { spotifyApi } from '@/infrastructure/api/spotify-api';
-import { useSpotifyStore } from '@/domains/spotify/store/spotify-store';
+import type { Track } from '@/shared/types';
+import { spotifyApi, type SpotifyTrackData } from '@/infrastructure/api/spotify';
+import { useSpotifyStore } from '@/domains/spotifySource/store';
 import { updateTrackWithSpotify } from '@/shared/utils/playlist-utils';
-import { extractTrackIdFromUrl, isValidSpotifyTrackUrl } from '@/shared/utils/spotify-url-utils';
+import { extractTrackIdFromUrl, isValidSpotifyTrackUrl } from '@/shared/utils/spotify';
 import { Button } from '@/shared/components/ui/Button';
 import {
   Dialog,

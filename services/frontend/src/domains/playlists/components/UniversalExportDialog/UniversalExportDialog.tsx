@@ -10,8 +10,8 @@ import {
 } from 'lucide-react';
 
 import type { Playlist, Track } from '@/shared/types';
-import { spotifyApi } from '@/infrastructure/api/spotify-api';
-import { useSpotifyStore } from '@/domains/spotify/store/spotify-store';
+import { spotifyApi } from '@/infrastructure/api/spotify';
+import { useSpotifyStore } from '@/domains/spotifySource/store';
 import { getSpotifyId } from '@/shared/utils/playlist-utils';
 import { Button } from '@/shared/components/ui/Button';
 import {
@@ -78,7 +78,7 @@ const getAllPlaylistTracks = async (playlistId: string): Promise<any[]> => {
   const limit = 50; // Максимальное количество треков за запрос согласно Spotify API
 
   while (true) {
-    const response = await spotifyApi.getPlaylistTracks(playlistId, limit, offset);
+    const response = await spotifyApi.getPlaylistTracks(playlistId, offset, limit);
 
     if (!response.items || response.items.length === 0) {
       break; // Больше треков нет
@@ -123,7 +123,7 @@ function UniversalExportDialog({ playlist, children }: UniversalExportDialogProp
 
   const fetchSpotifyPlaylist = async (playlistId: string): Promise<SpotifyPlaylist | null> => {
     try {
-      const playlistData = await spotifyApi.getPlaylist(playlistId);
+      const playlistData = await spotifyApi.getPlaylistInfo(playlistId);
 
       // Проверяем структуру данных
       if (!playlistData) {

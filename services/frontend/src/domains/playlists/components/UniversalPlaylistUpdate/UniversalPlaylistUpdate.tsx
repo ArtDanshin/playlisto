@@ -6,8 +6,8 @@ import {
 } from 'lucide-react';
 
 import type { Track } from '@/shared/types';
-import { spotifyApi } from '@/infrastructure/api/spotify-api';
-import { useSpotifyStore } from '@/domains/spotify/store/spotify-store';
+import { spotifyApi } from '@/infrastructure/api/spotify';
+import { useSpotifyStore } from '@/domains/spotifySource/store';
 import { updateTrackWithSpotify, isExactMatch } from '@/shared/utils/playlist-utils';
 import { parseM3U } from '@/shared/utils/m3u-parser';
 import { Button } from '@/shared/components/ui/Button';

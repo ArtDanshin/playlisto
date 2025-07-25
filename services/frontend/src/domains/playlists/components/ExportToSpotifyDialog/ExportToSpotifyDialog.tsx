@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { Music, Loader2, ExternalLink } from 'lucide-react';
 
 import type { Playlist, Track } from '@/shared/types';
-import { spotifyApi } from '@/infrastructure/api/spotify-api';
-import { useSpotifyStore } from '@/domains/spotify/store/spotify-store';
+import { spotifyApi } from '@/infrastructure/api/spotify';
+import { useSpotifyStore } from '@/domains/spotifySource/store';
 import { getSpotifyId } from '@/shared/utils/playlist-utils';
 import { Button } from '@/shared/components/ui/Button';
 import {
@@ -83,7 +83,7 @@ function ExportToSpotifyDialog({ playlist, children }: ExportToSpotifyDialogProp
 
   const fetchSpotifyPlaylist = async (playlistId: string): Promise<SpotifyPlaylist | null> => {
     try {
-      const playlistData = await spotifyApi.getPlaylist(playlistId);
+      const playlistData = await spotifyApi.getPlaylistInfo(playlistId);
 
       // Проверяем, что плейлист принадлежит авторизованному пользователю
       if (playlistData.owner.id !== authStatus.user?.id) {

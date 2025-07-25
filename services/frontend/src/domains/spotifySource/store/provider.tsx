@@ -3,22 +3,19 @@
 import { useEffect } from 'react';
 import type { ReactNode } from 'react';
 
-import { useSpotifyStore } from '@/domains/spotifySource/store';
-import { usePlaylistStore } from '@/domains/playlists/store/playlist-store';
+import { useSpotifyStore } from './index';
 
 interface ProvidersProps {
   children: ReactNode;
 }
 
-export function Providers({ children }: ProvidersProps) {
+function SpotifyProvider({ children }: ProvidersProps) {
   const { initializeSpotify, handleSpotifyCallback } = useSpotifyStore();
-  const { loadPlaylists } = usePlaylistStore();
 
   // Инициализация при загрузке компонента
   useEffect(() => {
     initializeSpotify();
-    loadPlaylists();
-  }, [initializeSpotify, loadPlaylists]);
+  }, [initializeSpotify]);
 
   // Обработка callback от Spotify при загрузке страницы
   useEffect(() => {
@@ -27,3 +24,5 @@ export function Providers({ children }: ProvidersProps) {
 
   return children;
 }
+
+export default SpotifyProvider;

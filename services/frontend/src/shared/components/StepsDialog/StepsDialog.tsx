@@ -22,7 +22,7 @@ export interface StepsFormProps {
 };
 
 export interface Step {
-  component: (prev: () => void, next: () => void) => ReactNode;
+  component: (prev: () => void, next: () => void, close: () => void) => ReactNode;
   viewNextButton?: NavigationButton;
   viewPrevButton?: NavigationButton;
   viewCloseButton?: NavigationButton;
@@ -37,7 +37,7 @@ function isViewButton(button?: NavigationButton) {
   return Boolean(button && button.status !== 'hidden');
 }
 
-function StepsForm({
+function StepsDialog({
   trigger, title, description, steps, onOpen, onClose,
 }: StepsFormProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -54,6 +54,10 @@ function StepsForm({
   const prevStep = () => {
     setCurrentStep((step) => --step);
   };
+
+  const closeDialog = () => {
+    handleDialogOpenChange(false);
+  }
 
   const handleDialogOpenChange = (open: boolean) => {
     setIsOpen(open);
@@ -80,16 +84,18 @@ function StepsForm({
           <div className='flex items-center justify-center space-x-2'>
             {/* eslint-disable react/no-missing-key */}
             {steps.map((_, index) => (
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                currentStep === index ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'
-              }`}
+              <div 
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                  currentStep === index ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'
+                }`}
+                key={index}
               >
                 {index + 1}
               </div>
             ))}
           </div>
 
-          {steps[currentStep].component(nextStep, prevStep)}
+          {steps[currentStep].component(nextStep, prevStep, closeDialog)}
         </div>
 
         <div className='flex justify-between gap-2 pt-4'>
@@ -125,4 +131,4 @@ function StepsForm({
   );
 }
 
-export default StepsForm;
+export default StepsDialog;

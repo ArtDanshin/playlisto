@@ -27,7 +27,7 @@ import {
   SidebarRail,
 } from '@/shared/components/ui/Sidebar';
 
-import { UniversalAddPlaylistDialog } from '../UniversalAddPlaylistDialog';
+import { NewPlaylistDialog } from '../NewPlaylistDialog';
 import { usePlaylistStore } from '../../store/playlist-store';
 
 import SortablePlaylistItem from './SortablePlaylistItem';
@@ -94,12 +94,12 @@ function SidebarWithPlaylists({ ...props }: ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar className='border-r-0' {...props}>
       <SidebarHeader className='p-4'>
-        <UniversalAddPlaylistDialog onPlaylistAdded={handlePlaylistUploaded}>
+        <NewPlaylistDialog onPlaylistAdded={handlePlaylistUploaded}>
           <Button className='w-full'>
             <Plus className='mr-2 h-4 w-4' />
             Добавить плейлист
           </Button>
-        </UniversalAddPlaylistDialog>
+        </NewPlaylistDialog>
       </SidebarHeader>
       <SidebarContent className='p-4'>
         <h3 className='mb-2 text-sm font-medium text-muted-foreground select-none pointer-events-none'>

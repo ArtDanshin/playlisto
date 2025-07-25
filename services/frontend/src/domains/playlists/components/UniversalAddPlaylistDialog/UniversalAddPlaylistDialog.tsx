@@ -17,8 +17,8 @@ import {
 import { Input } from '@/shared/components/ui/Input';
 import { Label } from '@/shared/components/ui/Label';
 import { playlistDB } from '@/infrastructure/storage/indexed-db';
-import { spotifyApi } from '@/infrastructure/api/spotify-api';
-import { useSpotifyStore } from '@/domains/spotify/store/spotify-store';
+import { spotifyApi } from '@/infrastructure/api/spotify';
+import { useSpotifyStore } from '@/domains/spotifySource/store';
 
 interface UniversalAddPlaylistDialogProps {
   onPlaylistAdded: (playlist: Playlist) => void;
@@ -162,7 +162,7 @@ function UniversalAddPlaylistDialog({ onPlaylistAdded, children }: UniversalAddP
 
     try {
       // Получаем информацию о плейлисте
-      const playlistData = await spotifyApi.getPlaylist(playlistId);
+      const playlistData = await spotifyApi.getPlaylistInfo(playlistId);
 
       // Проверяем, что плейлист доступен
       if (!playlistData) {

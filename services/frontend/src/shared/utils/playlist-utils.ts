@@ -1,4 +1,6 @@
-import type { Track, M3UData, SpotifyData, SpotifyTrackData } from '@/shared/types';
+import type { Track, TrackSpotifyData } from '@/shared/types';
+import type { TrackM3UData } from '@/shared/types/file-source';
+import type { SpotifyTrackData } from '@/infrastructure/api/spotify';
 import { playlistDB } from '@/infrastructure/storage/indexed-db';
 
 import { fetchImageAsBase64 } from './image-utils';
@@ -6,7 +8,7 @@ import { fetchImageAsBase64 } from './image-utils';
 /**
  * Создает трек из M3U данных
  */
-export function createTrackFromM3U(m3uData: M3UData, position: number): Track {
+export function createTrackFromM3U(m3uData: TrackM3UData, position: number): Track {
   return {
     title: m3uData.title,
     artist: m3uData.artist,

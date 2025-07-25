@@ -1,38 +1,27 @@
-import type { SpotifyTrackData } from '@/shared/utils/m3u-parser';
-
-import { SPOTIFY_CONFIG, SPOTIFY_STORAGE_KEYS } from './spotify-config';
+import { SPOTIFY_CONFIG, SPOTIFY_STORAGE_KEYS } from '@/infrastructure/configs/spotify';
 import {
   generateCodeVerifier, generateCodeChallenge, isTokenExpired, getTokenExpiryTime, getUrlParams,
-} from './spotify-utils';
+} from '@/shared/utils/spotify';
 
-export interface SpotifyUser {
-  id: string;
-  display_name: string;
-  email: string;
-  images?: Array<{ url: string; height: number; width: number; }>;
+import type { SpotifyTrackData, SpotifyUser, SpotifyAuthStatus, SpotifySearchResponse, SpotifyPlaylistInfoResponse, SpotifyPlaylistTracksResponse } from './types';
+
+interface SpotifyApiClient {
+  initiateAuth: () => Promise<void>;
+  handleCallback: () => Promise<boolean>;
+  refreshToken: () => Promise<boolean>;
+  fetchUserProfile: () => Promise<SpotifyUser>;
+  getAuthStatus: () => SpotifyAuthStatus;
+  logout: () => void;
+  apiCall: (endpoint: string, options?: RequestInit) => Promise<any>;
+  getPlaylistInfo: (playlistId: string) => Promise<SpotifyPlaylistInfoResponse>;
+  getPlaylistTracks: (playlistId: string, limit?: number, offset?: number) => Promise<SpotifyPlaylistTracksResponse>;
+  searchTracks: (query: string, limit?: number) => Promise<SpotifySearchResponse>;
+  getTrack: (trackId: string) => Promise<SpotifyTrackData>;
 }
 
-export interface SpotifyAuthStatus {
-  isAuthenticated: boolean;
-  user: SpotifyUser | null;
-  expiresAt: number | null;
-}
-
-export interface SpotifySearchResponse {
-  tracks: {
-    href: string;
-    items: SpotifyTrackData[];
-    limit: number;
-    next: string | null;
-    offset: number;
-    previous: string | null;
-    total: number;
-  };
-}
-
-export class SpotifyService {
+class SpotifyApi implements SpotifyApiClient {
   // Инициализация авторизации
-  static async initiateAuth(): Promise<void> {
+  async initiateAuth(): Promise<void> {
     const codeVerifier = generateCodeVerifier();
     const codeChallenge = await generateCodeChallenge(codeVerifier);
 
@@ -55,7 +44,7 @@ export class SpotifyService {
   }
 
   // Обработка callback от Spotify
-  static async handleCallback(): Promise<boolean> {
+  async handleCallback(): Promise<boolean> {
     const urlParams = getUrlParams();
     const code = urlParams.get('code');
     const error = urlParams.get('error');
@@ -80,7 +69,7 @@ export class SpotifyService {
   }
 
   // Обмен кода авторизации на токен
-  private static async exchangeCodeForToken(code: string): Promise<void> {
+  private async exchangeCodeForToken(code: string): Promise<void> {
     const codeVerifier = localStorage.getItem(SPOTIFY_STORAGE_KEYS.CODE_VERIFIER);
     if (!codeVerifier) {
       throw new Error('Code verifier not found');
@@ -116,7 +105,7 @@ export class SpotifyService {
   }
 
   // Обновление токена
-  static async refreshToken(): Promise<boolean> {
+  async refreshToken(): Promise<boolean> {
     const refreshToken = localStorage.getItem(SPOTIFY_STORAGE_KEYS.REFRESH_TOKEN);
     if (!refreshToken) {
       return false;
@@ -155,7 +144,7 @@ export class SpotifyService {
   }
 
   // Получение профиля пользователя
-  static async fetchUserProfile(): Promise<SpotifyUser> {
+  async fetchUserProfile(): Promise<SpotifyUser> {
     const response = await this.apiCall('/me');
     const user = response as SpotifyUser;
     localStorage.setItem(SPOTIFY_STORAGE_KEYS.USER_PROFILE, JSON.stringify(user));
@@ -163,7 +152,7 @@ export class SpotifyService {
   }
 
   // Проверка статуса авторизации
-  static getAuthStatus(): SpotifyAuthStatus {
+  getAuthStatus(): SpotifyAuthStatus {
     const accessToken = localStorage.getItem(SPOTIFY_STORAGE_KEYS.ACCESS_TOKEN);
     const expiresAt = localStorage.getItem(SPOTIFY_STORAGE_KEYS.TOKEN_EXPIRES_AT);
     const userProfile = localStorage.getItem(SPOTIFY_STORAGE_KEYS.USER_PROFILE);
@@ -193,7 +182,7 @@ export class SpotifyService {
   }
 
   // Выход из аккаунта
-  static logout(): void {
+  logout(): void {
     localStorage.removeItem(SPOTIFY_STORAGE_KEYS.ACCESS_TOKEN);
     localStorage.removeItem(SPOTIFY_STORAGE_KEYS.REFRESH_TOKEN);
     localStorage.removeItem(SPOTIFY_STORAGE_KEYS.TOKEN_EXPIRES_AT);
@@ -202,61 +191,79 @@ export class SpotifyService {
   }
 
   // Универсальный метод для API вызовов
-  static async apiCall(endpoint: string, options: RequestInit = {}): Promise<any> {
+  async apiCall(endpoint: string, options: RequestInit = {}): Promise<any> {
     const accessToken = localStorage.getItem(SPOTIFY_STORAGE_KEYS.ACCESS_TOKEN);
-    const expiresAt = localStorage.getItem(SPOTIFY_STORAGE_KEYS.TOKEN_EXPIRES_AT);
-
     if (!accessToken) {
       throw new Error('No access token available');
-    }
-
-    // Проверяем, не истек ли токен
-    if (expiresAt && isTokenExpired(Number.parseInt(expiresAt, 10))) {
-      const refreshed = await this.refreshToken();
-      if (!refreshed) {
-        throw new Error('Token expired and refresh failed');
-      }
-    }
-
-    const currentToken = localStorage.getItem(SPOTIFY_STORAGE_KEYS.ACCESS_TOKEN);
-    if (!currentToken) {
-      throw new Error('No access token available after refresh');
     }
 
     const response = await fetch(`${SPOTIFY_CONFIG.API_BASE_URL}${endpoint}`, {
       ...options,
       headers: {
-        Authorization: `Bearer ${currentToken}`,
+        Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
         ...options.headers,
       },
     });
 
     if (!response.ok) {
-      throw new Error(`API call failed: ${response.status} ${response.statusText}`);
+      if (response.status === 401) {
+        // Токен истек, пытаемся обновить
+        const refreshed = await this.refreshToken();
+        if (refreshed) {
+          // Повторяем запрос с новым токеном
+          return this.apiCall(endpoint, options);
+        }
+
+        throw new Error('Authentication failed');
+      }
+      throw new Error(`API call failed: ${response.status}`);
     }
 
     return response.json();
   }
 
-  // Получение плейлистов пользователя
-  static async getUserPlaylists(limit: number = 50, offset: number = 0): Promise<any> {
-    return this.apiCall(`/me/playlists?limit=${limit}&offset=${offset}`);
-  }
-
   // Получение конкретного плейлиста
-  static async getPlaylist(playlistId: string): Promise<any> {
-    return this.apiCall(`/playlists/${playlistId}`);
+  async getPlaylistInfo(playlistId: string): Promise<SpotifyPlaylistInfoResponse> {
+    // Запрашиваем только основную информацию о плейлисте
+    const fields = [
+      'name',
+      'owner'
+    ].join(',');
+
+    return this.apiCall(`/playlists/${playlistId}?fields=${encodeURIComponent(fields)}`);
   }
 
-  // Поиск треков в Spotify
-  static async searchTracks(query: string, limit: number = 20): Promise<SpotifySearchResponse> {
-    const encodedQuery = encodeURIComponent(query);
-    return this.apiCall(`/search?q=${encodedQuery}&type=track&limit=${limit}`);
+  // Получение треков плейлиста с поддержкой пагинации
+  async getPlaylistTracks(playlistId: string, offset: number = 0, limit: number = 50): Promise<SpotifyPlaylistTracksResponse> {
+    // Запрашиваем только необходимые поля для оптимизации размера ответа
+    const fields = [
+      'items(track(id,name,artists(id,name),album(id,name,images),duration_ms))',
+      'total',
+      'limit',
+      'offset',
+      'external_urls',
+      'uri',
+    ].join(',');
+
+    return this.apiCall(`/playlists/${playlistId}/tracks?limit=${limit}&offset=${offset}&fields=${encodeURIComponent(fields)}`);
   }
 
-  // Получение конкретного трека по ID
-  static async getTrack(trackId: string): Promise<SpotifyTrackData> {
-    return this.apiCall(`/tracks/${trackId}`);
+  // Поиск треков
+  async searchTracks(query: string, limit: number = 20): Promise<SpotifySearchResponse> {
+    const response = await this.apiCall(`/search?q=${encodeURIComponent(query)}&type=track&limit=${limit}`);
+    return response as SpotifySearchResponse;
+  }
+
+  // Получение информации о треке
+  async getTrack(trackId: string): Promise<SpotifyTrackData> {
+    const response = await this.apiCall(`/tracks/${trackId}`);
+    return response as SpotifyTrackData;
   }
 }
+
+// Создаем глобальный экземпляр API клиента
+export const spotifyApi = new SpotifyApi();
+
+// Экспортируем типы
+export * from './types';

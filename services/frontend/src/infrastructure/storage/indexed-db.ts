@@ -5,7 +5,7 @@ const DB_VERSION = 1;
 const PLAYLISTS_STORE = 'playlists';
 const COVERS_STORE = 'covers';
 
-export interface StorageService {
+interface StorageService {
   init: () => Promise<void>;
   addPlaylist: (playlist: Playlist) => Promise<number>;
   getAllPlaylists: () => Promise<Playlist[]>;
@@ -19,7 +19,7 @@ export interface StorageService {
 
 /* eslint-disable unicorn/prefer-add-event-listener */
 /* Для IndexedDB нормально обращаться к событиями без addEventListener'а */
-export class IndexedDBStorage implements StorageService {
+class IndexedDBStorage implements StorageService {
   private db: IDBDatabase | null = null;
 
   async init(): Promise<void> {

@@ -22,8 +22,8 @@ import { Label } from '@/shared/components/ui/Label';
 import { Separator } from '@/shared/components/ui/Separator';
 import { Input } from '@/shared/components/ui/Input';
 import { playlistDB } from '@/infrastructure/storage/indexed-db';
-import { spotifyApi } from '@/infrastructure/api/spotify-api';
-import { useSpotifyStore } from '@/domains/spotify/store/spotify-store';
+import { spotifyApi } from '@/infrastructure/api/spotify';
+import { useSpotifyStore } from '@/domains/spotifySource/store';
 
 import { usePlaylistStore } from '../../store/playlist-store';
 
@@ -96,7 +96,7 @@ const getAllPlaylistTracks = async (playlistId: string): Promise<any[]> => {
   const limit = 50; // Максимальное количество треков за запрос согласно Spotify API
 
   while (true) {
-    const response = await spotifyApi.getPlaylistTracks(playlistId, limit, offset);
+    const response = await spotifyApi.getPlaylistTracks(playlistId, offset, limit);
 
     if (!response.items || response.items.length === 0) {
       break; // Больше треков нет
@@ -182,7 +182,7 @@ function UniversalUpdatePlaylistDialog({ currentPlaylist, onPlaylistUpdated, chi
 
     try {
       // Получаем информацию о плейлисте
-      const playlistData = await spotifyApi.getPlaylist(playlistId);
+      const playlistData = await spotifyApi.getPlaylistInfo(playlistId);
 
       // Проверяем, что плейлист доступен
       if (!playlistData) {

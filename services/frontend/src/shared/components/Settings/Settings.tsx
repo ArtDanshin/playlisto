@@ -12,7 +12,7 @@ import {
   PopoverTrigger,
 } from '@/shared/components/ui/Popover';
 import { Separator } from '@/shared/components/ui/Separator';
-import { useSpotifyStore } from '@/domains/spotify/store/spotify-store';
+import { useSpotifyStore } from '@/domains/spotifySource/store';
 import { DatabaseBackup } from '@/shared/components/DatabaseBackup/DatabaseBackup';
 
 function Settings() {
