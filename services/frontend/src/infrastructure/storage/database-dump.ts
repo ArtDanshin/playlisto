@@ -1,6 +1,6 @@
 import type { Playlist } from '@/shared/types';
 
-import { playlistDB } from './indexed-db';
+import { playlistoDB } from './playlisto-db';
 
 export interface DatabaseDump {
   version: string;
@@ -14,7 +14,7 @@ export interface DatabaseDump {
  */
 export async function exportDatabase(): Promise<DatabaseDump> {
   // Получаем все плейлисты
-  const playlists = await playlistDB.getAllPlaylists();
+  const playlists = await playlistoDB.getAllPlaylists();
 
   // Получаем все обложки
   const covers = await getAllCovers();
@@ -43,12 +43,12 @@ export async function importDatabase(dump: DatabaseDump): Promise<void> {
 
   // Импортируем обложки
   for (const cover of dump.covers) {
-    await playlistDB.addCover(cover.url, cover.base64);
+    await playlistoDB.addCover(cover.url, cover.base64);
   }
 
   // Импортируем плейлисты
   for (const playlist of dump.playlists) {
-    await playlistDB.addPlaylist(playlist);
+    await playlistoDB.addPlaylist(playlist);
   }
 }
 
@@ -56,14 +56,14 @@ export async function importDatabase(dump: DatabaseDump): Promise<void> {
  * Получает все обложки из базы данных
  */
 async function getAllCovers(): Promise<Array<{ url: string; base64: string; }>> {
-  return await playlistDB.getAllCovers();
+  return await playlistoDB.getAllCovers();
 }
 
 /**
  * Очищает всю базу данных
  */
 async function clearDatabase(): Promise<void> {
-  return await playlistDB.clearDatabase();
+  return await playlistoDB.clearDatabase();
 }
 
 /**

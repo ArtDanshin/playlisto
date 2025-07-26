@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 import type { Playlist, Track } from '@/shared/types';
-import { playlistDB } from '@/infrastructure/storage/indexed-db';
+import { playlistoDB } from '@/infrastructure/storage/playlisto-db';
 
 interface PlaylistState {
   currentPlaylist: Playlist | null;
@@ -50,7 +50,7 @@ export const usePlaylistStore = create<PlaylistState>((set, get) => ({
       const newOrder = playlists.length;
       const playlistWithOrder = { ...playlist, order: newOrder };
 
-      const playlistId = await playlistDB.addPlaylist(playlistWithOrder);
+      const playlistId = await playlistoDB.addPlaylist(playlistWithOrder);
       const playlistWithId = { ...playlistWithOrder, id: playlistId };
 
       set((state) => {
@@ -75,7 +75,7 @@ export const usePlaylistStore = create<PlaylistState>((set, get) => ({
   removePlaylist: async (playlistId) => {
     set({ isLoading: true, error: null });
     try {
-      await playlistDB.deletePlaylist(playlistId);
+      await playlistoDB.deletePlaylist(playlistId);
       set((state) => {
         const playlists = state.playlists.filter((p) => p.id !== playlistId);
         const currentPlaylist = state.currentPlaylist?.id === playlistId ? null : state.currentPlaylist;
@@ -92,7 +92,7 @@ export const usePlaylistStore = create<PlaylistState>((set, get) => ({
   updatePlaylist: async (playlist) => {
     set({ isLoading: true, error: null });
     try {
-      await playlistDB.updatePlaylist(playlist);
+      await playlistoDB.updatePlaylist(playlist);
       set((state) => {
         const playlists = state.playlists.map((p) => p.id === playlist.id ? playlist : p);
         const currentPlaylist = state.currentPlaylist?.id === playlist.id ? playlist : state.currentPlaylist;
@@ -109,8 +109,8 @@ export const usePlaylistStore = create<PlaylistState>((set, get) => ({
   loadPlaylists: async () => {
     set({ isLoading: true, error: null });
     try {
-      await playlistDB.init();
-      const savedPlaylists = await playlistDB.getAllPlaylists();
+      await playlistoDB.init();
+      const savedPlaylists = await playlistoDB.getAllPlaylists();
 
       // Сортируем по полю order
       const sortedPlaylists = savedPlaylists
@@ -139,7 +139,7 @@ export const usePlaylistStore = create<PlaylistState>((set, get) => ({
       .filter(Boolean) as Playlist[];
     set({ playlists: ordered });
     // Сохраняем порядок в IndexedDB
-    await Promise.all(ordered.map((p) => p.id === undefined ? undefined : playlistDB.updatePlaylist(p)));
+    await Promise.all(ordered.map((p) => p.id === undefined ? undefined : playlistoDB.updatePlaylist(p)));
   },
 
   setNewTracks: (trackKeys) => {

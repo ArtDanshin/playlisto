@@ -1,7 +1,7 @@
 import type { Track, TrackSpotifyData } from '@/shared/types';
 import type { TrackM3UData } from '@/shared/types/file-source';
 import type { SpotifyTrackData } from '@/infrastructure/api/spotify';
-import { playlistDB } from '@/infrastructure/storage/indexed-db';
+import { playlistoDB } from '@/infrastructure/storage/playlisto-db';
 
 import { fetchImageAsBase64 } from './image-utils';
 
@@ -38,7 +38,7 @@ export async function createTrackFromSpotify(
       const base64 = await fetchImageAsBase64(smallestImage.url);
       // Используем URL как ключ для обложки
       coverKey = smallestImage.url;
-      await playlistDB.addCover(smallestImage.url, base64);
+      await playlistoDB.addCover(smallestImage.url, base64);
     } catch {
       // Игнорируем ошибки загрузки обложки
     }
@@ -81,7 +81,7 @@ export async function updateTrackWithSpotify(
     try {
       const base64 = await fetchImageAsBase64(smallestImage.url);
       coverKey = smallestImage.url;
-      await playlistDB.addCover(smallestImage.url, base64);
+      await playlistoDB.addCover(smallestImage.url, base64);
     } catch {
       // Игнорируем ошибки загрузки обложки
     }

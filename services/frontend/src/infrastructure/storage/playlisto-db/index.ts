@@ -1,11 +1,11 @@
-import type { Playlist } from '@/shared/types';
+import type { Playlist } from './types';
 
 const DB_NAME = 'playlisto-db';
 const DB_VERSION = 1;
 const PLAYLISTS_STORE = 'playlists';
 const COVERS_STORE = 'covers';
 
-interface StorageService {
+interface PlaylistoDBClient {
   init: () => Promise<void>;
   addPlaylist: (playlist: Playlist) => Promise<number>;
   getAllPlaylists: () => Promise<Playlist[]>;
@@ -19,7 +19,7 @@ interface StorageService {
 
 /* eslint-disable unicorn/prefer-add-event-listener */
 /* Для IndexedDB нормально обращаться к событиями без addEventListener'а */
-class IndexedDBStorage implements StorageService {
+class IndexedDBStorage implements PlaylistoDBClient {
   private db: IDBDatabase | null = null;
 
   async init(): Promise<void> {
@@ -173,4 +173,7 @@ class IndexedDBStorage implements StorageService {
 }
 
 // Создаем глобальный экземпляр базы данных
-export const playlistDB = new IndexedDBStorage();
+export const playlistoDB = new IndexedDBStorage();
+
+// Экспортируем типы
+export * from './types';

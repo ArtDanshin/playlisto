@@ -11,7 +11,7 @@ import type { Track } from '@/shared/types';
 import { formatDuration } from '@/shared/utils/utils';
 import { Button } from '@/shared/components/ui/Button';
 import { Input } from '@/shared/components/ui/Input';
-import { playlistDB } from '@/infrastructure/storage/indexed-db';
+import { playlistoDB } from '@/infrastructure/storage/playlisto-db';
 import { getTrackDuration, isTrackLinkedToSpotify, createTrackKey } from '@/shared/utils/playlist-utils';
 
 import { usePlaylistStore } from '../../store/playlist-store';
@@ -45,7 +45,7 @@ function SortableTrackItem({
     let isMounted = true;
     async function loadCover() {
       if (track.coverKey) {
-        const base64 = await playlistDB.getCover(track.coverKey);
+        const base64 = await playlistoDB.getCover(track.coverKey);
         if (isMounted) setCoverBase64(base64 || null);
       } else {
         setCoverBase64(null);

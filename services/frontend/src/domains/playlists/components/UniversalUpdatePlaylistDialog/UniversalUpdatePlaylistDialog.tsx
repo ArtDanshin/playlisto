@@ -21,7 +21,7 @@ import { Checkbox } from '@/shared/components/ui/Checkbox';
 import { Label } from '@/shared/components/ui/Label';
 import { Separator } from '@/shared/components/ui/Separator';
 import { Input } from '@/shared/components/ui/Input';
-import { playlistDB } from '@/infrastructure/storage/indexed-db';
+import { playlistoDB } from '@/infrastructure/storage/playlisto-db';
 import { spotifyApi } from '@/infrastructure/api/spotify';
 import { useSpotifyStore } from '@/domains/spotifySource/store';
 
@@ -74,7 +74,7 @@ const convertSpotifyTrackToTrack = async (spotifyTrack: any, position: number): 
         reader.onloadend = async () => {
           const base64 = reader.result as string;
           const coverKey = `spotify_${track.spotifyData!.id}`;
-          await playlistDB.addCover(coverKey, base64);
+          await playlistoDB.addCover(coverKey, base64);
           track.coverKey = coverKey;
           resolve(track);
         };
