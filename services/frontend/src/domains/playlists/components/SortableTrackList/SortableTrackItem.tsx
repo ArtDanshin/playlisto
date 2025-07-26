@@ -12,7 +12,7 @@ import { formatDuration } from '@/shared/utils/utils';
 import { Button } from '@/shared/components/ui/Button';
 import { Input } from '@/shared/components/ui/Input';
 import { playlistoDB } from '@/infrastructure/storage/playlisto-db';
-import { getTrackDuration, isTrackLinkedToSpotify, createTrackKey } from '@/shared/utils/playlist-utils';
+import { getTrackDuration, isTrackLinkedToSpotify, createTrackKey } from '@/shared/utils/playlist';
 
 import { usePlaylistStore } from '../../store/playlist-store';
 import { TrackEditDialog } from '../TrackEditDialog';

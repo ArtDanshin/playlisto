@@ -1,10 +1,70 @@
 import { playlistoDB } from '@/infrastructure/storage/playlisto-db';
+import type { Playlist as PlaylistAPI } from '@/infrastructure/storage/playlisto-db';
+import { getTrackExternalServices, createCoverKey } from '@/shared/utils/playlist';
 
-import type { PlaylistoDBService as PlaylistoDBServiceImp } from './types';
+import type { PlaylistoDBService as PlaylistoDBServiceImp, Playlist } from './types';
 
 class PlaylistoDBService implements PlaylistoDBServiceImp {
   async init(): Promise<void> {
     return playlistoDB.init();
+  }
+
+  async addCoverByURL(url: string, key?: string): Promise<string> {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const reader = new FileReader();
+
+      return new Promise((resolve) => {
+        reader.onloadend = async () => {
+          const base64 = reader.result as string;
+          const coverKey = key || url;
+          await playlistoDB.addCover(coverKey, base64);
+          resolve(coverKey);
+        };
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.error('Failed to save cover:', error);
+      throw new Error(`Ошибка при загрузке обложки. URL: ${url}`);
+    }
+  }
+
+  async createPlaylist(playlist: Playlist): Promise<void> {
+    const playlistsCount = await playlistoDB.getPlaylistsCount();
+
+    const resultPlaylist: PlaylistAPI = {
+      name: playlist.name, 
+      order: playlistsCount + 1,
+      tracks: [],
+    }
+
+    for (const track of playlist.tracks) {
+      const resultTrack = { ...track };
+
+      if (!track.coverKey) {
+        const service = getTrackExternalServices(track)[0];
+        
+        if (!service || !track[`${service}Data`]?.coverUrl) {
+          resultPlaylist.tracks.push(resultTrack);
+          continue;
+        }
+        
+        const coverKey = createCoverKey(service, track[`${service}Data`].coverUrl);
+        
+        try {
+          await playlistoDB.addCover(coverKey, track[`${service}Data`].coverUrl);
+
+          resultTrack.coverKey = coverKey;
+        } catch (error) {
+          console.error(`Треку ${track.artist} - ${track.title} не добавлена обложка`);
+        }
+
+        resultPlaylist.tracks.push(resultTrack);
+      }
+    }
+
+    await playlistoDB.addPlaylist(resultPlaylist);
   }
 }
 

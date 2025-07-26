@@ -7,7 +7,7 @@ import {
 
 import type { Playlist, Track } from '@/shared/types';
 import { parseM3U } from '@/shared/utils/m3u-parser';
-import { createTrackKey } from '@/shared/utils/playlist-utils';
+import { createTrackKey } from '@/shared/utils/playlist';
 import { Button } from '@/shared/components/ui/Button';
 import {
   Dialog,

@@ -8,7 +8,7 @@ import {
 import type { Track } from '@/shared/types';
 import { spotifyApi, type SpotifyTrackData } from '@/infrastructure/api/spotify';
 import { useSpotifyStore } from '@/domains/spotifySource/store';
-import { updateTrackWithSpotify } from '@/shared/utils/playlist-utils';
+import { updateTrackWithSpotify } from '@/shared/utils/playlist';
 import { extractTrackIdFromUrl, isValidSpotifyTrackUrl } from '@/shared/utils/spotify';
 import { Button } from '@/shared/components/ui/Button';
 import {

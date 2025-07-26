@@ -8,7 +8,7 @@ import {
 import type { Track } from '@/shared/types';
 import { spotifyApi } from '@/infrastructure/api/spotify';
 import { useSpotifyStore } from '@/domains/spotifySource/store';
-import { updateTrackWithSpotify, isExactMatch } from '@/shared/utils/playlist-utils';
+import { updateTrackWithSpotify, isExactMatch } from '@/shared/utils/playlist';
 import { parseM3U } from '@/shared/utils/m3u-parser';
 import { Button } from '@/shared/components/ui/Button';
 import {

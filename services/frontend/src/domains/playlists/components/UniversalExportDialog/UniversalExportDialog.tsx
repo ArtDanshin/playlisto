@@ -12,7 +12,7 @@ import {
 import type { Playlist, Track } from '@/shared/types';
 import { spotifyApi } from '@/infrastructure/api/spotify';
 import { useSpotifyStore } from '@/domains/spotifySource/store';
-import { getSpotifyId } from '@/shared/utils/playlist-utils';
+import { getSpotifyId } from '@/shared/utils/playlist';
 import { Button } from '@/shared/components/ui/Button';
 import {
   Dialog,

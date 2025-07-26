@@ -1,68 +1,8 @@
-import type { Track, TrackSpotifyData } from '@/shared/types';
-import type { TrackM3UData } from '@/shared/types/file-source';
+import type { Track } from '@/shared/types';
 import type { SpotifyTrackData } from '@/infrastructure/api/spotify';
 import { playlistoDB } from '@/infrastructure/storage/playlisto-db';
 
 import { fetchImageAsBase64 } from './image-utils';
-
-/**
- * Создает трек из M3U данных
- */
-export function createTrackFromM3U(m3uData: TrackM3UData, position: number): Track {
-  return {
-    title: m3uData.title,
-    artist: m3uData.artist,
-    album: '', // M3U не содержит информацию об альбоме
-    position,
-    coverKey: '', // M3U не содержит обложки
-    m3uData,
-  };
-}
-
-/**
- * Создает трек из Spotify данных
- */
-export async function createTrackFromSpotify(
-  spotifyTrack: SpotifyTrackData,
-  position: number,
-  existingTrack?: Track,
-): Promise<Track> {
-  // Выбираем наименьшую картинку для обложки
-  const imagesSorted = [...spotifyTrack.album.images].sort((a, b) => a.width - b.width);
-  const smallestImage = imagesSorted[0];
-
-  let coverKey = '';
-  if (smallestImage?.url) {
-    // Сохраняем base64 в IndexedDB
-    try {
-      const base64 = await fetchImageAsBase64(smallestImage.url);
-      // Используем URL как ключ для обложки
-      coverKey = smallestImage.url;
-      await playlistoDB.addCover(smallestImage.url, base64);
-    } catch {
-      // Игнорируем ошибки загрузки обложки
-    }
-  }
-
-  const spotifyData: SpotifyData = {
-    id: spotifyTrack.id,
-    title: spotifyTrack.name,
-    artist: spotifyTrack.artists[0]?.name || 'Unknown Artist',
-    album: spotifyTrack.album.name,
-    coverUrl: smallestImage?.url || '',
-    duration: spotifyTrack.duration_ms || 0,
-  };
-
-  return {
-    title: existingTrack?.title || spotifyTrack.name,
-    artist: existingTrack?.artist || spotifyTrack.artists[0]?.name || 'Unknown Artist',
-    album: spotifyTrack.album.name,
-    position,
-    coverKey,
-    spotifyData,
-    m3uData: existingTrack?.m3uData,
-  };
-}
 
 /**
  * Обновляет трек данными из Spotify
@@ -112,7 +52,7 @@ export function createTrackKey(track: Track): string {
 }
 
 /**
- * Проверяет точное совпадение треков
+ * Проверяем точное совпадение треков
  */
 export function isExactMatch(track: Track, spotifyTrack: SpotifyTrackData): boolean {
   const trackKey = createTrackKey(track);
@@ -122,7 +62,7 @@ export function isExactMatch(track: Track, spotifyTrack: SpotifyTrackData): bool
 }
 
 /**
- * Получает длительность трека в секундах
+ * Получаем длительность трека в секундах
  */
 export function getTrackDuration(track: Track): number | undefined {
   if (track.m3uData?.duration) {
@@ -136,15 +76,49 @@ export function getTrackDuration(track: Track): number | undefined {
 }
 
 /**
- * Получает Spotify ID трека
+ * Получаем Spotify ID трека
  */
 export function getSpotifyId(track: Track): string | undefined {
   return track.spotifyData?.id;
 }
 
 /**
- * Проверяет, связан ли трек со Spotify
+ * Проверяем, связан ли трек со Spotify
  */
 export function isTrackLinkedToSpotify(track: Track): boolean {
   return !!track.spotifyData?.id;
+}
+
+/**
+ * Получаем список всех сервисов, информация из которых есть в треке
+ */
+export function getTrackServices(track: Track): Array<'spotify' | 'm3u'> {
+  const services: Array<'spotify' | 'm3u'> = [];
+  
+  if (track.spotifyData) {
+    services.push('spotify');
+  }
+  if (track.m3uData) {
+    services.push('m3u');
+  }
+
+  return services;
+}
+
+/**
+ * Получаем список всех внешних сервисов, информация из которых есть в треке
+ */
+export function getTrackExternalServices(track: Track): Array<'spotify'> {
+  const services: Array<'spotify' | 'm3u'> = getTrackServices(track);
+  
+  return services.filter((service) => service !== 'm3u');
+}
+
+/**
+ * Генерируем ключ для обложки в формате ${service}_${имя_файла}
+ */
+export function createCoverKey(service: string, url: string): string {
+  // TODO: Написать логику
+
+  return `${service}_${url}`;
 }

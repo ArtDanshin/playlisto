@@ -1,18 +1,16 @@
-import type { Playlist } from './types';
+import { DB_NAME, DB_VERSION, PLAYLISTS_STORE, COVERS_STORE } from '@/infrastructure/configs/playlisto-db';
 
-const DB_NAME = 'playlisto-db';
-const DB_VERSION = 1;
-const PLAYLISTS_STORE = 'playlists';
-const COVERS_STORE = 'covers';
+import type { Playlist } from './types';
 
 interface PlaylistoDBClient {
   init: () => Promise<void>;
   addPlaylist: (playlist: Playlist) => Promise<number>;
   getAllPlaylists: () => Promise<Playlist[]>;
+  getPlaylistsCount: () => Promise<number>;
   deletePlaylist: (id: number) => Promise<void>;
   updatePlaylist: (playlist: Playlist) => Promise<void>;
-  addCover: (url: string, base64: string) => Promise<void>;
-  getCover: (url: string) => Promise<string | undefined>;
+  addCover: (key: string, base64: string) => Promise<void>;
+  getCover: (key: string) => Promise<string | undefined>;
   getAllCovers: () => Promise<Array<{ url: string; base64: string; }>>;
   clearDatabase: () => Promise<void>;
 }
@@ -55,10 +53,7 @@ class IndexedDBStorage implements PlaylistoDBClient {
       const transaction = this.db!.transaction([PLAYLISTS_STORE], 'readwrite');
       const store = transaction.objectStore(PLAYLISTS_STORE);
 
-      const request = store.add({
-        ...playlist,
-        createdAt: new Date().toISOString(),
-      });
+      const request = store.add(playlist);
 
       request.onsuccess = () => resolve(request.result as number);
       request.onerror = () => reject(request.error);
@@ -76,6 +71,22 @@ class IndexedDBStorage implements PlaylistoDBClient {
       request.onsuccess = () => {
         const playlists = request.result;
         resolve(playlists);
+      };
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async getPlaylistsCount(): Promise<number> {
+    if (!this.db) throw new Error('Database not initialized');
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction([PLAYLISTS_STORE], 'readonly');
+      const store = transaction.objectStore(PLAYLISTS_STORE);
+      const request = store.count();
+
+      request.onsuccess = () => {
+        const playlistsCount = request.result;
+        resolve(playlistsCount);
       };
       request.onerror = () => reject(request.error);
     });
@@ -111,18 +122,18 @@ class IndexedDBStorage implements PlaylistoDBClient {
     });
   }
 
-  async addCover(url: string, base64: string): Promise<void> {
+  async addCover(key: string, base64: string): Promise<void> {
     if (!this.db) throw new Error('Database not initialized');
     return new Promise((resolve, reject) => {
       const tx = this.db!.transaction([COVERS_STORE], 'readwrite');
       const store = tx.objectStore(COVERS_STORE);
-      const req = store.put({ url, base64 });
+      const req = store.put({ key, base64 });
       req.onsuccess = () => resolve();
       req.onerror = () => reject(req.error);
     });
   }
 
-  async getCover(url: string): Promise<string | undefined> {
+  async getCover(key: string): Promise<string | undefined> {
     if (!this.db) throw new Error('Database not initialized');
     return new Promise((resolve, reject) => {
       const tx = this.db!.transaction([COVERS_STORE], 'readonly');
