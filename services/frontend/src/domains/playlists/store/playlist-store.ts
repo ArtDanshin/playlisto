@@ -2,6 +2,7 @@ import { create } from 'zustand';
 
 import type { Playlist, Track } from '@/shared/types';
 import { playlistoDB } from '@/infrastructure/storage/playlisto-db';
+import { playlistoDBService } from '@/infrastructure/services/playlisto-db';
 
 interface PlaylistState {
   currentPlaylist: Playlist | null;
@@ -45,25 +46,13 @@ export const usePlaylistStore = create<PlaylistState>((set, get) => ({
   addPlaylist: async (playlist) => {
     set({ isLoading: true, error: null });
     try {
-      const { playlists } = get();
+      const { playlists, loadPlaylists } = get();
       // Устанавливаем order для нового плейлиста (в конец списка)
       const newOrder = playlists.length;
       const playlistWithOrder = { ...playlist, order: newOrder };
 
-      const playlistId = await playlistoDB.addPlaylist(playlistWithOrder);
-      const playlistWithId = { ...playlistWithOrder, id: playlistId };
-
-      set((state) => {
-        const existingIndex = state.playlists.findIndex((p) => p.name === playlist.name);
-        let playlists;
-        if (existingIndex === -1) {
-          playlists = [...state.playlists, playlistWithId];
-        } else {
-          playlists = [...state.playlists];
-          playlists[existingIndex] = playlistWithId;
-        }
-        return { playlists, currentPlaylist: playlistWithId };
-      });
+      await playlistoDBService.createPlaylist(playlistWithOrder);
+      await loadPlaylists();
     } catch (error: any) {
       set({ error: error.message || 'Failed to add playlist' });
       throw error;

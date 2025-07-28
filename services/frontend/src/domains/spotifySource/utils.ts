@@ -16,6 +16,8 @@ export function createPlaylistFromSpotify(name: string, spotifyTracks: SpotifyTr
  * Преобразуем информацию о треке из Spotify данных
  */
 export function covertTrackFromM3U(spotifyData: SpotifyTrackData, position: number): Track {
+  const albumCoversCount = spotifyData.album?.images?.length;
+
   return {
     title: spotifyData.name,
     artist: spotifyData.artists[0]?.name || 'Unknown Artist',
@@ -28,7 +30,8 @@ export function covertTrackFromM3U(spotifyData: SpotifyTrackData, position: numb
       title: spotifyData.name,
       artist: spotifyData.artists[0]?.name || 'Unknown Artist',
       album: spotifyData.album?.name || '',
-      coverUrl: spotifyData.album?.images?.[0]?.url || '',
+      // Запоминаем самую маленькую обложку. Она на момент написания была последней
+      coverUrl: (albumCoversCount) ? spotifyData.album.images[albumCoversCount-1].url : '', 
       duration: spotifyData.duration_ms || 0,
     },
   };

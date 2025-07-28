@@ -40,7 +40,7 @@ class IndexedDBStorage implements PlaylistoDBClient {
         }
         // Обложки
         if (!db.objectStoreNames.contains(COVERS_STORE)) {
-          db.createObjectStore(COVERS_STORE, { keyPath: 'url' });
+          db.createObjectStore(COVERS_STORE, { keyPath: 'key' });
         }
       };
     });
@@ -138,7 +138,7 @@ class IndexedDBStorage implements PlaylistoDBClient {
     return new Promise((resolve, reject) => {
       const tx = this.db!.transaction([COVERS_STORE], 'readonly');
       const store = tx.objectStore(COVERS_STORE);
-      const req = store.get(url);
+      const req = store.get(key);
       req.onsuccess = () => resolve(req.result?.base64);
       req.onerror = () => reject(req.error);
     });

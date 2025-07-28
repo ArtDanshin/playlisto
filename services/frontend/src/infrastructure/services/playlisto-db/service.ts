@@ -31,12 +31,14 @@ class PlaylistoDBService implements PlaylistoDBServiceImp {
   }
 
   async createPlaylist(playlist: Playlist): Promise<void> {
-    const playlistsCount = await playlistoDB.getPlaylistsCount();
-
     const resultPlaylist: PlaylistAPI = {
       name: playlist.name, 
-      order: playlistsCount + 1,
+      order: playlist.order,
       tracks: [],
+    }
+
+    if (playlist.order === 0) {
+      resultPlaylist.order = await playlistoDB.getPlaylistsCount();
     }
 
     for (const track of playlist.tracks) {
@@ -53,10 +55,11 @@ class PlaylistoDBService implements PlaylistoDBServiceImp {
         const coverKey = createCoverKey(service, track[`${service}Data`].coverUrl);
         
         try {
-          await playlistoDB.addCover(coverKey, track[`${service}Data`].coverUrl);
+          await this.addCoverByURL(track[`${service}Data`].coverUrl, coverKey);
 
           resultTrack.coverKey = coverKey;
         } catch (error) {
+          console.log(error);
           console.error(`Треку ${track.artist} - ${track.title} не добавлена обложка`);
         }
 

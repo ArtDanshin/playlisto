@@ -118,7 +118,8 @@ export function getTrackExternalServices(track: Track): Array<'spotify'> {
  * Генерируем ключ для обложки в формате ${service}_${имя_файла}
  */
 export function createCoverKey(service: string, url: string): string {
-  // TODO: Написать логику
+  const match = url.match(/\/([^\/]+)$/);
+  const fileName = match ? match[1] : '';
 
-  return `${service}_${url}`;
+  return `${service}_${fileName}`;
 }
