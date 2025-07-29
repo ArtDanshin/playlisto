@@ -1,3 +1,6 @@
+import type { SpotifyTrackDataResponse } from '@/infrastructure/services/spotify';
+import type { Track, SpotifyTrackData } from '@/shared/types';
+
 // PKCE utilities for Spotify OAuth
 export function generateCodeVerifier(length: number = 128): string {
   const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
@@ -81,7 +84,7 @@ export function extractTrackIdFromUrl(url: string): string | null {
  * - https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M
  */
 export function extractPlaylistId(url: string): string | null {
-  const match = url.match(/playlist\/([a-zA-Z0-9]+)/);
+  const match = url.match(/^https?:\/\/open\.spotify\.com\/playlist\/([a-zA-Z0-9]+)/);
   return match ? match[1] : null;
 };
 
@@ -97,4 +100,61 @@ export function isValidSpotifyTrackUrl(url: string): boolean {
  */
 export function createSpotifyTrackUrl(trackId: string): string {
   return `https://open.spotify.com/track/${trackId}`;
+}
+
+/**
+ * Проверяем точное совпадение треков
+ */
+export function isExactSpotifyMatch(artist: string, title: string, spotifyTrack: SpotifyTrackDataResponse): boolean {
+  const isArtistEqual = artist.toLowerCase().trim() === spotifyTrack.artists[0]?.name.toLowerCase().trim();
+  const isTitleEqual = title.toLowerCase().trim() === spotifyTrack.name.toLowerCase().trim();
+
+  return isArtistEqual && isTitleEqual;
+}
+
+/**
+ * Формируем информацию о треке из Spotify данных
+ */
+export function createTrackDataFromSpotify(spotifyTrackData: SpotifyTrackDataResponse, position: number): Track {
+  return {
+    title: spotifyTrackData.name,
+    artist: spotifyTrackData.artists[0]?.name || 'Unknown Artist',
+    album: spotifyTrackData.album?.name || '',
+    duration: spotifyTrackData.duration_ms,
+    position,
+    coverKey: '',
+    spotifyData: createSpotifyData(spotifyTrackData),
+  };
+}
+
+/**
+ * Обновляем информацию о треке из Spotify данных
+ */
+export function updateTrackDataFromSpotify(track: Track, spotifyTrackData: SpotifyTrackDataResponse): Track {
+  return {
+    title: track.title || spotifyTrackData.name,
+    artist: track.artist || spotifyTrackData.artists[0]?.name || 'Unknown Artist',
+    album: track.album || spotifyTrackData.album?.name || '',
+    duration: track.duration || spotifyTrackData.duration_ms,
+    position: track.position,
+    coverKey: track.coverKey,
+    spotifyData: createSpotifyData(spotifyTrackData),
+  };
+}
+
+/**
+ * Преобразуем информацию о треке из Spotify данных в поле spotifyData
+ */
+export function createSpotifyData(spotifyTrackData: SpotifyTrackDataResponse): SpotifyTrackData {
+  const albumCoversCount = spotifyTrackData.album?.images?.length;
+
+  return {
+    id: spotifyTrackData.id,
+    title: spotifyTrackData.name,
+    artist: spotifyTrackData.artists[0]?.name || 'Unknown Artist',
+    album: spotifyTrackData.album?.name || '',
+    // Запоминаем самую маленькую обложку. Она на момент написания была последней
+    coverUrl: (albumCoversCount) ? spotifyTrackData.album.images[albumCoversCount-1].url : '', 
+    duration: spotifyTrackData.duration_ms || 0,
+  };
 }

@@ -1,9 +1,15 @@
 import { extractPlaylistId } from '@/shared/utils/spotify';
+import type { Track } from '@/shared/types/playlist';
 
-import type { SpotifyService as SpotifyServiceImp, SpotifyPlaylistInfo, SpotifyTrackData } from './types';
+import type { 
+  SpotifyService as SpotifyServiceImp,
+  SpotifyPlaylistInfoResponse,
+  SpotifyTrackDataResponse,
+  MatchedTracks
+} from './types';
 
 class SpotifyService implements SpotifyServiceImp {
-  async getPlaylistInfoByURL(spotifyPlaylistURL: string): Promise<SpotifyPlaylistInfo> {
+  async getPlaylistInfoByURL(spotifyPlaylistURL: string): Promise<SpotifyPlaylistInfoResponse> {
     console.log('Service SpotifyService. Method getPlaylistInfoByURL. Params:', spotifyPlaylistURL);
 
     const playlistId = extractPlaylistId(spotifyPlaylistURL);
@@ -20,8 +26,7 @@ class SpotifyService implements SpotifyServiceImp {
     }
   }
 
-  // Получение конкретного плейлиста
-  async getPlaylistTracksByURL(spotifyPlaylistURL: string): Promise<SpotifyTrackData[]> {
+  async getPlaylistTracksByURL(spotifyPlaylistURL: string): Promise<SpotifyTrackDataResponse[]> {
     const playlistId = extractPlaylistId(spotifyPlaylistURL);
 
     if (!playlistId) {
@@ -30,6 +35,34 @@ class SpotifyService implements SpotifyServiceImp {
 
     console.log('Service SpotifyService. Method getPlaylistTracksByURL. Params:', spotifyPlaylistURL);
     return [];
+  }
+
+  async searhAndMatchTracks(
+    _: Track[],
+    onProcess?: (current: number, total: number) => void
+  ): Promise<MatchedTracks> {
+    let processedCount = 0;
+    const toProcessTracksCount = 10
+    const updatedTracks: Track[] = [];
+
+    onProcess && onProcess(processedCount, toProcessTracksCount);
+
+    while (processedCount < 10) {
+      await new Promise<void>((resolve) => setTimeout(() => {
+        processedCount++;
+        onProcess && onProcess(processedCount, toProcessTracksCount);
+
+        // TODO: Добавить mock структуры трека
+        updatedTracks.push({} as Track);
+        resolve();
+      }, 200));
+    }
+
+    return {
+      allTracks: [],
+      onlyUpdatedTracks: [],
+      notUpdatedTracks: []
+    };
   }
 }
 

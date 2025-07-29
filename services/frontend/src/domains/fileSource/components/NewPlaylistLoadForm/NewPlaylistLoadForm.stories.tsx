@@ -1,7 +1,7 @@
 import NewPlaylistLoadForm from './NewPlaylistLoadForm';
 
 export default {
-  title: 'Domains/Sources/File',
+  title: 'Domains/Sources/File/NewPlaylistLoadForm',
   component: NewPlaylistLoadForm,
 };
 

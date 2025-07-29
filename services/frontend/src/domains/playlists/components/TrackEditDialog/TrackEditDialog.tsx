@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 
 import type { Track } from '@/shared/types';
-import { spotifyApi, type SpotifyTrackData } from '@/infrastructure/api/spotify';
+import { spotifyApi, type SpotifyTrackDataResponse } from '@/infrastructure/api/spotify';
 import { useSpotifyStore } from '@/domains/spotifySource/store';
 import { updateTrackWithSpotify } from '@/shared/utils/playlist';
 import { extractTrackIdFromUrl, isValidSpotifyTrackUrl } from '@/shared/utils/spotify';
@@ -43,7 +43,7 @@ function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProp
   const [activeTab, setActiveTab] = useState<'general' | 'spotify' | 'm3u'>('general');
   const [isSearching, setIsSearching] = useState(false);
   const [isSearchingByUrl, setIsSearchingByUrl] = useState(false);
-  const [searchResults, setSearchResults] = useState<SpotifyTrackData[]>([]);
+  const [searchResults, setSearchResults] = useState<SpotifyTrackDataResponse[]>([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [spotifyUrl, setSpotifyUrl] = useState('');
@@ -189,7 +189,7 @@ function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProp
     }
   };
 
-  const handleSelectSpotifyTrack = async (spotifyTrack: SpotifyTrackData) => {
+  const handleSelectSpotifyTrack = async (spotifyTrack: SpotifyTrackDataResponse) => {
     try {
       // Обновляем форму с данными из Spotify
       setFormData({

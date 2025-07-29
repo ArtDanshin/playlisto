@@ -1,5 +1,5 @@
 import type { Track } from '@/shared/types';
-import type { SpotifyTrackData } from '@/infrastructure/api/spotify';
+import type { SpotifyTrackDataResponse } from '@/infrastructure/api/spotify';
 import { playlistoDB } from '@/infrastructure/storage/playlisto-db';
 
 import { fetchImageAsBase64 } from './image-utils';
@@ -9,7 +9,7 @@ import { fetchImageAsBase64 } from './image-utils';
  */
 export async function updateTrackWithSpotify(
   track: Track,
-  spotifyTrack: SpotifyTrackData,
+  spotifyTrack: SpotifyTrackDataResponse,
 ): Promise<Track> {
   // Выбираем наименьшую картинку для обложки
   const imagesSorted = [...spotifyTrack.album.images].sort((a, b) => a.width - b.width);
@@ -54,7 +54,7 @@ export function createTrackKey(track: Track): string {
 /**
  * Проверяем точное совпадение треков
  */
-export function isExactMatch(track: Track, spotifyTrack: SpotifyTrackData): boolean {
+export function isExactMatch(track: Track, spotifyTrack: SpotifyTrackDataResponse): boolean {
   const trackKey = createTrackKey(track);
   const spotifyKey = `${spotifyTrack.artists[0]?.name.toLowerCase().trim()}-${spotifyTrack.name.toLowerCase().trim()}`;
 
@@ -112,6 +112,13 @@ export function getTrackExternalServices(track: Track): Array<'spotify'> {
   const services: Array<'spotify' | 'm3u'> = getTrackServices(track);
   
   return services.filter((service) => service !== 'm3u');
+}
+
+/**
+ * Проверяем сторонний ли сервис или нет
+ */
+export function isExternalServices(service: string = ''): boolean {
+  return ['spotify'].includes(service);
 }
 
 /**

@@ -1,10 +1,10 @@
 import type { StateCreator } from 'zustand';
 
 import { spotifyApi } from '@/infrastructure/api/spotify';
-import type { SpotifyAuthStatus } from '@/infrastructure/api/spotify';
+import type { SpotifyAuthStatusResponse } from '@/infrastructure/api/spotify';
 
 export interface SpotifyState {
-  authStatus: SpotifyAuthStatus;
+  authStatus: SpotifyAuthStatusResponse;
   isLoading: boolean;
   error: string | null;
   login: () => Promise<void>;

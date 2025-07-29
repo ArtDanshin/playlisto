@@ -1,4 +1,4 @@
-export interface SpotifyTrackData {
+export interface SpotifyTrackDataResponse {
   id: string;
   name: string;
   artists: Array<{ id: string; name: string; }>;
@@ -14,27 +14,24 @@ export interface SpotifyTrackData {
   uri: string;
 }
 
-export interface SpotifyUser {
+export interface SpotifyUserResponse {
   id: string;
   display_name: string;
   email: string;
   images?: Array<{ url: string; height: number; width: number; }>;
 }
 
-export interface SpotifyAuthStatus {
+export interface SpotifyAuthStatusResponse {
   isAuthenticated: boolean;
-  user: SpotifyUser | null;
+  user: SpotifyUserResponse | null;
   expiresAt: number | null;
 }
 
 export interface SpotifySearchResponse {
   tracks: {
-    href: string;
-    items: SpotifyTrackData[];
+    items: SpotifyTrackDataResponse[];
     limit: number;
-    next: string | null;
     offset: number;
-    previous: string | null;
     total: number;
   };
 }
@@ -51,6 +48,6 @@ export interface SpotifyPlaylistTracksResponse {
   offset: number;
   total: number;
   items: {
-    track: SpotifyTrackData
+    track: SpotifyTrackDataResponse
   }[];
 }

@@ -22,7 +22,7 @@ export interface StepsFormProps {
 };
 
 export interface Step {
-  component: (prev: () => void, next: () => void, close: () => void) => ReactNode;
+  component: (next: () => void, prev: () => void, close: () => void) => ReactNode;
   viewNextButton?: NavigationButton;
   viewPrevButton?: NavigationButton;
   viewCloseButton?: NavigationButton;

@@ -2,6 +2,6 @@
 export type {
   Playlist,
   Track,
-  TrackSpotifyData,
+  SpotifyTrackData,
   TrackM3UData,
 } from './playlist';

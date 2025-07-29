@@ -3,20 +3,20 @@ import {
   generateCodeVerifier, generateCodeChallenge, isTokenExpired, getTokenExpiryTime, getUrlParams,
 } from '@/shared/utils/spotify';
 
-import type { SpotifyTrackData, SpotifyUser, SpotifyAuthStatus, SpotifySearchResponse, SpotifyPlaylistInfoResponse, SpotifyPlaylistTracksResponse } from './types';
+import type { SpotifyTrackDataResponse, SpotifyUserResponse, SpotifyAuthStatusResponse, SpotifySearchResponse, SpotifyPlaylistInfoResponse, SpotifyPlaylistTracksResponse } from './types';
 
 interface SpotifyApiClient {
   initiateAuth: () => Promise<void>;
   handleCallback: () => Promise<boolean>;
   refreshToken: () => Promise<boolean>;
-  fetchUserProfile: () => Promise<SpotifyUser>;
-  getAuthStatus: () => SpotifyAuthStatus;
+  fetchUserProfile: () => Promise<SpotifyUserResponse>;
+  getAuthStatus: () => SpotifyAuthStatusResponse;
   logout: () => void;
   apiCall: (endpoint: string, options?: RequestInit) => Promise<any>;
   getPlaylistInfo: (playlistId: string) => Promise<SpotifyPlaylistInfoResponse>;
   getPlaylistTracks: (playlistId: string, limit?: number, offset?: number) => Promise<SpotifyPlaylistTracksResponse>;
   searchTracks: (query: string, limit?: number) => Promise<SpotifySearchResponse>;
-  getTrack: (trackId: string) => Promise<SpotifyTrackData>;
+  getTrack: (trackId: string) => Promise<SpotifyTrackDataResponse>;
 }
 
 class SpotifyApi implements SpotifyApiClient {
@@ -144,15 +144,15 @@ class SpotifyApi implements SpotifyApiClient {
   }
 
   // Получение профиля пользователя
-  async fetchUserProfile(): Promise<SpotifyUser> {
+  async fetchUserProfile(): Promise<SpotifyUserResponse> {
     const response = await this.apiCall('/me');
-    const user = response as SpotifyUser;
+    const user = response as SpotifyUserResponse;
     localStorage.setItem(SPOTIFY_STORAGE_KEYS.USER_PROFILE, JSON.stringify(user));
     return user;
   }
 
   // Проверка статуса авторизации
-  getAuthStatus(): SpotifyAuthStatus {
+  getAuthStatus(): SpotifyAuthStatusResponse {
     const accessToken = localStorage.getItem(SPOTIFY_STORAGE_KEYS.ACCESS_TOKEN);
     const expiresAt = localStorage.getItem(SPOTIFY_STORAGE_KEYS.TOKEN_EXPIRES_AT);
     const userProfile = localStorage.getItem(SPOTIFY_STORAGE_KEYS.USER_PROFILE);
@@ -256,9 +256,9 @@ class SpotifyApi implements SpotifyApiClient {
   }
 
   // Получение информации о треке
-  async getTrack(trackId: string): Promise<SpotifyTrackData> {
+  async getTrack(trackId: string): Promise<SpotifyTrackDataResponse> {
     const response = await this.apiCall(`/tracks/${trackId}`);
-    return response as SpotifyTrackData;
+    return response as SpotifyTrackDataResponse;
   }
 }
 

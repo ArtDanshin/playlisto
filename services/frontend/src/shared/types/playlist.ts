@@ -13,10 +13,10 @@ export interface Track {
   position: number; // Позиция трека в плейлисте
   coverKey: string; // Ключ обложки трека в базе данных covers(заполняется путем преобразования обложки в base64 и сохранением в базу данных covers из первого источника, в котором будет обложка)
   m3uData?: TrackM3UData; // Отфильтрованные данные трека пришедшие из m3u файла. Заполняются при импорте/привязке плейлиста из m3u файла
-  spotifyData?: TrackSpotifyData; // Отфильтрованные данные трека пришедшие из Spotify API(Заполняются при импорте/привязке плейлиста трека к Spotify)
+  spotifyData?: SpotifyTrackData; // Отфильтрованные данные трека пришедшие из Spotify API(Заполняются при импорте/привязке плейлиста трека к Spotify)
 }
 
-export interface TrackSpotifyData {
+export interface SpotifyTrackData {
   id: string; // ID трека в Spotify
   title: string; // Название трека
   artist: string; // Исполнитель
