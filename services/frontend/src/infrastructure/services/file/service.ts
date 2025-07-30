@@ -45,9 +45,9 @@ class FileService implements FileServiceImp {
     }
 
     return {
-      allTracks: [],
-      onlyUpdatedTracks: [],
-      notUpdatedTracks: []
+      allTracks: resultTracks,
+      onlyUpdatedTracks: updatedTracks,
+      notUpdatedTracks: notUpdatedTracks,
     };
   }
 

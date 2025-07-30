@@ -62,7 +62,7 @@ class SpotifyService implements SpotifyServiceImp {
     let processedCount = 0;
     const toProcessTracksCount = tracks.reduce((total, track) => {
       if (!track.spotifyData) {
-        return total++;
+        return ++total;
       }
 
       return total;

@@ -12,6 +12,10 @@ class PlaylistoDBService implements PlaylistoDBServiceImp {
   async createPlaylist(playlist: Playlist): Promise<void> {
     return;
   }
+
+  async updatePlaylistWithCoverLoad(playlist: Playlist): Promise<Playlist> {
+    return playlist;
+  }
 }
 
 // Создаем глобальный экземпляр базы данных

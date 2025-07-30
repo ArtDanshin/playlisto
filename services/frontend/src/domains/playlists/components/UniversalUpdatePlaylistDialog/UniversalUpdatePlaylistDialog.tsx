@@ -25,7 +25,7 @@ import { playlistoDB } from '@/infrastructure/storage/playlisto-db';
 import { spotifyApi } from '@/infrastructure/api/spotify';
 import { useSpotifyStore } from '@/domains/spotifySource/store';
 
-import { usePlaylistStore } from '../../store/playlist-store';
+import { usePlaylistStore } from '../../store';
 
 interface UniversalUpdatePlaylistDialogProps {
   currentPlaylist: Playlist;

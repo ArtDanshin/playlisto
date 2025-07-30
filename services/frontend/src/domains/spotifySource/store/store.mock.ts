@@ -2,7 +2,7 @@ import { type StateCreator } from 'zustand';
 
 import type { SpotifyState } from './store';
 
-export const store: StateCreator<SpotifyState> = (set, _) => ({
+export const store: StateCreator<SpotifyState> = (set) => ({
   authStatus: {
     isAuthenticated: false,
     user: null,
@@ -12,7 +12,6 @@ export const store: StateCreator<SpotifyState> = (set, _) => ({
   error: null,
 
   initializeSpotify: async () => {
-    console.log('Init mock');
     set({ authStatus: {
       isAuthenticated: true,
       user: {

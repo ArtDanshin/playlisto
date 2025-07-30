@@ -16,15 +16,10 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { Music, RefreshCw } from 'lucide-react';
 
 import type { Track } from '@/shared/types';
-import { Button } from '@/shared/components/ui/Button';
 
-import { usePlaylistStore } from '../../store/playlist-store';
-import { UniversalExportDialog } from '../UniversalExportDialog';
-import { UniversalUpdatePlaylistDialog } from '../UniversalUpdatePlaylistDialog';
-import UniversalPlaylistUpdate from '../UniversalPlaylistUpdate/UniversalPlaylistUpdate';
+import { usePlaylistStore } from '../../store';
 
 import SortableTrackItem from './SortableTrackItem.tsx';
 
@@ -103,78 +98,50 @@ function SortableTrackList({ tracks }: SortableTrackListProps) {
   };
 
   return (
-    <div className='space-y-4'>
-      <div className='flex items-center justify-between'>
-        <h2 className='text-2xl font-bold'>Треки</h2>
-        <div className='flex items-center gap-2'>
-          {currentPlaylist && (
-            <UniversalUpdatePlaylistDialog
-              currentPlaylist={currentPlaylist}
-              onPlaylistUpdated={updatePlaylist}
-            >
-              <Button variant='outline' size='sm'>
-                <RefreshCw className='mr-2 h-4 w-4' />
-                Обновить состав треков
-              </Button>
-            </UniversalUpdatePlaylistDialog>
-          )}
-          <UniversalPlaylistUpdate tracks={tracks} />
-          {currentPlaylist && (
-            <UniversalExportDialog playlist={currentPlaylist}>
-              <Button variant='outline' size='sm'>
-                <Music className='mr-2 h-4 w-4' />
-                Экспорт
-              </Button>
-            </UniversalExportDialog>
-          )}
-        </div>
-      </div>
-
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-        modifiers={[]}
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleDragEnd}
+      modifiers={[]}
+    >
+      <SortableContext
+        items={tracks.map((track) => `${track.title}-${track.artist}`)}
+        strategy={verticalListSortingStrategy}
       >
-        <SortableContext
-          items={tracks.map((track) => `${track.title}-${track.artist}`)}
-          strategy={verticalListSortingStrategy}
-        >
-          <div className='grid gap-4'>
-            {tracks.map((track, index) => (
-              <SortableTrackItem
-                key={`${track.title}-${track.artist}-${index}`} // eslint-disable-line react/no-array-index-key
-                track={track}
-                trackIndex={index}
-                isEditing={editingIndex === index}
-                onEditStart={() => setEditingIndex(index)}
-                onEditCancel={() => setEditingIndex(null)}
-                onOrderChange={(newOrder: number) => handleManualOrderChange(index, newOrder)}
-                onTrackUpdate={async (updatedTrack: Track) => {
-                  if (!currentPlaylist) return;
+        <div className='grid gap-4'>
+          {tracks.map((track, index) => (
+            <SortableTrackItem
+              key={`${track.title}-${track.artist}-${index}`} // eslint-disable-line react/no-array-index-key
+              track={track}
+              trackIndex={index}
+              isEditing={editingIndex === index}
+              onEditStart={() => setEditingIndex(index)}
+              onEditCancel={() => setEditingIndex(null)}
+              onOrderChange={(newOrder: number) => handleManualOrderChange(index, newOrder)}
+              onTrackUpdate={async (updatedTrack: Track) => {
+                if (!currentPlaylist) return;
 
-                  const updatedTracks = [...currentPlaylist.tracks];
-                  updatedTracks[index] = updatedTrack;
+                const updatedTracks = [...currentPlaylist.tracks];
+                updatedTracks[index] = updatedTrack;
 
-                  const updatedPlaylist = {
-                    ...currentPlaylist,
-                    tracks: updatedTracks,
-                  };
+                const updatedPlaylist = {
+                  ...currentPlaylist,
+                  tracks: updatedTracks,
+                };
 
-                  updateCurrentPlaylistTracks(updatedPlaylist.tracks);
+                updateCurrentPlaylistTracks(updatedPlaylist.tracks);
 
-                  try {
-                    await updatePlaylist(updatedPlaylist);
-                  } catch (error) {
-                    console.error('Failed to save track changes:', error);
-                  }
-                }}
-              />
-            ))}
-          </div>
-        </SortableContext>
-      </DndContext>
-    </div>
+                try {
+                  await updatePlaylist(updatedPlaylist);
+                } catch (error) {
+                  console.error('Failed to save track changes:', error);
+                }
+              }}
+            />
+          ))}
+        </div>
+      </SortableContext>
+    </DndContext>
   );
 }
 

@@ -28,7 +28,7 @@ import {
 } from '@/shared/components/ui/Sidebar';
 
 import { NewPlaylistDialog } from '../NewPlaylistDialog';
-import { usePlaylistStore } from '../../store/playlist-store';
+import { usePlaylistStore } from '../../store';
 
 import SortablePlaylistItem from './SortablePlaylistItem';
 

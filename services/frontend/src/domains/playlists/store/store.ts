@@ -1,10 +1,10 @@
-import { create } from 'zustand';
+import type { StateCreator } from 'zustand';
 
 import type { Playlist, Track } from '@/shared/types';
 import { playlistoDB } from '@/infrastructure/storage/playlisto-db';
 import { playlistoDBService } from '@/infrastructure/services/playlisto-db';
 
-interface PlaylistState {
+export interface PlaylistState {
   currentPlaylist: Playlist | null;
   playlists: Playlist[];
   isLoading: boolean;
@@ -15,13 +15,14 @@ interface PlaylistState {
   addPlaylist: (playlist: Playlist) => Promise<void>;
   removePlaylist: (playlistId: number) => Promise<void>;
   updatePlaylist: (playlist: Playlist) => Promise<void>;
+  
   loadPlaylists: () => Promise<void>;
   updatePlaylistsOrder: (orderedIds: number[]) => Promise<void>;
   setNewTracks: (trackKeys: string[]) => void;
   clearNewTracks: () => void;
 }
 
-export const usePlaylistStore = create<PlaylistState>((set, get) => ({
+export const store: StateCreator<PlaylistState> = (set, get) => ({
   currentPlaylist: null,
   playlists: [],
   isLoading: true,
@@ -32,16 +33,16 @@ export const usePlaylistStore = create<PlaylistState>((set, get) => ({
     set({ currentPlaylist: playlist, newTracks: new Set() });
   },
 
-  updateCurrentPlaylistTracks: (tracks) => {
-    set((state) => ({
-      currentPlaylist: state.currentPlaylist
-        ? {
-            ...state.currentPlaylist,
-            tracks,
-          }
-        : null,
-    }));
-  },
+  // updateCurrentPlaylistTracks: (tracks) => {
+  //   set((state) => ({
+  //     currentPlaylist: state.currentPlaylist
+  //       ? {
+  //           ...state.currentPlaylist,
+  //           tracks,
+  //         }
+  //       : null,
+  //   }));
+  // },
 
   addPlaylist: async (playlist) => {
     set({ isLoading: true, error: null });
@@ -95,6 +96,26 @@ export const usePlaylistStore = create<PlaylistState>((set, get) => ({
     }
   },
 
+  updateCurrentPlaylistTracks: async (tracks: Track[]) => {
+    const { currentPlaylist } = get();
+    try {
+      if (!currentPlaylist) {
+        set({ error: 'Ошибка обновление плейлиста: Не выбран плейлист' });
+        return;
+      }
+
+      const newPlaylist = await playlistoDBService.updatePlaylistWithCoverLoad({
+        ...currentPlaylist,
+        tracks
+      });
+
+      set({ currentPlaylist: newPlaylist });
+    } catch (error: any) {
+      set({ error: error.message || 'Failed to update playlist' });
+      throw error;
+    }
+  },
+
   loadPlaylists: async () => {
     set({ isLoading: true, error: null });
     try {
@@ -138,4 +159,4 @@ export const usePlaylistStore = create<PlaylistState>((set, get) => ({
   clearNewTracks: () => {
     set({ newTracks: new Set() });
   },
-}));
+});

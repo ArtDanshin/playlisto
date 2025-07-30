@@ -1,5 +1,6 @@
 import SidebarWithPlaylists from '@/domains/playlists/components/SidebarWithPlaylists/SidebarWithPlaylists';
 import { SortableTrackList } from '@/domains/playlists/components/SortableTrackList';
+import { CurrentPlaylistHeader } from '@/domains/playlists/components/CurrentPlaylistHeader';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -12,7 +13,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/shared/components/ui/Sidebar';
-import { usePlaylistStore } from '@/domains/playlists/store/playlist-store';
+import { usePlaylistStore } from '@/domains/playlists/store';
 import { Providers } from '@/providers';
 import { Settings } from '@/shared/components/Settings';
 
@@ -46,7 +47,10 @@ function App() {
             {currentPlaylist
               ? (
                   <div className='mx-auto w-full max-w-4xl'>
-                    <SortableTrackList tracks={currentPlaylist.tracks} />
+                    <div className='space-y-4'>
+                      <CurrentPlaylistHeader tracks={currentPlaylist.tracks} />
+                      <SortableTrackList tracks={currentPlaylist.tracks} />
+                    </div>
                   </div>
                 )
               : (

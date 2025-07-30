@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import type { ReactNode } from 'react';
 
 import { useSpotifyStore } from '@/domains/spotifySource/store';
-import { usePlaylistStore } from '@/domains/playlists/store/playlist-store';
+import { usePlaylistStore } from '@/domains/playlists/store';
 
 interface ProvidersProps {
   children: ReactNode;

@@ -2,7 +2,7 @@ import { playlistoDB } from '@/infrastructure/storage/playlisto-db';
 import type { Playlist as PlaylistAPI } from '@/infrastructure/storage/playlisto-db';
 import { getTrackExternalServices, createCoverKey } from '@/shared/utils/playlist';
 
-import type { PlaylistoDBService as PlaylistoDBServiceImp, Playlist } from './types';
+import type { PlaylistoDBService as PlaylistoDBServiceImp, Playlist, Track } from './types';
 
 class PlaylistoDBService implements PlaylistoDBServiceImp {
   async init(): Promise<void> {
@@ -62,12 +62,49 @@ class PlaylistoDBService implements PlaylistoDBServiceImp {
           console.log(error);
           console.error(`Треку ${track.artist} - ${track.title} не добавлена обложка`);
         }
-
-        resultPlaylist.tracks.push(resultTrack);
       }
+      
+      resultPlaylist.tracks.push(resultTrack);
     }
 
     await playlistoDB.addPlaylist(resultPlaylist);
+  }
+
+  async updatePlaylistWithCoverLoad(playlist: Playlist): Promise<Playlist> {
+    const resultPlaylist: PlaylistAPI = {
+      ...playlist,
+      tracks: [],
+    }
+
+    for (const track of playlist.tracks) {
+      const resultTrack = { ...track };
+
+      if (!track.coverKey) {
+        const service = getTrackExternalServices(track)[0];
+        
+        if (!service || !track[`${service}Data`]?.coverUrl) {
+          resultPlaylist.tracks.push(resultTrack);
+          continue;
+        }
+        
+        const coverKey = createCoverKey(service, track[`${service}Data`].coverUrl);
+        
+        try {
+          await this.addCoverByURL(track[`${service}Data`].coverUrl, coverKey);
+
+          resultTrack.coverKey = coverKey;
+        } catch (error) {
+          console.log(error);
+          console.error(`Треку ${track.artist} - ${track.title} не добавлена обложка`);
+        }
+      }
+      
+      resultPlaylist.tracks.push(resultTrack);
+    }
+
+    await playlistoDB.updatePlaylist(resultPlaylist);
+
+    return resultPlaylist;
   }
 }
 

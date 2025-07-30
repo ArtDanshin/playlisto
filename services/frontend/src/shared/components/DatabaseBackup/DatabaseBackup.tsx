@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Download, Upload, Loader2, AlertCircle } from 'lucide-react';
 
 import { Button } from '@/shared/components/ui/Button';
-import { usePlaylistStore } from '@/domains/playlists/store/playlist-store';
+import { usePlaylistStore } from '@/domains/playlists/store';
 import {
   exportDatabase,
   importDatabase,

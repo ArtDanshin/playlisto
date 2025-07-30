@@ -1,10 +1,11 @@
-import type { Playlist as PlaylistInfo} from '@/infrastructure/storage/playlisto-db';
+import type { Playlist } from '@/infrastructure/storage/playlisto-db';
+
+export type { Playlist, Track } from '@/infrastructure/storage/playlisto-db';
 
 export interface PlaylistoDBService {
   init: () => Promise<void>;
   // Пояснение - Возвращает ключ обложки
   addCoverByURL: (url: string, key?: string) => Promise<string>;
   createPlaylist: (playlist: Playlist) => Promise<void>;
+  updatePlaylistWithCoverLoad: (playlist: Playlist) => Promise<Playlist>;
 };
-
-export type Playlist = PlaylistInfo;

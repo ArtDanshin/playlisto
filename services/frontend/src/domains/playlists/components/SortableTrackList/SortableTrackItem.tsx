@@ -14,7 +14,7 @@ import { Input } from '@/shared/components/ui/Input';
 import { playlistoDB } from '@/infrastructure/storage/playlisto-db';
 import { getTrackDuration, isTrackLinkedToSpotify, createTrackKey } from '@/shared/utils/playlist';
 
-import { usePlaylistStore } from '../../store/playlist-store';
+import { usePlaylistStore } from '../../store';
 import { TrackEditDialog } from '../TrackEditDialog';
 
 interface SortableTrackItemProps {
