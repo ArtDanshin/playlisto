@@ -11,9 +11,9 @@ import type { SourceCommon, SourceUpdateTracksData, UpdateTracksAfterMatch } fro
 import type { Track } from '@/shared/types/playlist';
 import { isExternalServices } from '@/shared/utils/playlist';
 
-const SOURCES: string[] = ['spotify'];
+const SOURCES: string[] = ['spotify', 'file'];
 const SOURCES_DATA: Record<string, SourceCommon & SourceUpdateTracksData> = {
-  // file: { ...fileCommon, ...fileUpdateTracksData },
+  file: { ...fileCommon, ...fileUpdateTracksData },
   spotify: { ...spotifyCommon, ...spotifyUpdateTracksData },
 }
 
@@ -123,7 +123,7 @@ function NewPlaylistDialog({ tracks, onTracksUpdate, children }: UpdateTracksDat
             <div className='space-y-2'>
               <h4 className='font-medium text-green-700 flex items-center gap-2'>
                 <CheckCircle className='h-4 w-4' />
-                {isExternalServices(currentSource) ? 'Распознанные треки' : 'Треки с данными файлов'} ({result.updated.length})
+                {isExternalServices(currentSource) ? 'Распознанные треки' : 'Треки с данными файлов'} ({arrayOfProcessedTracks.onlyUpdatedTracks.length})
               </h4>
               <ScrollArea className='h-32'>
                 <div className='space-y-1'>
@@ -142,7 +142,7 @@ function NewPlaylistDialog({ tracks, onTracksUpdate, children }: UpdateTracksDat
             <div className='space-y-2'>
               <h4 className='font-medium text-orange-700 flex items-center gap-2'>
                 <AlertCircle className='h-4 w-4' />
-                {isExternalServices(currentSource) ? 'Не распознанные треки' : 'Треки без данных файлов'} ({result.skipped.length})
+                {isExternalServices(currentSource) ? 'Не распознанные треки' : 'Треки без данных файлов'} ({arrayOfProcessedTracks.notUpdatedTracks.length})
               </h4>
               <ScrollArea className='h-32'>
                 <div className='space-y-1'>

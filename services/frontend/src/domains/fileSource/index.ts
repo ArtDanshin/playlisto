@@ -3,6 +3,7 @@ import { FileAudio } from 'lucide-react';
 import type { SourceCommon, SourceNewPlaylist, SourceUpdateTracksData } from '@/shared/types/source';
 
 import { NewPlaylistLoadForm } from './components/NewPlaylistLoadForm';
+import { UpdateTrackDataForm } from './components/UpdateTracksDataForm';
 
 export const common: SourceCommon = {
   Icon: FileAudio,
@@ -18,4 +19,8 @@ export const updateTracksData: SourceUpdateTracksData = {
   title: 'Добавить данные файлов',
   description: 'Загрузить M3U файл и добавить информацию о путях к файлам',
   logicDescription: 'Загрузите M3U файл, и информация о путях к файлам будет добавлена к соответствующим трекам.',
+  MatchForm: UpdateTrackDataForm,
+  resultTitle: 'Обработка M3U файла завершена',
+  resultDescription: (processed, total) => `Добавлена информация о файлах для ${processed} из ${total} треков`
+
 }

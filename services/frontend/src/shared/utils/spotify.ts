@@ -132,12 +132,11 @@ export function createTrackDataFromSpotify(spotifyTrackData: SpotifyTrackDataRes
  */
 export function updateTrackDataFromSpotify(track: Track, spotifyTrackData: SpotifyTrackDataResponse): Track {
   return {
+    ...track,
     title: track.title || spotifyTrackData.name,
     artist: track.artist || spotifyTrackData.artists[0]?.name || 'Unknown Artist',
     album: track.album || spotifyTrackData.album?.name || '',
     duration: track.duration || spotifyTrackData.duration_ms,
-    position: track.position,
-    coverKey: track.coverKey,
     spotifyData: createSpotifyData(spotifyTrackData),
   };
 }
