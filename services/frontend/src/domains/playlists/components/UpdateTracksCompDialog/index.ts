@@ -1,1 +1,1 @@
-export { default as UpdateTracksDataDialog } from './UpdateTracksCompDialog';
+export { default as UpdateTracksCompDialog } from './UpdateTracksCompDialog';

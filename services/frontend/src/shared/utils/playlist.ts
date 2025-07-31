@@ -135,7 +135,7 @@ export function createCoverKey(service: string, url: string): string {
  * Формирование ключа трека, для их сопоставление
  * Для разных сервисов они могут иметь разный вид и состояить из своих данных 
  */
-export function getMatchKeyByService(track: Track, service: string): string {
+export function getMatchKeyBySource(track: Track, service: string): string {
   if (service === 'spotify' && track.spotifyData?.id) {
     return track.spotifyData.id
   }
@@ -155,21 +155,21 @@ export function getTracksComparison(
   missingTracks: Track[],
   commonTracks: Track[],
 } {
-  const tracks1Keys = new Set(tracks1.map((t) => getMatchKeyByService(t, service)));
-  const tracks2Keys = new Set(tracks2.map((t) => getMatchKeyByService(t, service)));
+  const tracks1Keys = new Set(tracks1.map((t) => getMatchKeyBySource(t, service)));
+  const tracks2Keys = new Set(tracks2.map((t) => getMatchKeyBySource(t, service)));
 
   const addTracks = tracks2.filter((t) => {
-    const trackKey = getMatchKeyByService(t, service);
+    const trackKey = getMatchKeyBySource(t, service);
     return !tracks1Keys.has(trackKey);
   });
 
   const missingTracks = tracks1.filter((t) => {
-    const trackKey = getMatchKeyByService(t, service);
+    const trackKey = getMatchKeyBySource(t, service);
     return !tracks2Keys.has(trackKey);
   });
 
   const commonTracks = tracks1.filter((t) => {
-    const trackKey = getMatchKeyByService(t, service);
+    const trackKey = getMatchKeyBySource(t, service);
     return tracks2Keys.has(trackKey);
   });
 

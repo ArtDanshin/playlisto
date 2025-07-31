@@ -6,13 +6,12 @@ import { Music, RefreshCw } from 'lucide-react';
 import { Button } from '@/shared/components/ui/Button';
 
 import { usePlaylistStore } from '../../store';
-import { UniversalExportDialog } from '../UniversalExportDialog/index.ts';
-import { UniversalUpdatePlaylistDialog } from '../UniversalUpdatePlaylistDialog/index.ts';
-import { UpdateTracksDataDialog } from '../UpdateTracksDataDialog/index.ts';
-
+import { UniversalExportDialog } from '../UniversalExportDialog';
+import { UpdateTracksCompDialog } from '../UpdateTracksCompDialog';
+import { UpdateTracksDataDialog } from '../UpdateTracksDataDialog';
 
 function CurrentPlaylistHeader() {
-  const { currentPlaylist, updatePlaylist, updateCurrentPlaylistTracks } = usePlaylistStore();
+  const { currentPlaylist, updateCurrentPlaylistTracks, mergeCurrentPlaylistTracks } = usePlaylistStore();
   
   return (
     <div className='flex items-center justify-between'>
@@ -20,15 +19,15 @@ function CurrentPlaylistHeader() {
       <div className='flex items-center gap-2'>
         {currentPlaylist && (
           <>
-            <UniversalUpdatePlaylistDialog
-              currentPlaylist={currentPlaylist}
-              onPlaylistUpdated={updatePlaylist}
+            <UpdateTracksCompDialog
+              tracks={currentPlaylist.tracks}
+              onTracksCompUpdate={mergeCurrentPlaylistTracks}
             >
               <Button variant='outline' size='sm'>
                 <RefreshCw className='mr-2 h-4 w-4' />
                 Обновить состав
               </Button>
-            </UniversalUpdatePlaylistDialog>
+            </UpdateTracksCompDialog>
             <UpdateTracksDataDialog tracks={currentPlaylist.tracks} onTracksUpdate={updateCurrentPlaylistTracks}>
               <Button variant='outline' size='sm'>
                 <Music className='mr-2 h-4 w-4' />

@@ -86,7 +86,6 @@ function NewPlaylistDialog({ tracks, onTracksUpdate, children }: UpdateTracksDat
         const MatchForm = SOURCES_DATA[currentSource].MatchForm;
         
         const handleUpdateTracks: UpdateTracksAfterMatch = (allTracks, onlyUpdatedTracks, notUpdatedTracks) => {
-          console.log('handleUpdateTracks', allTracks, onlyUpdatedTracks, notUpdatedTracks);
           onTracksUpdate(allTracks);
           setArrayOfProcessedTracks({ onlyUpdatedTracks, notUpdatedTracks });
 

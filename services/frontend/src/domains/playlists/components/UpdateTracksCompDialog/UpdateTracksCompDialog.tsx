@@ -13,6 +13,7 @@ import { common as spotifyCommon, updateTracksComp as spotifyUpdateTracksComp } 
 import type { SourceCommon, SourceUpdateTracksComp } from '@/shared/types/source';
 import type { Track, Playlist } from '@/shared/types/playlist';
 import { getTracksComparison } from '@/shared/utils/playlist';
+import type { MergeOptions } from '@/infrastructure/services/playlisto-db'
 
 const SOURCES: string[] = ['spotify', 'file'];
 const SOURCES_DATA: Record<string, SourceCommon & SourceUpdateTracksComp> = {
@@ -22,28 +23,24 @@ const SOURCES_DATA: Record<string, SourceCommon & SourceUpdateTracksComp> = {
 
 interface UpdateTracksCompDialogProps {
   tracks: Track[];
-  onTracksCompUpdate: (tracks: Track[], newTracks: Track[]) => Promise<void>;
+  onTracksCompUpdate: (newTracks: Track[], mergeOptions: MergeOptions) => Promise<void>;
   children: ReactNode;
 }
 
-interface SyncOptions {
-  addNewTracks: boolean;
-  removeMissingTracks: boolean;
-  syncOrder: boolean;
-}
+type MergeOptionsWithoutSource = Omit<MergeOptions, 'source'>;
 
 function UpdateTracksCompDialog({ tracks, onTracksCompUpdate, children }: UpdateTracksCompDialogProps) {
   const [currentSource, setCurrentSource] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [uploadedPlaylist, setUploadedPlaylist] = useState<Playlist>();
-  const [syncOptions, setSyncOptions] = useState<SyncOptions>({
+  const [mergeOptions, setMergeOptions] = useState<MergeOptionsWithoutSource>({
     addNewTracks: true,
     removeMissingTracks: true,
     syncOrder: true,
   });
   
-  const handleSyncOptionsChange = (option: keyof SyncOptions, value: boolean) => {
-    setSyncOptions((prev) => ({
+  const handleSyncOptionsChange = (option: keyof MergeOptionsWithoutSource, value: boolean) => {
+    setMergeOptions((prev) => ({
       ...prev,
       [option]: value,
     }));
@@ -126,7 +123,7 @@ function UpdateTracksCompDialog({ tracks, onTracksCompUpdate, children }: Update
         if (!uploadedPlaylist) return;
 
         try {
-          await onTracksCompUpdate(tracks, uploadedPlaylist.tracks);
+          await onTracksCompUpdate(uploadedPlaylist.tracks, { ...mergeOptions, source: currentSource });
           next();
         } catch (error: any) {
           console.error('Ошибка при обновлении состава треков', error);
@@ -175,21 +172,21 @@ function UpdateTracksCompDialog({ tracks, onTracksCompUpdate, children }: Update
               <div className='space-y-2'>
                 <label className='flex items-center space-x-2'>
                   <Checkbox
-                    checked={syncOptions.addNewTracks}
+                    checked={mergeOptions.addNewTracks}
                     onChange={(e) => handleSyncOptionsChange('addNewTracks', e.target.checked)}
                   />
                   <span className='text-sm'>Добавить новые треки</span>
                 </label>
                 <label className='flex items-center space-x-2'>
                   <Checkbox
-                    checked={syncOptions.removeMissingTracks}
+                    checked={mergeOptions.removeMissingTracks}
                     onChange={(e) => handleSyncOptionsChange('removeMissingTracks', e.target.checked)}
                   />
                   <span className='text-sm'>Удалить отсутствующие треки</span>
                 </label>
                 <label className='flex items-center space-x-2'>
                   <Checkbox
-                    checked={syncOptions.syncOrder}
+                    checked={mergeOptions.syncOrder}
                     onChange={(e) => handleSyncOptionsChange('syncOrder', e.target.checked)}
                   />
                   <span className='text-sm'>Синхронизировать порядок треков</span>

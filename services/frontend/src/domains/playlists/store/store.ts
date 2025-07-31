@@ -2,24 +2,24 @@ import type { StateCreator } from 'zustand';
 
 import type { Playlist, Track } from '@/shared/types';
 import { playlistoDB } from '@/infrastructure/storage/playlisto-db';
-import { playlistoDBService } from '@/infrastructure/services/playlisto-db';
+import { playlistoDBService, type MergeOptions } from '@/infrastructure/services/playlisto-db';
+import { createTrackKey } from '@/shared/utils/playlist';
 
 export interface PlaylistState {
   currentPlaylist: Playlist | null;
   playlists: Playlist[];
   isLoading: boolean;
   error: string | null;
-  newTracks: Set<string>; // Set of track keys for new tracks
+  newTracks: Set<string>;
   setCurrentPlaylist: (playlist: Playlist | null) => void;
-  updateCurrentPlaylistTracks: (tracks: Track[]) => void;
+  updateCurrentPlaylistTracks: (tracks: Track[]) => Promise<void>;
+  mergeCurrentPlaylistTracks: (tracks: Track[], mergeOptions: MergeOptions) => Promise<void>;
   addPlaylist: (playlist: Playlist) => Promise<void>;
   removePlaylist: (playlistId: number) => Promise<void>;
   updatePlaylist: (playlist: Playlist) => Promise<void>;
-  
   loadPlaylists: () => Promise<void>;
   updatePlaylistsOrder: (orderedIds: number[]) => Promise<void>;
-  setNewTracks: (trackKeys: string[]) => void;
-  clearNewTracks: () => void;
+  setNewTracks: (tracks: Track[]) => void;
 }
 
 export const store: StateCreator<PlaylistState> = (set, get) => ({
@@ -116,6 +116,24 @@ export const store: StateCreator<PlaylistState> = (set, get) => ({
     }
   },
 
+  mergeCurrentPlaylistTracks: async (tracks: Track[], mergeOptions: MergeOptions) => {
+    const { currentPlaylist, setNewTracks } = get();
+    try {
+      if (!currentPlaylist) {
+        set({ error: 'Ошибка при обновлении состава списка треков: Не выбран плейлист' });
+        return;
+      }
+
+      const { playlist: newPlaylist, newTracks } = await playlistoDBService.mergePlaylistTracks(currentPlaylist, tracks, mergeOptions);
+
+      set({ currentPlaylist: newPlaylist });
+      setNewTracks(newTracks);
+    } catch (error: any) {
+      set({ error: error.message || 'Failed to update playlist' });
+      throw error;
+    }
+  },
+
   loadPlaylists: async () => {
     set({ isLoading: true, error: null });
     try {
@@ -152,11 +170,7 @@ export const store: StateCreator<PlaylistState> = (set, get) => ({
     await Promise.all(ordered.map((p) => p.id === undefined ? undefined : playlistoDB.updatePlaylist(p)));
   },
 
-  setNewTracks: (trackKeys) => {
-    set({ newTracks: new Set(trackKeys) });
-  },
-
-  clearNewTracks: () => {
-    set({ newTracks: new Set() });
+  setNewTracks: (tracks: Track[]) => {
+    set({ newTracks: new Set(tracks.map(createTrackKey)) });
   },
 });

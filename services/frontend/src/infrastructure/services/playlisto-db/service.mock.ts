@@ -1,4 +1,4 @@
-import type { PlaylistoDBService as PlaylistoDBServiceImp, Playlist } from './types';
+import type { PlaylistoDBService as PlaylistoDBServiceImp, Playlist, Track } from './types';
 
 class PlaylistoDBService implements PlaylistoDBServiceImp {
   async init(): Promise<void> {
@@ -9,12 +9,16 @@ class PlaylistoDBService implements PlaylistoDBServiceImp {
     return key || url;
   }
 
-  async createPlaylist(playlist: Playlist): Promise<void> {
+  async createPlaylist(): Promise<void> {
     return;
   }
 
   async updatePlaylistWithCoverLoad(playlist: Playlist): Promise<Playlist> {
     return playlist;
+  }
+
+  async mergePlaylistTracks(playlist: Playlist): Promise<{ playlist: Playlist, newTracks: Track[] }> {
+    return { playlist, newTracks: [] };
   }
 }
 

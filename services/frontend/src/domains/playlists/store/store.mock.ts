@@ -10,7 +10,8 @@ export const store: StateCreator<PlaylistState> = () => ({
   newTracks: new Set<string>(),
 
   setCurrentPlaylist: () => {},
-  updateCurrentPlaylistTracks: () => {},
+  updateCurrentPlaylistTracks: async () => {},
+  mergeCurrentPlaylistTracks: async () => {},
   addPlaylist: async () => {},
   removePlaylist: async () => {},
   updatePlaylist: async () => {},
