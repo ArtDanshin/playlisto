@@ -130,3 +130,52 @@ export function createCoverKey(service: string, url: string): string {
 
   return `${service}_${fileName}`;
 }
+
+/**
+ * Формирование ключа трека, для их сопоставление
+ * Для разных сервисов они могут иметь разный вид и состояить из своих данных 
+ */
+export function getMatchKeyByService(track: Track, service: string): string {
+  if (service === 'spotify' && track.spotifyData?.id) {
+    return track.spotifyData.id
+  }
+
+  return createTrackKey(track)
+}
+
+/**
+ * Сравнение двух треклистов по составу и вывод различий
+ */
+export function getTracksComparison(
+  tracks1: Track[],
+  tracks2: Track[],
+  service: string,
+): {
+  addTracks: Track[],
+  missingTracks: Track[],
+  commonTracks: Track[],
+} {
+  const tracks1Keys = new Set(tracks1.map((t) => getMatchKeyByService(t, service)));
+  const tracks2Keys = new Set(tracks2.map((t) => getMatchKeyByService(t, service)));
+
+  const addTracks = tracks2.filter((t) => {
+    const trackKey = getMatchKeyByService(t, service);
+    return !tracks1Keys.has(trackKey);
+  });
+
+  const missingTracks = tracks1.filter((t) => {
+    const trackKey = getMatchKeyByService(t, service);
+    return !tracks2Keys.has(trackKey);
+  });
+
+  const commonTracks = tracks1.filter((t) => {
+    const trackKey = getMatchKeyByService(t, service);
+    return tracks2Keys.has(trackKey);
+  });
+
+  return {
+    addTracks,
+    missingTracks,
+    commonTracks,
+  };
+};

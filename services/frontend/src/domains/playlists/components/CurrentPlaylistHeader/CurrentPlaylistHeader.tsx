@@ -26,7 +26,7 @@ function CurrentPlaylistHeader() {
             >
               <Button variant='outline' size='sm'>
                 <RefreshCw className='mr-2 h-4 w-4' />
-                Обновить состав треков
+                Обновить состав
               </Button>
             </UniversalUpdatePlaylistDialog>
             <UpdateTracksDataDialog tracks={currentPlaylist.tracks} onTracksUpdate={updateCurrentPlaylistTracks}>

@@ -1,8 +1,8 @@
 import { Music } from 'lucide-react';
 
-import type { SourceCommon, SourceNewPlaylist, SourceUpdateTracksData } from '@/shared/types/source';
+import type { SourceCommon, SourceNewPlaylist, SourceUpdateTracksComp, SourceUpdateTracksData } from '@/shared/types/source';
 
-import { NewPlaylistLoadForm } from './components/NewPlaylistLoadForm';
+import { SetPlaylistForm } from './components/SetPlaylistForm';
 import { UpdateTrackDataForm } from './components/UpdateTracksDataForm';
 
 export const common: SourceCommon = {
@@ -12,7 +12,13 @@ export const common: SourceCommon = {
 export const newPlaylist: SourceNewPlaylist = {
   title: 'Spotify',
   description: 'Импортировать по ссылке на плейлист',
-  LoadForm: NewPlaylistLoadForm,
+  LoadForm: SetPlaylistForm,
+}
+
+export const updateTracksComp: SourceUpdateTracksComp = {
+  title: 'Spotify',
+  description: 'Импортировать по ссылке на плейлист',
+  LoadForm: SetPlaylistForm,
 }
 
 export const updateTracksData: SourceUpdateTracksData = {

@@ -10,7 +10,13 @@ export interface SourceCommon {
 export interface SourceNewPlaylist {
   title: string;
   description: string;
-  LoadForm: LoadForm;
+  LoadForm: SetPlaylistForm;
+}
+
+export interface SourceUpdateTracksComp {
+  title: string;
+  description: string;
+  LoadForm: SetPlaylistForm;
 }
 
 export interface SourceUpdateTracksData {
@@ -22,7 +28,7 @@ export interface SourceUpdateTracksData {
   resultDescription: (processed: number, total: number) => string
 }
 
-export type LoadForm = ({
+export type SetPlaylistForm = ({
   setPlaylist,
 }: { 
   setPlaylist: (playlist: Playlist) => void 
