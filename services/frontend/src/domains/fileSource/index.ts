@@ -7,6 +7,8 @@ import { UpdateTrackDataForm } from './components/UpdateTracksDataForm';
 
 export const common: SourceCommon = {
   Icon: FileAudio,
+  iconBgColorClass: 'bg-blue-100',
+  iconTextColorClass: 'text-blue-600',
 }
 
 export const newPlaylist: SourceNewPlaylist = {
@@ -23,8 +25,7 @@ export const updateTracksComp: SourceUpdateTracksComp = {
 
 export const updateTracksData: SourceUpdateTracksData = {
   title: 'Добавить данные файлов',
-  description: 'Загрузить M3U файл и добавить информацию о путях к файлам',
-  logicDescription: 'Загрузите M3U файл, и информация о путях к файлам будет добавлена к соответствующим трекам.',
+  description: 'Загрузите M3U файл, и информация о путях к файлам будет добавлена к соответствующим трекам',
   MatchForm: UpdateTrackDataForm,
   resultTitle: 'Обработка M3U файла завершена',
   resultDescription: (processed, total) => `Добавлена информация о файлах для ${processed} из ${total} треков`,

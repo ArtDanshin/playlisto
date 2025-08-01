@@ -5,6 +5,7 @@ import { AlertCircle, CheckCircle, Music, X } from 'lucide-react';
 
 import { ScrollArea } from '@/shared/components/ui/ScrollArea';
 import { StepsDialog, type Step } from '@/shared/components/StepsDialog';
+import { CardHorizontal } from '@/shared/components/CardHorizontal';
 import { common as fileCommon, updateTracksData as fileUpdateTracksData } from '@/domains/fileSource';
 import { common as spotifyCommon, updateTracksData as spotifyUpdateTracksData } from '@/domains/spotifySource';
 import type { SourceCommon, SourceUpdateTracksData, UpdateTracksAfterMatch } from '@/shared/types/source';
@@ -48,31 +49,16 @@ function NewPlaylistDialog({ tracks, onTracksUpdate, children }: UpdateTracksDat
           </div>
 
           <div className='grid gap-4'>
-            {SOURCES.map((source) => {
-              const Icon = SOURCES_DATA[source].Icon
-              
-              return (
-                <div
-                  className='cursor-pointer hover:bg-muted/50 transition-colors border rounded-lg p-6'
-                  onClick={() => moveNext(source)}
-                >
-                  <div className='mb-4'>
-                    <h3 className='text-lg font-semibold flex items-center gap-2 mb-2'>
-                      <Icon className='h-5 w-5' />
-                      {SOURCES_DATA[source].title}
-                    </h3>
-                    <p className='text-sm text-muted-foreground'>
-                      {SOURCES_DATA[source].description}
-                    </p>
-                  </div>
-                  <div>
-                    <p className='text-sm text-muted-foreground'>
-                      {SOURCES_DATA[source].logicDescription}
-                    </p>
-                  </div>
-                </div>
-              )
-            })}
+            {SOURCES.map((source) => (
+              <CardHorizontal
+                title={SOURCES_DATA[source].title}
+                description={SOURCES_DATA[source].description}
+                Icon={SOURCES_DATA[source].Icon}
+                iconBgColorClass={SOURCES_DATA[source].iconBgColorClass}
+                iconTextColorClass={SOURCES_DATA[source].iconBgColorClass}
+                onClick={() => moveNext(source)}
+              />
+            ))}
           </div>
         </div>
       )

@@ -5,6 +5,8 @@ import type { Playlist, Track } from './playlist';
 
 export interface SourceCommon {
   Icon: LucideIcon | ElementType;
+  iconBgColorClass: string,
+  iconTextColorClass: string,
 }
 
 export interface SourceNewPlaylist {
@@ -22,7 +24,6 @@ export interface SourceUpdateTracksComp {
 export interface SourceUpdateTracksData {
   title: string;
   description: string;
-  logicDescription: string;
   MatchForm: MatchForm;
   resultTitle: string;
   resultDescription: (processed: number, total: number) => string

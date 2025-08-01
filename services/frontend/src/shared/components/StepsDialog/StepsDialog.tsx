@@ -92,7 +92,14 @@ function StepsDialog({
               >
                 {index + 1}
               </div>
-            ))}
+            )).reduce<Array<ReactNode>>((acc, numberMarkup, index) => {
+              acc.push(numberMarkup);
+
+              if (index < steps.length - 1) {
+                acc.push(<div className='w-8 h-1 bg-gray-200' />);
+              }
+              return acc;
+            }, [])}
           </div>
 
           {steps[currentStep].component(nextStep, prevStep, closeDialog)}
