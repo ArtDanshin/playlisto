@@ -39,3 +39,35 @@ export function updateTrackDataFromM3U(track: Track, M3UTrackData: TrackM3UData)
     m3uData: M3UTrackData,
   };
 }
+
+/**
+ * Конвертация списка треков в файл плейлиста формата m3u
+ */
+export function exportToM3UFile(filename: string, tracks: Track[]) {
+  const tracksWithM3UData = tracks.filter((track) => track.m3uData);
+
+  if (tracksWithM3UData.length === 0) {
+    throw new Error('Нет треков с данными файлов для экспорта');
+  }
+
+  // Создаем содержимое M3U файла
+  const m3uContent = [
+    '#EXTM3U',
+    ...tracksWithM3UData.map((track) => {
+      const m3uData = track.m3uData!;
+      const duration = Math.floor(m3uData.duration);
+      return `#EXTINF:${duration},${m3uData.artist} - ${m3uData.title}\n${m3uData.url}`;
+    }),
+  ].join('\n');
+
+  // Создаем Blob и скачиваем файл
+  const blob = new Blob([m3uContent], { type: 'application/x-mpegurl' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${filename}.m3u8`;
+  document.body.append(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+};
