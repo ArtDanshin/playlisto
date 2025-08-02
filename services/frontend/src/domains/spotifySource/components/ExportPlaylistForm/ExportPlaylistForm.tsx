@@ -10,15 +10,15 @@ import { Label } from '@/shared/components/ui/Label';
 import { Separator } from '@/shared/components/ui/Separator';
 import type { ExportForm } from '@/shared/types/source';
 import type { Playlist } from '@/shared/types/playlist';
-import { getTracksComparison, type MergePlaylistTracksOptions, mergePlaylistTracks } from '@/shared/utils/playlist';
+import { getTracksComparison, type MergeTracksOptions, mergeTracks } from '@/shared/utils/playlist';
 import { createPlaylistFromSpotify } from '@/shared/utils/spotify';
 import { spotifyService } from '@/infrastructure/services/spotify';
 
 import { useSpotifyStore } from '../../store';
 
-type MergeOptionsWithoutSource = Omit<MergePlaylistTracksOptions, 'source'>;
+type MergeOptionsWithoutSource = Omit<MergeTracksOptions, 'source'>;
 
-const ExportPlaylistForm: ExportForm = ({ playlist, onSuccessExport: onSuccessExport }) => {
+const ExportPlaylistForm: ExportForm = ({ playlist, onSuccessExport, onCancel }) => {
   const { authStatus } = useSpotifyStore();
   const [error, setError] = useState<string | null>(null);
   const [exportMode, setExportMode] = useState<'new' | 'existing'>('new');
@@ -73,8 +73,10 @@ const ExportPlaylistForm: ExportForm = ({ playlist, onSuccessExport: onSuccessEx
     if (!spotifyPlaylist) {
       return null;
     }
+
+    const onlyPlaylistTracksWithSpotifyData = playlist.tracks.filter((t) => t.spotifyData);
     
-    return getTracksComparison(playlist.tracks, spotifyPlaylist.data.tracks, 'spotify')
+    return getTracksComparison(spotifyPlaylist.data.tracks, onlyPlaylistTracksWithSpotifyData, 'spotify')
   }, [playlist, spotifyPlaylist]);
 
   const handleExport = async () => {
@@ -103,10 +105,10 @@ const ExportPlaylistForm: ExportForm = ({ playlist, onSuccessExport: onSuccessEx
         ));
       } else {
         if (spotifyPlaylist) {
-          const mergedTracks = mergePlaylistTracks(playlist, spotifyPlaylist.data.tracks, { ...mergeOptions, source: 'spotify' });
-          await spotifyService.updatePlaylistTracks(spotifyPlaylist.id, mergedTracks.playlist.tracks);
+          const { mergedTracks } = mergeTracks(spotifyPlaylist.data.tracks, playlist.tracks, { ...mergeOptions, source: 'spotify' });
+          await spotifyService.updatePlaylistTracks(spotifyPlaylist.id, mergedTracks);
 
-          onSuccessExport('Плейлист успешно создан!')
+          onSuccessExport('Плейлист успешно обновлен!')
         }
       }
     } catch (error: any) {
@@ -254,7 +256,7 @@ const ExportPlaylistForm: ExportForm = ({ playlist, onSuccessExport: onSuccessEx
       <div className='flex justify-between gap-2 pt-4'>
         <Button
           variant='outline'
-          onClick={() => {}}
+          onClick={onCancel}
           disabled={isLoading}
         >
           Назад

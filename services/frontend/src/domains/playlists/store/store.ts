@@ -3,7 +3,7 @@ import type { StateCreator } from 'zustand';
 import type { Playlist, Track } from '@/shared/types';
 import { playlistoDB } from '@/infrastructure/storage/playlisto-db';
 import { playlistoDBService } from '@/infrastructure/services/playlisto-db';
-import { createTrackKey, type MergePlaylistTracksOptions, mergePlaylistTracks } from '@/shared/utils/playlist';
+import { createTrackKey, type MergeTracksOptions, mergeTracks } from '@/shared/utils/playlist';
 
 export interface PlaylistState {
   currentPlaylist: Playlist | null;
@@ -13,7 +13,7 @@ export interface PlaylistState {
   newTracks: Set<string>;
   setCurrentPlaylist: (playlist: Playlist | null) => void;
   updateCurrentPlaylistTracks: (tracks: Track[]) => Promise<void>;
-  mergeCurrentPlaylistTracks: (tracks: Track[], mergeOptions: MergePlaylistTracksOptions) => Promise<void>;
+  mergeCurrentPlaylistTracks: (tracks: Track[], mergeOptions: MergeTracksOptions) => Promise<void>;
   addPlaylist: (playlist: Playlist) => Promise<void>;
   removePlaylist: (playlistId: number) => Promise<void>;
   updatePlaylist: (playlist: Playlist) => Promise<void>;
@@ -116,7 +116,7 @@ export const store: StateCreator<PlaylistState> = (set, get) => ({
     }
   },
 
-  mergeCurrentPlaylistTracks: async (tracks: Track[], mergeOptions: MergePlaylistTracksOptions) => {
+  mergeCurrentPlaylistTracks: async (tracks: Track[], mergeOptions: MergeTracksOptions) => {
     const { currentPlaylist, setNewTracks } = get();
     try {
       if (!currentPlaylist) {
@@ -124,8 +124,8 @@ export const store: StateCreator<PlaylistState> = (set, get) => ({
         return;
       }
 
-      const { playlist: mergedPlaylist, newTracks } = mergePlaylistTracks(currentPlaylist, tracks, mergeOptions);
-      const resultPlaylist = await playlistoDBService.updatePlaylistWithCoverLoad(mergedPlaylist);
+      const { mergedTracks, newTracks } = mergeTracks(currentPlaylist.tracks, tracks, mergeOptions);
+      const resultPlaylist = await playlistoDBService.updatePlaylistWithCoverLoad({ ...currentPlaylist, tracks: mergedTracks });
 
       set({ currentPlaylist: resultPlaylist });
       setNewTracks(newTracks);

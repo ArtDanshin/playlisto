@@ -6,9 +6,9 @@ import { Music, RefreshCw } from 'lucide-react';
 import { Button } from '@/shared/components/ui/Button';
 
 import { usePlaylistStore } from '../../store';
-import { UniversalExportDialog } from '../UniversalExportDialog';
 import { UpdateTracksCompDialog } from '../UpdateTracksCompDialog';
 import { UpdateTracksDataDialog } from '../UpdateTracksDataDialog';
+import { ExportPlaylistDialog } from '../ExportPlaylistDialog';
 
 function CurrentPlaylistHeader() {
   const { currentPlaylist, updateCurrentPlaylistTracks, mergeCurrentPlaylistTracks } = usePlaylistStore();
@@ -34,12 +34,12 @@ function CurrentPlaylistHeader() {
                 Обновить данные
               </Button>
             </UpdateTracksDataDialog>
-            <UniversalExportDialog playlist={currentPlaylist}>
+            <ExportPlaylistDialog playlist={currentPlaylist}>
               <Button variant='outline' size='sm'>
                 <Music className='mr-2 h-4 w-4' />
                 Экспорт
               </Button>
-            </UniversalExportDialog>
+            </ExportPlaylistDialog>
           </>  
         )}
       </div>

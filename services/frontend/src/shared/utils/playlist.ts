@@ -171,7 +171,9 @@ export function getTracksComparison(
   // Проверяем различия в порядке треков
   // Получаем массивы общих треков по ключу из первого и второго исходных и сравниваем их
   const commonTracks1Keys = commonTracks.map((t: Track) => getMatchKeyBySource(t, service));
-  const commonTracks2Keys = tracks2.filter((t) => tracks1Keys.has(getMatchKeyBySource(t, service)));
+  const commonTracks2Keys = tracks2
+    .filter((t) => tracks1Keys.has(getMatchKeyBySource(t, service)))
+    .map((t) => t.spotifyData?.id);
 
   const hasOrderDifference = commonTracks.length > 0
     && JSON.stringify(commonTracks1Keys) !== JSON.stringify(commonTracks2Keys);
@@ -184,7 +186,7 @@ export function getTracksComparison(
   };
 };
 
-export interface MergePlaylistTracksOptions {
+export interface MergeTracksOptions {
   addNewTracks: boolean;
   removeMissingTracks: boolean;
   syncOrder: boolean;
@@ -192,15 +194,15 @@ export interface MergePlaylistTracksOptions {
 }
 
 // TODO: поправить логику склеивания данный треков, на более универсальную
-export function mergePlaylistTracks(
-  playlist: Playlist,
+export function mergeTracks(
+  currentTracks: Track[],
   mergeTracks: Track[],
-  mergeOptions: MergePlaylistTracksOptions
+  mergeOptions: MergeTracksOptions
 ): {
-  playlist: Playlist,
+  mergedTracks: Track[],
   newTracks: Track[]
 } {
-  const existingTracks = [...playlist.tracks];
+  const existingTracks = [...currentTracks];
   const uploadedTracks = [...mergeTracks];
 
   // Создаем Map для быстрого поиска треков по ключу
@@ -299,10 +301,7 @@ export function mergePlaylistTracks(
   }
 
   return {
-    playlist: {
-      ...playlist,
-      tracks: mergedTracks,
-    },
+    mergedTracks,
     newTracks,
   }
 }

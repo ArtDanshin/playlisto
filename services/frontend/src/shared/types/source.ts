@@ -52,9 +52,11 @@ export type MatchForm = ({
 export type ExportForm = ({ 
   playlist,
   onSuccessExport,
+  onCancel,
 }: { 
   playlist: Playlist,
   onSuccessExport: (mainMessage: string, secondMessage?: ReactNode) => void,
+  onCancel?: () => void,
 }) => ReactNode;
 
 export type UpdateTracksAfterMatch = (allTracks: Track[], onlyUpdatedTracks: Track[], notUpdatedTracks: Track[]) => void;

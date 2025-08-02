@@ -6,7 +6,7 @@ import { Button } from '@/shared/components/ui/Button';
 import type { ExportForm } from '@/shared/types/source';
 import { exportToM3UFile } from '@/shared/utils/file';
 
-const ExportPlaylistForm: ExportForm = ({ playlist, onSuccessExport: onSuccessExport }) => {
+const ExportPlaylistForm: ExportForm = ({ playlist, onSuccessExport, onCancel }) => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   
@@ -73,6 +73,14 @@ const ExportPlaylistForm: ExportForm = ({ playlist, onSuccessExport: onSuccessEx
         )}
       </div>
       <div className='flex justify-between gap-2 pt-4'>
+        <Button
+          variant='outline'
+          onClick={onCancel}
+          disabled={isLoading}
+        >
+          Назад
+        </Button>
+        <div className='flex-1' />
         <Button
           onClick={handleExport}
           disabled={isLoading || !canProceedToExport}

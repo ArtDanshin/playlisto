@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, type ReactNode } from 'react';
+import { Download } from 'lucide-react';
 
 import { StepsDialog, type Step } from '@/shared/components/StepsDialog';
 import { CardHorizontal } from '@/shared/components/CardHorizontal';
 import { common as fileCommon, exportPlaylist as fileExportPlaylist } from '@/domains/fileSource';
 import { common as spotifyCommon, exportPlaylist as spotifyExportPlaylist } from '@/domains/spotifySource';
 import type { SourceCommon, SourceExportPlaylist } from '@/shared/types/source';
-import type { Track } from '@/shared/types/playlist';
+import type { Playlist } from '@/shared/types/playlist';
 
 const SOURCES: string[] = ['spotify', 'file'];
 const SOURCES_DATA: Record<string, SourceCommon & SourceExportPlaylist> = {
@@ -16,13 +17,13 @@ const SOURCES_DATA: Record<string, SourceCommon & SourceExportPlaylist> = {
 }
 
 interface UpdateTracksDataDialogProps {
-  tracks: Track[];
-  onTracksUpdate: (tracks: Track[]) => void;
+  playlist: Playlist;
   children: ReactNode;
 }
 
-function NewPlaylistDialog({ tracks, onTracksUpdate, children }: UpdateTracksDataDialogProps) {
+function NewPlaylistDialog({ playlist, children }: UpdateTracksDataDialogProps) {
   const [currentSource, setCurrentSource] = useState<string | undefined>();
+  const [successMessages, setSuccessMessages] = useState<{ mainMessage: string, secondMessage?: ReactNode } | null>(null);
 
   const stepBeggin: Step = {
     component: (next) => {
@@ -59,18 +60,40 @@ function NewPlaylistDialog({ tracks, onTracksUpdate, children }: UpdateTracksDat
 
   
   const stepProcess: Step = {
-    component: (next) => {      
+    component: (next, prev) => {
+      if (currentSource) {
+        const ExportForm = SOURCES_DATA[currentSource].ExportForm;
+
+        const handleSetPlaylist = (mainMessage: string, secondMessage: ReactNode) => {
+          setSuccessMessages({ mainMessage, secondMessage });
+          next();
+        }
+
+        return <ExportForm playlist={playlist} onSuccessExport={handleSetPlaylist} onCancel={prev}/>;
+      }
+      
       return null;
     },
-    viewPrevButton: {
-      status: 'active',
-      text: 'Назад к выбору'
-    }
   }
 
   const stepResult: Step = {
     component: () => {
-      return null;
+      return (
+        <div className='text-center space-y-4'>
+          <div className='w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto'>
+            <Download className='h-8 w-8 text-green-600' />
+          </div>
+          <h3 className='text-lg font-semibold text-green-600'>Экспорт завершен!</h3>
+          <p className='text-muted-foreground'>
+            {successMessages?.mainMessage}
+          </p>
+          {successMessages?.secondMessage && (
+            <div className='pt-2'>
+              {successMessages.secondMessage}
+            </div>
+          )}
+        </div>
+      );
     },
     viewCloseButton: {
       status: 'active',

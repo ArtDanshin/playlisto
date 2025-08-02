@@ -23,7 +23,13 @@ export default MetaInfo;
 export const Default = {
   render: () => {
     return (
-      <ExportPlaylistDialog tracks={[]} onTracksUpdate={console.log}>
+      <ExportPlaylistDialog 
+        playlist={{
+          name: '',
+          order: 0,
+          tracks: [],
+        }}
+      >
         <Button className='w-full'>
           Экспорт
         </Button>

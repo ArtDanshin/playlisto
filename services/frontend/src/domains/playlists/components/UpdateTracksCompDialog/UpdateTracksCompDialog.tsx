@@ -12,7 +12,7 @@ import { common as fileCommon, updateTracksComp as fileUpdateTracksComp } from '
 import { common as spotifyCommon, updateTracksComp as spotifyUpdateTracksComp } from '@/domains/spotifySource';
 import type { SourceCommon, SourceUpdateTracksComp } from '@/shared/types/source';
 import type { Track, Playlist } from '@/shared/types/playlist';
-import { getTracksComparison, type MergePlaylistTracksOptions } from '@/shared/utils/playlist';
+import { getTracksComparison, type MergeTracksOptions } from '@/shared/utils/playlist';
 
 const SOURCES: string[] = ['spotify', 'file'];
 const SOURCES_DATA: Record<string, SourceCommon & SourceUpdateTracksComp> = {
@@ -22,11 +22,11 @@ const SOURCES_DATA: Record<string, SourceCommon & SourceUpdateTracksComp> = {
 
 interface UpdateTracksCompDialogProps {
   tracks: Track[];
-  onTracksCompUpdate: (newTracks: Track[], mergeOptions: MergePlaylistTracksOptions) => Promise<void>;
+  onTracksCompUpdate: (newTracks: Track[], mergeOptions: MergeTracksOptions) => Promise<void>;
   children: ReactNode;
 }
 
-type MergeOptionsWithoutSource = Omit<MergePlaylistTracksOptions, 'source'>;
+type MergeOptionsWithoutSource = Omit<MergeTracksOptions, 'source'>;
 
 function UpdateTracksCompDialog({ tracks, onTracksCompUpdate, children }: UpdateTracksCompDialogProps) {
   const [currentSource, setCurrentSource] = useState<string>('');
