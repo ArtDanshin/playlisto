@@ -1,5 +1,5 @@
 import type { SpotifyTrackDataResponse } from '@/infrastructure/services/spotify';
-import type { Track, SpotifyTrackData } from '@/shared/types';
+import type { Playlist, Track, SpotifyTrackData } from '@/shared/types';
 
 // PKCE utilities for Spotify OAuth
 export function generateCodeVerifier(length: number = 128): string {
@@ -110,6 +110,17 @@ export function isExactSpotifyMatch(artist: string, title: string, spotifyTrack:
   const isTitleEqual = title.toLowerCase().trim() === spotifyTrack.name.toLowerCase().trim();
 
   return isArtistEqual && isTitleEqual;
+}
+
+/**
+ * Формируем информацию о новом плейлисте
+ */
+export function createPlaylistFromSpotify(name: string, spotifyTracks: SpotifyTrackDataResponse[]): Playlist {
+  return {
+    name: name || 'New playlist',
+    order: 0,
+    tracks: spotifyTracks.map(createTrackDataFromSpotify)
+  }
 }
 
 /**

@@ -1,6 +1,6 @@
 import { spotifyApi } from '@/infrastructure/api/spotify';
 import { extractPlaylistId } from '@/shared/utils/spotify';
-import type { Track } from '@/shared/types/playlist';
+import type { Playlist, Track } from '@/shared/types/playlist';
 import { isExactSpotifyMatch, updateTrackDataFromSpotify } from '@/shared/utils/spotify';
 
 import type { 
@@ -112,6 +112,26 @@ class SpotifyService implements SpotifyServiceImp {
       onlyUpdatedTracks: updatedTracks,
       notUpdatedTracks: notUpdatedTracks
     };
+  }
+
+  async createPlaylist(playlist: Playlist): Promise<SpotifyPlaylistInfoResponse> {
+    const playlistData = await spotifyApi.createPlaylist(playlist.name);
+
+    await this.updatePlaylistTracks(playlistData.id, playlist.tracks);
+
+    // TODO: Обработать ошибки API
+    
+    return playlistData;
+  }
+
+  async updatePlaylistTracks(playlistId: string, tracks: Track[]): Promise<void> {
+    const trackUris = tracks
+      .filter((track) => track.spotifyData?.id)
+      .map((track) => `spotify:track:${track.spotifyData?.id}`);
+
+    await spotifyApi.updatePlaylistTracks(playlistId, trackUris);
+
+    // TODO: Обработать ошибки API
   }
 }
 

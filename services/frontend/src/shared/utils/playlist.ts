@@ -1,4 +1,4 @@
-import type { Track } from '@/shared/types';
+import type { Playlist, Track } from '@/shared/types';
 import type { SpotifyTrackDataResponse } from '@/infrastructure/api/spotify';
 import { playlistoDB } from '@/infrastructure/storage/playlisto-db';
 
@@ -133,7 +133,7 @@ export function createCoverKey(service: string, url: string): string {
 
 /**
  * Формирование ключа трека, для их сопоставление
- * Для разных сервисов они могут иметь разный вид и состояить из своих данных 
+ * Для разных сервисов они могут иметь разный вид и состоять из своих данных 
  */
 export function getMatchKeyBySource(track: Track, service: string): string {
   if (service === 'spotify' && track.spotifyData?.id) {
@@ -154,28 +154,155 @@ export function getTracksComparison(
   addTracks: Track[],
   missingTracks: Track[],
   commonTracks: Track[],
+  hasOrderDifference: boolean
 } {
   const tracks1Keys = new Set(tracks1.map((t) => getMatchKeyBySource(t, service)));
   const tracks2Keys = new Set(tracks2.map((t) => getMatchKeyBySource(t, service)));
 
-  const addTracks = tracks2.filter((t) => {
-    const trackKey = getMatchKeyBySource(t, service);
-    return !tracks1Keys.has(trackKey);
-  });
+  // Новые треки - есть во втором массиве треков, но нет в первом
+  const addTracks = tracks2.filter((t) => !tracks1Keys.has(getMatchKeyBySource(t, service)));
 
-  const missingTracks = tracks1.filter((t) => {
-    const trackKey = getMatchKeyBySource(t, service);
-    return !tracks2Keys.has(trackKey);
-  });
+  // Отсутствующие треки - есть в первом массиве треков, но нет во втором
+  const missingTracks = tracks1.filter((t) => !tracks2Keys.has(getMatchKeyBySource(t, service)));
 
-  const commonTracks = tracks1.filter((t) => {
-    const trackKey = getMatchKeyBySource(t, service);
-    return tracks2Keys.has(trackKey);
-  });
+  // Общие треки - есть и в обоих массивах треков
+  const commonTracks = tracks1.filter((t) => tracks2Keys.has(getMatchKeyBySource(t, service)));
+
+  // Проверяем различия в порядке треков
+  // Получаем массивы общих треков по ключу из первого и второго исходных и сравниваем их
+  const commonTracks1Keys = commonTracks.map((t: Track) => getMatchKeyBySource(t, service));
+  const commonTracks2Keys = tracks2.filter((t) => tracks1Keys.has(getMatchKeyBySource(t, service)));
+
+  const hasOrderDifference = commonTracks.length > 0
+    && JSON.stringify(commonTracks1Keys) !== JSON.stringify(commonTracks2Keys);
 
   return {
     addTracks,
     missingTracks,
     commonTracks,
+    hasOrderDifference,
   };
 };
+
+export interface MergePlaylistTracksOptions {
+  addNewTracks: boolean;
+  removeMissingTracks: boolean;
+  syncOrder: boolean;
+  source: string;
+}
+
+// TODO: поправить логику склеивания данный треков, на более универсальную
+export function mergePlaylistTracks(
+  playlist: Playlist,
+  mergeTracks: Track[],
+  mergeOptions: MergePlaylistTracksOptions
+): {
+  playlist: Playlist,
+  newTracks: Track[]
+} {
+  const existingTracks = [...playlist.tracks];
+  const uploadedTracks = [...mergeTracks];
+
+  // Создаем Map для быстрого поиска треков по ключу
+  const existingTracksMap = new Map<string, Track>();
+  const uploadedTracksMap = new Map<string, Track>();
+
+  existingTracks.forEach((track) => {
+    const trackKey = getMatchKeyBySource(track, mergeOptions.source);
+    existingTracksMap.set(trackKey, track);
+  });
+
+  uploadedTracks.forEach((track) => {
+    const trackKey = getMatchKeyBySource(track, mergeOptions.source);
+    uploadedTracksMap.set(trackKey, track);
+  });
+
+  let mergedTracks: Track[] = [];
+  let newTracks: Track[] = [];
+
+  if (mergeOptions.syncOrder) {
+    // Синхронизируем порядок как в загруженном плейлисте
+    mergedTracks = uploadedTracks.map((uploadedTrack, index) => {
+      const trackKey = getMatchKeyBySource(uploadedTrack, mergeOptions.source);
+      const existingTrack = existingTracksMap.get(trackKey);
+      if (existingTrack) {
+        // Сохраняем существующие данные (Spotify, обложки и т.д.)
+        return {
+          ...uploadedTrack,
+          position: index + 1,
+          spotifyData: existingTrack.spotifyData,
+          coverKey: existingTrack.coverKey,
+          album: existingTrack.album,
+          m3uData: existingTrack.m3uData,
+        };
+      }
+      // Новый трек
+      return {
+        ...uploadedTrack,
+        position: index + 1,
+      };
+    });
+
+    // Добавляем треки, которых нет в загруженном плейлисте, в конец
+    if (mergeOptions.addNewTracks) {
+      const missingTracks = existingTracks.filter((existingTrack) => {
+        const trackKey = getMatchKeyBySource(existingTrack, mergeOptions.source);
+        return !uploadedTracksMap.has(trackKey);
+      });
+      const missingTracksWithUpdatedPositions = missingTracks.map((track, index) => ({
+        ...track,
+        position: mergedTracks.length + index + 1,
+      }));
+      mergedTracks.push(...missingTracksWithUpdatedPositions);
+      newTracks.push(...missingTracksWithUpdatedPositions);
+    }
+  } else {
+    // Простое объединение без изменения порядка
+    mergedTracks = [...existingTracks];
+
+    if (mergeOptions.addNewTracks) {
+      // Добавляем новые треки в конец
+      uploadedTracks.forEach((uploadedTrack) => {
+        const trackKey = getMatchKeyBySource(uploadedTrack, mergeOptions.source);
+        if (existingTracksMap.has(trackKey)) {
+          // Обновляем существующий трек данными из загруженного источника
+          const existingTrackIndex = mergedTracks.findIndex((t) => getMatchKeyBySource(t, mergeOptions.source) === trackKey);
+          if (existingTrackIndex !== -1) {
+            const existingTrack = mergedTracks[existingTrackIndex];
+            mergedTracks[existingTrackIndex] = {
+              ...existingTrack,
+              ...uploadedTrack,
+              // Сохраняем данные внешних сервисов
+              spotifyData: existingTrack.spotifyData || uploadedTrack.spotifyData,
+              m3uData: existingTrack.m3uData || uploadedTrack.m3uData,
+              coverKey: existingTrack.coverKey || uploadedTrack.coverKey,
+            };
+          }
+        } else {
+          const newTrack = {
+            ...uploadedTrack,
+            position: mergedTracks.length + 1,
+          };
+          mergedTracks.push(newTrack);
+          newTracks.push(newTrack);
+        }
+      });
+    }
+  }
+
+  if (mergeOptions.removeMissingTracks) {
+    // Удаляем треки, которых нет в загруженном плейлисте
+    mergedTracks = mergedTracks.filter((track) => {
+      const trackKey = getMatchKeyBySource(track, mergeOptions.source);
+      return uploadedTracksMap.has(trackKey);
+    });
+  }
+
+  return {
+    playlist: {
+      ...playlist,
+      tracks: mergedTracks,
+    },
+    newTracks,
+  }
+}

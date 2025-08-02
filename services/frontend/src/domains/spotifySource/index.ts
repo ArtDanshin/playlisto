@@ -1,6 +1,6 @@
 import { Music } from 'lucide-react';
 
-import type { SourceCommon, SourceNewPlaylist, SourceUpdateTracksComp, SourceUpdateTracksData } from '@/shared/types/source';
+import type { SourceCommon, SourceNewPlaylist, SourceUpdateTracksComp, SourceUpdateTracksData, SourceExportPlaylist } from '@/shared/types/source';
 
 import { SetPlaylistForm } from './components/SetPlaylistForm';
 import { UpdateTrackDataForm } from './components/UpdateTracksDataForm';
@@ -21,6 +21,11 @@ export const updateTracksComp: SourceUpdateTracksComp = {
   title: 'Spotify',
   description: 'Импортировать по ссылке на плейлист',
   LoadForm: SetPlaylistForm,
+}
+
+export const exportPlaylist: SourceExportPlaylist = {
+  title: 'Spotify',
+  description: 'Создать новый плейлист или обновить существующий в Spotify',
 }
 
 export const updateTracksData: SourceUpdateTracksData = {

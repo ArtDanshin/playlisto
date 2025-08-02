@@ -8,9 +8,9 @@ import { Button } from '@/shared/components/ui/Button';
 import { Input } from '@/shared/components/ui/Input';
 import { Label } from '@/shared/components/ui/Label';
 import { spotifyService } from '@/infrastructure/services/spotify';
+import { createPlaylistFromSpotify } from '@/shared/utils/spotify';
 
 import { useSpotifyStore } from '../../store';
-import { createPlaylistFromSpotify } from '../../utils';
 
 const SetPlaylistForm: SetPlaylistFormImp = ({ setPlaylist }) => {
   const { authStatus } = useSpotifyStore();

@@ -17,6 +17,8 @@ interface SpotifyApiClient {
   getPlaylistTracks: (playlistId: string, limit?: number, offset?: number) => Promise<SpotifyPlaylistTracksResponse>;
   searchTracks: (query: string, limit?: number) => Promise<SpotifySearchResponse>;
   getTrack: (trackId: string) => Promise<SpotifyTrackDataResponse>;
+  createPlaylist: (name: string, description?: string) => Promise<SpotifyPlaylistInfoResponse>;
+  updatePlaylistTracks: (playlistId: string, trackUris: string[]) => Promise<void>; 
 }
 
 class SpotifyApi implements SpotifyApiClient {
@@ -228,6 +230,7 @@ class SpotifyApi implements SpotifyApiClient {
     // Запрашиваем только основную информацию о плейлисте
     const fields = [
       'name',
+      'id',
       'owner'
     ].join(',');
 
@@ -259,6 +262,32 @@ class SpotifyApi implements SpotifyApiClient {
   async getTrack(trackId: string): Promise<SpotifyTrackDataResponse> {
     const response = await this.apiCall(`/tracks/${trackId}`);
     return response as SpotifyTrackDataResponse;
+  }
+
+  // Создание плейлиста
+  async createPlaylist(name: string, description?: string): Promise<SpotifyPlaylistInfoResponse> {
+    const response = await this.apiCall('/me/playlists', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: name,
+        description: description || `Экспортировано из Playlisto - ${new Date().toLocaleDateString()}`,
+        public: false,
+      }),
+    });
+
+    return response as SpotifyPlaylistInfoResponse;
+  }
+
+  // Обновление информации о треках плейлиста
+  async updatePlaylistTracks(playlistId: string, trackUris: string[]): Promise<void> {
+    await this.apiCall(`/playlists/${playlistId}/tracks`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        uris: trackUris,
+      }),
+    });
+
+    return;
   }
 }
 

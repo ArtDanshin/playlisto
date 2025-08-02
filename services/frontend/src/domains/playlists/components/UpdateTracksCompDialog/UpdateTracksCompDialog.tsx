@@ -12,8 +12,7 @@ import { common as fileCommon, updateTracksComp as fileUpdateTracksComp } from '
 import { common as spotifyCommon, updateTracksComp as spotifyUpdateTracksComp } from '@/domains/spotifySource';
 import type { SourceCommon, SourceUpdateTracksComp } from '@/shared/types/source';
 import type { Track, Playlist } from '@/shared/types/playlist';
-import { getTracksComparison } from '@/shared/utils/playlist';
-import type { MergeOptions } from '@/infrastructure/services/playlisto-db'
+import { getTracksComparison, type MergePlaylistTracksOptions } from '@/shared/utils/playlist';
 
 const SOURCES: string[] = ['spotify', 'file'];
 const SOURCES_DATA: Record<string, SourceCommon & SourceUpdateTracksComp> = {
@@ -23,11 +22,11 @@ const SOURCES_DATA: Record<string, SourceCommon & SourceUpdateTracksComp> = {
 
 interface UpdateTracksCompDialogProps {
   tracks: Track[];
-  onTracksCompUpdate: (newTracks: Track[], mergeOptions: MergeOptions) => Promise<void>;
+  onTracksCompUpdate: (newTracks: Track[], mergeOptions: MergePlaylistTracksOptions) => Promise<void>;
   children: ReactNode;
 }
 
-type MergeOptionsWithoutSource = Omit<MergeOptions, 'source'>;
+type MergeOptionsWithoutSource = Omit<MergePlaylistTracksOptions, 'source'>;
 
 function UpdateTracksCompDialog({ tracks, onTracksCompUpdate, children }: UpdateTracksCompDialogProps) {
   const [currentSource, setCurrentSource] = useState<string>('');
@@ -39,7 +38,7 @@ function UpdateTracksCompDialog({ tracks, onTracksCompUpdate, children }: Update
     syncOrder: true,
   });
   
-  const handleSyncOptionsChange = (option: keyof MergeOptionsWithoutSource, value: boolean) => {
+  const handleMergeOptionsChange = (option: keyof MergeOptionsWithoutSource, value: boolean) => {
     setMergeOptions((prev) => ({
       ...prev,
       [option]: value,
@@ -55,6 +54,7 @@ function UpdateTracksCompDialog({ tracks, onTracksCompUpdate, children }: Update
       addTracks: [],
       missingTracks: [],
       commonTracks: [],
+      hasOrderDifference: false,
     }
   }, [tracks, uploadedPlaylist])
 
@@ -162,6 +162,12 @@ function UpdateTracksCompDialog({ tracks, onTracksCompUpdate, children }: Update
                   <span>Общих треков:</span>
                   <span className='font-medium'>{compTracks.commonTracks.length}</span>
                 </div>
+                {compTracks.hasOrderDifference && (
+                  <div className='flex justify-between'>
+                    <span>Различия в порядке общих треков:</span>
+                    <span className='font-medium text-orange-600'>Да</span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -170,24 +176,34 @@ function UpdateTracksCompDialog({ tracks, onTracksCompUpdate, children }: Update
             <div className='space-y-3'>
               <Label>Параметры синхронизации</Label>
               <div className='space-y-2'>
-                <label className='flex items-center space-x-2'>
-                  <Checkbox
-                    checked={mergeOptions.addNewTracks}
-                    onChange={(e) => handleSyncOptionsChange('addNewTracks', e.target.checked)}
-                  />
-                  <span className='text-sm'>Добавить новые треки</span>
-                </label>
-                <label className='flex items-center space-x-2'>
-                  <Checkbox
-                    checked={mergeOptions.removeMissingTracks}
-                    onChange={(e) => handleSyncOptionsChange('removeMissingTracks', e.target.checked)}
-                  />
-                  <span className='text-sm'>Удалить отсутствующие треки</span>
-                </label>
+                {compTracks.addTracks.length > 0 && (
+                  <label className='flex items-center space-x-2'>
+                    <Checkbox
+                      checked={mergeOptions.addNewTracks}
+                      onChange={(e) => handleMergeOptionsChange('addNewTracks', e.target.checked)}
+                    />
+                    <span className='text-sm'>Добавить новые треки</span>
+                  </label>
+                )}
+                {compTracks.missingTracks.length > 0 && (
+                  <label className='flex items-center space-x-2'>
+                    <Checkbox
+                      checked={mergeOptions.removeMissingTracks}
+                      onChange={(e) => handleMergeOptionsChange('removeMissingTracks', e.target.checked)}
+                    />
+                    <span className='text-sm'>Удалить отсутствующие треки</span>
+                  </label>
+                )}
+                {compTracks.addTracks.length === 0 && compTracks.missingTracks.length === 0 && (
+                  <div className='text-sm text-muted-foreground p-2 bg-muted rounded'>
+                    Плейлисты идентичны по составу треков
+                  </div>
+                )}
+                {/* TODO: Обработать ситуацию, когда два плейлиста абсолютно идентичны */}
                 <label className='flex items-center space-x-2'>
                   <Checkbox
                     checked={mergeOptions.syncOrder}
-                    onChange={(e) => handleSyncOptionsChange('syncOrder', e.target.checked)}
+                    onChange={(e) => handleMergeOptionsChange('syncOrder', e.target.checked)}
                   />
                   <span className='text-sm'>Синхронизировать порядок треков</span>
                 </label>

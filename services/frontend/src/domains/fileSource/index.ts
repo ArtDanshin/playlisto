@@ -1,6 +1,6 @@
 import { FileAudio } from 'lucide-react';
 
-import type { SourceCommon, SourceNewPlaylist, SourceUpdateTracksComp, SourceUpdateTracksData } from '@/shared/types/source';
+import type { SourceCommon, SourceNewPlaylist, SourceUpdateTracksComp, SourceUpdateTracksData, SourceExportPlaylist } from '@/shared/types/source';
 
 import { SetPlaylistForm } from './components/SetPlaylistForm';
 import { UpdateTrackDataForm } from './components/UpdateTracksDataForm';
@@ -21,6 +21,11 @@ export const updateTracksComp: SourceUpdateTracksComp = {
   title: 'Файл M3U',
   description: 'Загрузить из .m3u или .m3u8 файла',
   LoadForm: SetPlaylistForm
+}
+
+export const exportPlaylist: SourceExportPlaylist = {
+  title: 'Файл M3U',
+  description: 'Скачать плейлист как M3U файл с треками, имеющими данные файлов',
 }
 
 export const updateTracksData: SourceUpdateTracksData = {

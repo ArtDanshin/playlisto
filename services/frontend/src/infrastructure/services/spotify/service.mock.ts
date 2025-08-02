@@ -1,5 +1,5 @@
 import { extractPlaylistId } from '@/shared/utils/spotify';
-import type { Track } from '@/shared/types/playlist';
+import type { Playlist, Track } from '@/shared/types/playlist';
 
 import type { 
   SpotifyService as SpotifyServiceImp,
@@ -20,6 +20,7 @@ class SpotifyService implements SpotifyServiceImp {
 
     return {
       name: 'MusicMelomanPlaylist',
+      id: 'qwerty42',
       owner: {
         id: 'music_meloman'
       }
@@ -63,6 +64,20 @@ class SpotifyService implements SpotifyServiceImp {
       onlyUpdatedTracks: [],
       notUpdatedTracks: []
     };
+  }
+
+  async createPlaylist(_: Playlist): Promise<SpotifyPlaylistInfoResponse> {    
+    return {
+      name: 'MusicMelomanPlaylist',
+      id: 'qwerty42',
+      owner: {
+        id: 'music_meloman'
+      }
+    }
+  }
+
+  async updatePlaylistTracks(_: string, __: Track[]): Promise<void> {
+    return;
   }
 }
 

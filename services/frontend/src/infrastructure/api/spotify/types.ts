@@ -38,6 +38,7 @@ export interface SpotifySearchResponse {
 
 export interface SpotifyPlaylistInfoResponse {
   name: string;
+  id: string;
   owner: {
     id: string;
   }

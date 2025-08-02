@@ -21,6 +21,12 @@ export interface SourceUpdateTracksComp {
   LoadForm: SetPlaylistForm;
 }
 
+export interface SourceExportPlaylist {
+  title: string;
+  description: string;
+  ExportForm: ExportForm;
+}
+
 export interface SourceUpdateTracksData {
   title: string;
   description: string;
@@ -41,6 +47,14 @@ export type MatchForm = ({
 }: { 
   tracks: Track[],
   updateTracks: UpdateTracksAfterMatch,
+}) => ReactNode;
+
+export type ExportForm = ({ 
+  playlist,
+  onSuccessExport,
+}: { 
+  playlist: Playlist,
+  onSuccessExport: (mainMessage: string, secondMessage?: ReactNode) => void,
 }) => ReactNode;
 
 export type UpdateTracksAfterMatch = (allTracks: Track[], onlyUpdatedTracks: Track[], notUpdatedTracks: Track[]) => void;

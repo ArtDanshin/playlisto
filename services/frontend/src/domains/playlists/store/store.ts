@@ -2,8 +2,8 @@ import type { StateCreator } from 'zustand';
 
 import type { Playlist, Track } from '@/shared/types';
 import { playlistoDB } from '@/infrastructure/storage/playlisto-db';
-import { playlistoDBService, type MergeOptions } from '@/infrastructure/services/playlisto-db';
-import { createTrackKey } from '@/shared/utils/playlist';
+import { playlistoDBService } from '@/infrastructure/services/playlisto-db';
+import { createTrackKey, type MergePlaylistTracksOptions, mergePlaylistTracks } from '@/shared/utils/playlist';
 
 export interface PlaylistState {
   currentPlaylist: Playlist | null;
@@ -13,7 +13,7 @@ export interface PlaylistState {
   newTracks: Set<string>;
   setCurrentPlaylist: (playlist: Playlist | null) => void;
   updateCurrentPlaylistTracks: (tracks: Track[]) => Promise<void>;
-  mergeCurrentPlaylistTracks: (tracks: Track[], mergeOptions: MergeOptions) => Promise<void>;
+  mergeCurrentPlaylistTracks: (tracks: Track[], mergeOptions: MergePlaylistTracksOptions) => Promise<void>;
   addPlaylist: (playlist: Playlist) => Promise<void>;
   removePlaylist: (playlistId: number) => Promise<void>;
   updatePlaylist: (playlist: Playlist) => Promise<void>;
@@ -116,7 +116,7 @@ export const store: StateCreator<PlaylistState> = (set, get) => ({
     }
   },
 
-  mergeCurrentPlaylistTracks: async (tracks: Track[], mergeOptions: MergeOptions) => {
+  mergeCurrentPlaylistTracks: async (tracks: Track[], mergeOptions: MergePlaylistTracksOptions) => {
     const { currentPlaylist, setNewTracks } = get();
     try {
       if (!currentPlaylist) {
@@ -124,9 +124,10 @@ export const store: StateCreator<PlaylistState> = (set, get) => ({
         return;
       }
 
-      const { playlist: newPlaylist, newTracks } = await playlistoDBService.mergePlaylistTracks(currentPlaylist, tracks, mergeOptions);
+      const { playlist: mergedPlaylist, newTracks } = mergePlaylistTracks(currentPlaylist, tracks, mergeOptions);
+      const resultPlaylist = await playlistoDBService.updatePlaylistWithCoverLoad(mergedPlaylist);
 
-      set({ currentPlaylist: newPlaylist });
+      set({ currentPlaylist: resultPlaylist });
       setNewTracks(newTracks);
     } catch (error: any) {
       set({ error: error.message || 'Failed to update playlist' });

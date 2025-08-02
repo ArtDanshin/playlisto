@@ -16,10 +16,6 @@ class PlaylistoDBService implements PlaylistoDBServiceImp {
   async updatePlaylistWithCoverLoad(playlist: Playlist): Promise<Playlist> {
     return playlist;
   }
-
-  async mergePlaylistTracks(playlist: Playlist): Promise<{ playlist: Playlist, newTracks: Track[] }> {
-    return { playlist, newTracks: [] };
-  }
 }
 
 // Создаем глобальный экземпляр базы данных

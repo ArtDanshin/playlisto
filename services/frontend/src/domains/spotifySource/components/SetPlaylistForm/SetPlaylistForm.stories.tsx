@@ -5,7 +5,7 @@ import { SpotifyProvider } from '@/domains/spotifySource/store';
 import SetPlaylistForm from './SetPlaylistForm';
 
 const MetaInfo: Meta<typeof SetPlaylistForm> = {
-  title: 'Domains/Sources/Spotify/NewPlaylistLoadForm',
+  title: 'Domains/Sources/Spotify/SetPlaylistForm',
   component: SetPlaylistForm,
   decorators: [
     (Story) => (
