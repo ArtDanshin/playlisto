@@ -1,6 +1,6 @@
-import SidebarWithPlaylists from '@/domains/playlists/components/SidebarWithPlaylists/SidebarWithPlaylists';
 import { SortableTrackList } from '@/domains/playlists/components/SortableTrackList';
 import { CurrentPlaylistHeader } from '@/domains/playlists/components/CurrentPlaylistHeader';
+import { Sidebar } from '@/layout/Sidebar';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -23,7 +23,7 @@ function App() {
   return (
     <Providers>
       <SidebarProvider>
-        <SidebarWithPlaylists />
+        <Sidebar />
         <SidebarInset>
           <header className='flex h-14 shrink-0 items-center gap-2'>
             <div className='flex flex-1 items-center gap-2 px-3'>
