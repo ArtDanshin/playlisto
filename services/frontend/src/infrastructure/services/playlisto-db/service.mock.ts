@@ -1,4 +1,4 @@
-import type { PlaylistoDBService as PlaylistoDBServiceImp, Playlist, Track } from './types';
+import type { PlaylistoDBService as PlaylistoDBServiceImp, Playlist, DatabaseDump } from './types';
 
 class PlaylistoDBService implements PlaylistoDBServiceImp {
   async init(): Promise<void> {
@@ -16,6 +16,19 @@ class PlaylistoDBService implements PlaylistoDBServiceImp {
   async updatePlaylistWithCoverLoad(playlist: Playlist): Promise<Playlist> {
     return playlist;
   }
+
+  async exportDatabase(): Promise<DatabaseDump> {
+    return {
+      version: '1.0.0',
+      timestamp: new Date().toISOString(),
+      playlists: [],
+      covers: [],
+    };
+  }
+
+  async importDatabase(_: DatabaseDump): Promise<void> {
+    return;
+  
 }
 
 // Создаем глобальный экземпляр базы данных

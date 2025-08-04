@@ -1,6 +1,6 @@
 import { DB_NAME, DB_VERSION, PLAYLISTS_STORE, COVERS_STORE } from '@/infrastructure/configs/playlisto-db';
 
-import type { Playlist } from './types';
+import type { Playlist, CoverData } from './types';
 
 interface PlaylistoDBClient {
   init: () => Promise<void>;
@@ -11,7 +11,7 @@ interface PlaylistoDBClient {
   updatePlaylist: (playlist: Playlist) => Promise<void>;
   addCover: (key: string, base64: string) => Promise<void>;
   getCover: (key: string) => Promise<string | undefined>;
-  getAllCovers: () => Promise<Array<{ url: string; base64: string; }>>;
+  getAllCovers: () => Promise<CoverData[]>;
   clearDatabase: () => Promise<void>;
 }
 
@@ -144,7 +144,7 @@ class IndexedDBStorage implements PlaylistoDBClient {
     });
   }
 
-  async getAllCovers(): Promise<Array<{ url: string; base64: string; }>> {
+  async getAllCovers(): Promise<CoverData[]> {
     if (!this.db) throw new Error('Database not initialized');
 
     return new Promise((resolve, reject) => {
@@ -153,10 +153,7 @@ class IndexedDBStorage implements PlaylistoDBClient {
       const request = store.getAll();
 
       request.onsuccess = () => {
-        const covers = request.result.map((item) => ({
-          url: item.url,
-          base64: item.base64,
-        }));
+        const covers = request.result as CoverData[];
         resolve(covers);
       };
       request.onerror = () => reject(request.error);

@@ -1,6 +1,7 @@
-import type { Playlist, Track } from '@/shared/types';
+import type { Track } from '@/shared/types';
 import type { SpotifyTrackDataResponse } from '@/infrastructure/api/spotify';
 import { playlistoDB } from '@/infrastructure/storage/playlisto-db';
+import type { DatabaseDump } from '@/infrastructure/services/playlisto-db';
 
 import { fetchImageAsBase64 } from './image-utils';
 
@@ -303,5 +304,36 @@ export function mergeTracks(
   return {
     mergedTracks,
     newTracks,
+  }
+}
+
+/**
+ * Создает файл для скачивания с дампом базы данных
+ */
+export function downloadDatabaseDump(dump: DatabaseDump): void {
+  const blob = new Blob([JSON.stringify(dump, null, 2)], {
+    type: 'application/json',
+  });
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `playlisto-dump-${new Date().toISOString().split('T')[0]}.json`;
+  document.body.append(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/**
+ * Читает файл дампа из input элемента
+ */
+export async function readDatabaseDumpFromFile(file: File): Promise<DatabaseDump> {
+  try {
+    const content = await file.text();
+    const dump = JSON.parse(content) as DatabaseDump;
+    return dump;
+  } catch {
+    throw new Error('Неверный формат файла');
   }
 }

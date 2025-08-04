@@ -2,7 +2,7 @@ import { playlistoDB } from '@/infrastructure/storage/playlisto-db';
 import type { Playlist as PlaylistAPI } from '@/infrastructure/storage/playlisto-db';
 import { getTrackExternalServices, createCoverKey } from '@/shared/utils/playlist';
 
-import type { PlaylistoDBService as PlaylistoDBServiceImp, Playlist } from './types';
+import type { PlaylistoDBService as PlaylistoDBServiceImp, Playlist, DatabaseDump } from './types';
 
 class PlaylistoDBService implements PlaylistoDBServiceImp {
   async init(): Promise<void> {
@@ -105,6 +105,49 @@ class PlaylistoDBService implements PlaylistoDBServiceImp {
     await playlistoDB.updatePlaylist(resultPlaylist);
 
     return resultPlaylist;
+  }
+
+  /**
+   * Экспортирует всю базу данных в JSON формат
+   */
+  async exportDatabase(): Promise<DatabaseDump> {
+    // Получаем все плейлисты
+    const playlists = await playlistoDB.getAllPlaylists();
+  
+    // Получаем все обложки
+    const covers = await playlistoDB.getAllCovers();
+  
+    const dump: DatabaseDump = {
+      version: '1.0.0',
+      timestamp: new Date().toISOString(),
+      playlists,
+      covers,
+    };
+  
+    return dump;
+  }
+
+  /**
+   * Импортирует данные из JSON файла в базу данных
+   */
+  async importDatabase(dump: DatabaseDump): Promise<void> {
+    // Проверяем версию дампа
+    if (!dump.version || !dump.playlists || !dump.covers) {
+      throw new Error('Неверный формат файла дампа');
+    }
+  
+    // Очищаем существующие данные
+    await playlistoDB.clearDatabase();
+  
+    // Импортируем обложки
+    for (const cover of dump.covers) {
+      await playlistoDB.addCover(cover.key, cover.base64);
+    }
+  
+    // Импортируем плейлисты
+    for (const playlist of dump.playlists) {
+      await playlistoDB.addPlaylist(playlist);
+    }
   }
 }
 

@@ -31,3 +31,8 @@ export interface TrackM3UData {
   url: string; // Путь к файлу
   duration: number; // Длительность трека
 }
+
+export interface CoverData {
+  key: string; // Ключ обложки, по которому ее можно получить в приложении 
+  base64: string; // Картинка, закодированная в base64
+}

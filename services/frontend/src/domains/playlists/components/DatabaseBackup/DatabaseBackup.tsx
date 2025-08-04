@@ -4,12 +4,8 @@ import { useState } from 'react';
 import { Database, Download, Upload, Loader2, AlertCircle } from 'lucide-react';
 
 import { Button } from '@/shared/components/ui/Button';
-import {
-  exportDatabase,
-  importDatabase,
-  downloadDatabaseDump,
-  readDatabaseDumpFromFile,
-} from '@/infrastructure/storage/database-dump';
+import { playlistoDBService } from '@/infrastructure/services/playlisto-db';
+import { downloadDatabaseDump, readDatabaseDumpFromFile } from '@/shared/utils/playlist';
 
 import { usePlaylistStore } from '../../store';
 
@@ -23,11 +19,10 @@ function DatabaseBackup() {
     setError(null);
     setIsExporting(true);
     try {
-      const dump = await exportDatabase();
+      const dump = await playlistoDBService.exportDatabase();
       downloadDatabaseDump(dump);
     } catch (error: any) {
-      const errorMessage = error.message || 'Ошибка экспорта базы данных';
-      setError(errorMessage);
+      setError(error.message || 'Ошибка экспорта базы данных');
     } finally {
       setIsExporting(false);
     }
@@ -42,11 +37,11 @@ function DatabaseBackup() {
     setIsImporting(true);
     try {
       const dump = await readDatabaseDumpFromFile(file);
-      await importDatabase(dump);
+
+      await playlistoDBService.importDatabase(dump);
       await loadPlaylists(); // Перезагружаем плейлисты
     } catch (error: any) {
-      const errorMessage = error.message || 'Ошибка импорта базы данных';
-      setError(errorMessage);
+      setError(error.message || 'Ошибка импорта базы данных');
     } finally {
       setIsImporting(false);
       // Очищаем input для возможности повторного выбора того же файла
