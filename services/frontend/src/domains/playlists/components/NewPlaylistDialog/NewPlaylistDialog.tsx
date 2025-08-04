@@ -4,10 +4,12 @@ import { useState, type ReactNode } from 'react';
 
 import { Button } from '@/shared/components/ui/Button';
 import { StepsDialog, type Step } from '@/shared/components/StepsDialog';
-import { common as fileCommon, newPlaylist as fileNewPlaylist } from '@/domains/fileSource';
-import { common as spotifyCommon, newPlaylist as spotifyNewPlaylist } from '@/domains/spotifySource';
 import type { SourceCommon, SourceNewPlaylist } from '@/shared/types/source';
 import type { Playlist } from '@/shared/types/playlist';
+import { common as fileCommon, newPlaylist as fileNewPlaylist } from '@/domains/fileSource';
+import { common as spotifyCommon, newPlaylist as spotifyNewPlaylist } from '@/domains/spotifySource';
+
+import { usePlaylistStore } from '../../store';
 
 const SOURCES = ['file', 'spotify'];
 const SOURCES_DATA: Record<string, SourceCommon & SourceNewPlaylist> = {
@@ -16,12 +18,20 @@ const SOURCES_DATA: Record<string, SourceCommon & SourceNewPlaylist> = {
 }
 
 interface NewPlaylistDialogProps {
-  onPlaylistAdded: (playlist: Playlist) => void;
   children: ReactNode;
 }
 
-function NewPlaylistDialog({ onPlaylistAdded, children }: NewPlaylistDialogProps) {
+function NewPlaylistDialog({ children }: NewPlaylistDialogProps) {
+  const { addPlaylist } = usePlaylistStore();
   const [currentSource, setCurrentSource] = useState<string | undefined>();
+
+  const addPlaylistToApp = async (playlist: Playlist) => {
+    try {
+      await addPlaylist(playlist);
+    } catch (error) {
+      console.error('Failed to add playlist:', error);
+    }
+  };
 
   const stepBeggin: Step = {
     component: (next) => {
@@ -65,7 +75,7 @@ function NewPlaylistDialog({ onPlaylistAdded, children }: NewPlaylistDialogProps
         const LoadForm = SOURCES_DATA[currentSource].LoadForm;
 
         const handleSetPlaylist = (playlist: Playlist) => {
-          onPlaylistAdded(playlist);
+          addPlaylistToApp(playlist);
           close();
         }
 

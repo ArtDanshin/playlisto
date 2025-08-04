@@ -9,7 +9,6 @@ export default {
   component: StepsDialog,
 };
 
-// Базовый popover
 export const Default = {
   render: () => {
     const stepOne: Step = {

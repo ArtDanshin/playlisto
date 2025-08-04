@@ -2,7 +2,6 @@
 
 import { Music, RefreshCw } from 'lucide-react';
 
-// import type { Track } from '@/shared/types';
 import { Button } from '@/shared/components/ui/Button';
 
 import { usePlaylistStore } from '../../store';

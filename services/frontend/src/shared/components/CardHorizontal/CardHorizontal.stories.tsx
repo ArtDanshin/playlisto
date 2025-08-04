@@ -7,7 +7,6 @@ export default {
   component: CardHorizontal,
 };
 
-// Базовый popover
 export const Default = {
   render: () => {
     return (
