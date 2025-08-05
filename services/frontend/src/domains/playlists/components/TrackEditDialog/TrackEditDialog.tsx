@@ -17,18 +17,13 @@ import { Input } from '@/shared/components/ui/Input';
 import { Label } from '@/shared/components/ui/Label';
 import { Separator } from '@/shared/components/ui/Separator';
 import { EditTrackForm as EditTrackFormFromSpotify } from '@/domains/spotifySource/components/EditTrackForm';
+import { EditTrackForm as EditTrackFormFromM3U } from '@/domains/fileSource/components/EditTrackForm';
 
 interface TrackEditDialogProps {
   track: Track;
   onTrackUpdate: (updatedTrack: Track) => void;
   children: React.ReactNode;
 }
-
-const formatDuration = (seconds: number): string => {
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `${mins}:${secs.toString().padStart(2, '0')}`;
-};
 
 /* eslint-disable react-hooks-extra/no-direct-set-state-in-use-effect */
 /* TODO: Глянуть логику заполнения формы при изменении трека */
@@ -43,14 +38,6 @@ function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProp
     album: track.album,
   });
 
-  // M3U data form state
-  const [m3uFormData, setM3uFormData] = useState({
-    title: track.m3uData?.title || track.title || '',
-    artist: track.m3uData?.artist || track.artist || '',
-    url: track.m3uData?.url || '',
-    duration: track.m3uData?.duration || 0,
-  });
-
   // Local track state for display
   const [localTrack, setLocalTrack] = useState<Track>(track);
 
@@ -60,12 +47,6 @@ function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProp
       title: track.title,
       artist: track.artist,
       album: track.album,
-    });
-    setM3uFormData({
-      title: track.m3uData?.title || track.title || '',
-      artist: track.m3uData?.artist || track.artist || '',
-      url: track.m3uData?.url || '',
-      duration: track.m3uData?.duration || 0,
     });
     setLocalTrack(track);
   }, [track]);
@@ -77,28 +58,12 @@ function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProp
     }));
   };
 
-  const handleM3uInputChange = (field: keyof typeof m3uFormData, value: string | number) => {
-    setM3uFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
   const handleSave = () => {
     const updatedTrack: Track = {
       ...localTrack,
       title: formData.title,
       artist: formData.artist,
       album: formData.album,
-      m3uData: {
-        title: m3uFormData.title,
-        artist: m3uFormData.artist,
-        url: m3uFormData.url,
-        duration: m3uFormData.duration,
-      },
-      // Сохраняем Spotify данные из локального состояния
-      spotifyData: localTrack.spotifyData,
-      coverKey: localTrack.coverKey,
     };
     onTrackUpdate(updatedTrack);
     setIsOpen(false);
@@ -170,84 +135,12 @@ function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProp
   );
 
   const renderM3UTab = () => (
-    <div className='space-y-4'>
-      <div className='flex items-center gap-2'>
-        <FileText className='h-4 w-4' />
-        <span className='font-medium'>Данные файла</span>
-        {localTrack.m3uData && (
-          <span className='text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full'>
-            Настроено
-          </span>
-        )}
-      </div>
-
-      <div className='space-y-4'>
-        <div className='grid gap-2'>
-          <Label htmlFor='m3u-title'>Название трека</Label>
-          <Input
-            id='m3u-title'
-            value={m3uFormData.title}
-            onChange={(e) => handleM3uInputChange('title', e.target.value)}
-            placeholder='Название трека'
-          />
-        </div>
-
-        <div className='grid gap-2'>
-          <Label htmlFor='m3u-artist'>Исполнитель</Label>
-          <Input
-            id='m3u-artist'
-            value={m3uFormData.artist}
-            onChange={(e) => handleM3uInputChange('artist', e.target.value)}
-            placeholder='Исполнитель'
-          />
-        </div>
-
-        <div className='grid gap-2'>
-          <Label htmlFor='m3u-url'>Путь к файлу</Label>
-          <Input
-            id='m3u-url'
-            value={m3uFormData.url}
-            onChange={(e) => handleM3uInputChange('url', e.target.value)}
-            placeholder='file:///path/to/track.mp3'
-          />
-        </div>
-
-        <div className='grid gap-2'>
-          <Label htmlFor='m3u-duration'>Длительность (секунды)</Label>
-          <Input
-            id='m3u-duration'
-            type='number'
-            value={m3uFormData.duration}
-            onChange={(e) => handleM3uInputChange('duration', Number.parseInt(e.target.value, 10) || 0)}
-            placeholder='180'
-          />
-        </div>
-      </div>
-
-      {localTrack.m3uData && (
-        <div className='space-y-2'>
-          <h4 className='text-sm font-medium'>Текущие данные файла:</h4>
-          <div className='p-3 border rounded-lg bg-muted/20'>
-            <p className='text-sm'>
-              <span className='font-medium'>Название:</span> {localTrack.m3uData.title}
-            </p>
-            <p className='text-sm'>
-              <span className='font-medium'>Исполнитель:</span> {localTrack.m3uData.artist}
-            </p>
-            <p className='text-sm'>
-              <span className='font-medium'>Путь:</span> {localTrack.m3uData.url}
-            </p>
-            <p className='text-sm'>
-              <span className='font-medium'>Длительность:</span> {formatDuration(localTrack.m3uData.duration)}
-            </p>
-          </div>
-          <p className='text-xs text-blue-600 bg-blue-50 p-2 rounded'>
-            {/* eslint-disable-next-line react-classic/no-unescaped-entities */}
-            💡 Изменения будут сохранены при нажатии кнопки "Сохранить"
-          </p>
-        </div>
-      )}
-    </div>
+    <EditTrackFormFromM3U track={track} onDataChange={(m3uData) => {
+      setLocalTrack((prev) => ({ 
+        ...prev,
+        m3uData
+      }))
+    }}/>
   );
 
   const renderCurrentTab = () => {
