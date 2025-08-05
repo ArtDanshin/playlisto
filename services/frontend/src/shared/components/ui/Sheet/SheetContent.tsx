@@ -4,7 +4,7 @@ import type { ComponentProps } from 'react';
 import { Close, Content } from '@radix-ui/react-dialog';
 import { XIcon } from 'lucide-react';
 
-import { cn } from '@/shared/utils/utils';
+import { cn } from '@/shared/utils/system';
 
 import SheetPortal from './SheetPortal';
 import SheetOverlay from './SheetOverlay';

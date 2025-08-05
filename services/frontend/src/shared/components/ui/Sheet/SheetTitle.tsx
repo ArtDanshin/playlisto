@@ -3,7 +3,7 @@
 import type { ComponentProps } from 'react';
 import { Title } from '@radix-ui/react-dialog';
 
-import { cn } from '@/shared/utils/utils';
+import { cn } from '@/shared/utils/system';
 
 function SheetTitle({ className, ...props }: ComponentProps<typeof Title>) {
   return (

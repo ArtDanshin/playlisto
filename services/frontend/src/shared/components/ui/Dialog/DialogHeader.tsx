@@ -2,7 +2,7 @@
 
 import type { ComponentProps } from 'react';
 
-import { cn } from '@/shared/utils/utils';
+import { cn } from '@/shared/utils/system';
 
 function DialogHeader({ className, ...props }: ComponentProps<'div'>) {
   return (

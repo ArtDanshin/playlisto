@@ -1,4 +1,4 @@
-import { SortableTrackList } from '@/domains/playlists/components/SortableTrackList';
+import { TrackList } from '@/domains/playlists/components/TrackList';
 import { CurrentPlaylistHeader } from '@/domains/playlists/components/CurrentPlaylistHeader';
 import { usePlaylistStore } from '@/domains/playlists/store';
 
@@ -12,7 +12,7 @@ function App() {
             <div className='mx-auto w-full max-w-4xl'>
               <div className='space-y-4'>
                 <CurrentPlaylistHeader />
-                <SortableTrackList tracks={currentPlaylist.tracks} />
+                <TrackList />
               </div>
             </div>
           )

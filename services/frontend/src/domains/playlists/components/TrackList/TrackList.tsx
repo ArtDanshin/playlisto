@@ -21,16 +21,13 @@ import type { Track } from '@/shared/types';
 
 import { usePlaylistStore } from '../../store';
 
-import SortableTrackItem from './SortableTrackItem.tsx';
+import TrackItem from './TrackItem.tsx';
 
-interface SortableTrackListProps {
-  tracks: Track[];
-}
-
-function SortableTrackList({ tracks }: SortableTrackListProps) {
-  const { currentPlaylist, updateCurrentPlaylistTracks, updatePlaylist } = usePlaylistStore();
+function TrackList() {
+  const { currentPlaylist, updatePlaylistWithCoverLoad, updatePlaylistTracksOrder } = usePlaylistStore();
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
-
+  const tracks = currentPlaylist?.tracks || [];
+  
   // Сброс scroll-позиции окна при переключении плейлиста
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
@@ -43,29 +40,6 @@ function SortableTrackList({ tracks }: SortableTrackListProps) {
     }),
   );
 
-  const updatePlaylistOrder = async (newTracks: Track[]) => {
-    if (!currentPlaylist) return;
-
-    // Обновляем позиции всех треков в соответствии с новым порядком
-    const updatedTracks = newTracks.map((track, index) => ({
-      ...track,
-      position: index + 1,
-    }));
-
-    const updatedPlaylist = {
-      ...currentPlaylist,
-      tracks: updatedTracks,
-    };
-
-    updateCurrentPlaylistTracks(updatedPlaylist.tracks);
-
-    try {
-      await updatePlaylist(updatedPlaylist);
-    } catch (error) {
-      console.error('Failed to update playlist order:', error);
-    }
-  };
-
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
 
@@ -75,25 +49,23 @@ function SortableTrackList({ tracks }: SortableTrackListProps) {
 
       if (oldIndex !== -1 && newIndex !== -1) {
         const newTracks = arrayMove(tracks, oldIndex, newIndex);
-        await updatePlaylistOrder(newTracks);
+        await updatePlaylistTracksOrder({ ...currentPlaylist!, tracks: newTracks })
       }
     }
   };
 
   const handleManualOrderChange = async (trackIndex: number, newOrder: number) => {
-    if (newOrder < 1 || newOrder > tracks.length) return;
+    let realNewOrder = newOrder;
+    
+    if (newOrder < 1) {
+      return;
+    } else if (newOrder > tracks.length) {
+      realNewOrder = tracks.length;
+    }
+      
+    const newTracks = arrayMove(tracks, trackIndex, realNewOrder);
 
-    const newTracks = [...tracks];
-    const track = newTracks.splice(trackIndex, 1)[0];
-    newTracks.splice(newOrder - 1, 0, track);
-
-    // Обновляем позиции всех треков в соответствии с новым порядком
-    const updatedTracks = newTracks.map((track, index) => ({
-      ...track,
-      position: index + 1,
-    }));
-
-    await updatePlaylistOrder(updatedTracks);
+    await updatePlaylistTracksOrder({ ...currentPlaylist!, tracks: newTracks });
     setEditingIndex(null);
   };
 
@@ -110,7 +82,7 @@ function SortableTrackList({ tracks }: SortableTrackListProps) {
       >
         <div className='grid gap-4'>
           {tracks.map((track, index) => (
-            <SortableTrackItem
+            <TrackItem
               key={`${track.title}-${track.artist}-${index}`} // eslint-disable-line react/no-array-index-key
               track={track}
               trackIndex={index}
@@ -129,13 +101,7 @@ function SortableTrackList({ tracks }: SortableTrackListProps) {
                   tracks: updatedTracks,
                 };
 
-                updateCurrentPlaylistTracks(updatedPlaylist.tracks);
-
-                try {
-                  await updatePlaylist(updatedPlaylist);
-                } catch (error) {
-                  console.error('Failed to save track changes:', error);
-                }
+                await updatePlaylistWithCoverLoad(updatedPlaylist);
               }}
             />
           ))}
@@ -145,4 +111,4 @@ function SortableTrackList({ tracks }: SortableTrackListProps) {
   );
 }
 
-export default SortableTrackList;
+export default TrackList;

@@ -8,16 +8,15 @@ import {
 } from 'lucide-react';
 
 import type { Track } from '@/shared/types';
-import { formatDuration } from '@/shared/utils/utils';
 import { Button } from '@/shared/components/ui/Button';
 import { Input } from '@/shared/components/ui/Input';
-import { playlistoDB } from '@/infrastructure/storage/playlisto-db';
+import { playlistoDBService } from '@/infrastructure/services/playlisto-db';
 import { getTrackDuration, isTrackLinkedToSpotify, createTrackKey } from '@/shared/utils/playlist';
 
 import { usePlaylistStore } from '../../store';
 import { TrackEditDialog } from '../TrackEditDialog';
 
-interface SortableTrackItemProps {
+interface TrackItemProps {
   track: Track;
   trackIndex: number;
   isEditing: boolean;
@@ -27,7 +26,7 @@ interface SortableTrackItemProps {
   onTrackUpdate: (updatedTrack: Track) => void;
 }
 
-function SortableTrackItem({
+function TrackItem({
   track,
   trackIndex,
   isEditing,
@@ -35,7 +34,7 @@ function SortableTrackItem({
   onEditCancel,
   onOrderChange,
   onTrackUpdate,
-}: SortableTrackItemProps) {
+}: TrackItemProps) {
   const { newTracks } = usePlaylistStore();
   const [coverBase64, setCoverBase64] = useState<string | null>(null);
   const [manualOrder, setManualOrder] = useState<string>((trackIndex + 1).toString());
@@ -45,8 +44,8 @@ function SortableTrackItem({
     let isMounted = true;
     async function loadCover() {
       if (track.coverKey) {
-        const base64 = await playlistoDB.getCover(track.coverKey);
-        if (isMounted) setCoverBase64(base64 || null);
+        const cover = await playlistoDBService.getCover(track.coverKey);
+        if (isMounted) setCoverBase64(cover?.base64 || null);
       } else {
         setCoverBase64(null);
       }
@@ -233,16 +232,12 @@ function SortableTrackItem({
 
       {/* Duration */}
       <div className='flex-shrink-0 text-sm text-muted-foreground'>
-        {duration && formatDuration(duration)}
+        {duration}
       </div>
 
       {/* Edit Button */}
       <div className='flex-shrink-0'>
-        <TrackEditDialog
-          key={`edit-${track.title}-${track.artist}-${track.spotifyData?.id || 'no-spotify'}`}
-          track={track}
-          onTrackUpdate={onTrackUpdate}
-        >
+        <TrackEditDialog track={track} onTrackUpdate={onTrackUpdate}>
           <Button variant='ghost' size='sm' className='h-8 w-8 p-0'>
             <Edit2 className='h-4 w-4' />
           </Button>
@@ -252,4 +247,4 @@ function SortableTrackItem({
   );
 }
 
-export default SortableTrackItem;
+export default TrackItem;

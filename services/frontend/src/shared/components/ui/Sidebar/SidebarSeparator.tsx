@@ -2,7 +2,7 @@
 
 import type { ComponentProps } from 'react';
 
-import { cn } from '@/shared/utils/utils';
+import { cn } from '@/shared/utils/system';
 import { Separator } from '@/shared/components/ui/Separator';
 
 function SidebarSeparator({ className, ...props }: ComponentProps<typeof Separator>) {

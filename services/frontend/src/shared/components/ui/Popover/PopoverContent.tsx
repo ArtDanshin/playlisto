@@ -3,7 +3,7 @@
 import type { ComponentProps } from 'react';
 import { Content, Portal } from '@radix-ui/react-popover';
 
-import { cn } from '@/shared/utils/utils';
+import { cn } from '@/shared/utils/system';
 
 function PopoverContent({
   className,

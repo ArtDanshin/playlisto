@@ -2,7 +2,7 @@
 
 import type { ComponentProps, CSSProperties } from 'react';
 
-import { cn } from '@/shared/utils/utils';
+import { cn } from '@/shared/utils/system';
 import {
   Sheet,
   SheetContent,

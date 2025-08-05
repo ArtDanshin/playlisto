@@ -1,12 +1,16 @@
 import { playlistoDB } from '@/infrastructure/storage/playlisto-db';
-import type { Playlist as PlaylistAPI } from '@/infrastructure/storage/playlisto-db';
+import type { CoverData, Playlist as PlaylistAPI } from '@/infrastructure/storage/playlisto-db';
 import { getTrackExternalServices, createCoverKey } from '@/shared/utils/playlist';
 
 import type { PlaylistoDBService as PlaylistoDBServiceImp, Playlist, DatabaseDump } from './types';
 
 class PlaylistoDBService implements PlaylistoDBServiceImp {
   async init(): Promise<void> {
-    return playlistoDB.init();
+    return await playlistoDB.init();
+  }
+
+  async getAllPlaylists(): Promise<Playlist[]> {
+    return await playlistoDB.getAllPlaylists()
   }
 
   async addCoverByURL(url: string, key?: string): Promise<string> {
@@ -70,6 +74,22 @@ class PlaylistoDBService implements PlaylistoDBServiceImp {
     await playlistoDB.addPlaylist(resultPlaylist);
   }
 
+  async deletePlaylist(playlist: Playlist): Promise<void> {
+    if (!playlist.id) {
+      throw new Error('У плейлиста отсутствует ID');
+    }
+
+    await playlistoDB.deletePlaylist(playlist.id);
+
+    return;
+  }
+
+  async updatePlaylist(playlist: Playlist): Promise<void> {
+    await playlistoDB.updatePlaylist(playlist);
+
+    return;
+  }
+
   async updatePlaylistWithCoverLoad(playlist: Playlist): Promise<Playlist> {
     const resultPlaylist: PlaylistAPI = {
       ...playlist,
@@ -105,6 +125,10 @@ class PlaylistoDBService implements PlaylistoDBServiceImp {
     await playlistoDB.updatePlaylist(resultPlaylist);
 
     return resultPlaylist;
+  }
+
+  async getCover(key: string): Promise<CoverData | undefined> {
+    return await playlistoDB.getCover(key);
   }
 
   /**

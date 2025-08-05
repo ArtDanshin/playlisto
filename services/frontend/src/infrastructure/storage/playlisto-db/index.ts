@@ -10,7 +10,7 @@ interface PlaylistoDBClient {
   deletePlaylist: (id: number) => Promise<void>;
   updatePlaylist: (playlist: Playlist) => Promise<void>;
   addCover: (key: string, base64: string) => Promise<void>;
-  getCover: (key: string) => Promise<string | undefined>;
+  getCover: (key: string) => Promise<CoverData | undefined>;
   getAllCovers: () => Promise<CoverData[]>;
   clearDatabase: () => Promise<void>;
 }
@@ -133,13 +133,13 @@ class IndexedDBStorage implements PlaylistoDBClient {
     });
   }
 
-  async getCover(key: string): Promise<string | undefined> {
+  async getCover(key: string): Promise<CoverData | undefined> {
     if (!this.db) throw new Error('Database not initialized');
     return new Promise((resolve, reject) => {
       const tx = this.db!.transaction([COVERS_STORE], 'readonly');
       const store = tx.objectStore(COVERS_STORE);
       const req = store.get(key);
-      req.onsuccess = () => resolve(req.result?.base64);
+      req.onsuccess = () => resolve(req.result);
       req.onerror = () => reject(req.error);
     });
   }

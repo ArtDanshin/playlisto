@@ -1,6 +1,6 @@
 import type { ComponentProps } from 'react';
 
-import { cn } from '@/shared/utils/utils';
+import { cn } from '@/shared/utils/system';
 
 function BreadcrumbPage({ className, ...props }: ComponentProps<'span'>) {
   return (

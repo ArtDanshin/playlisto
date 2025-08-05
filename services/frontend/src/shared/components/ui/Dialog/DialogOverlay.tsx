@@ -3,7 +3,7 @@
 import type { ComponentProps } from 'react';
 import { Overlay } from '@radix-ui/react-dialog';
 
-import { cn } from '@/shared/utils/utils';
+import { cn } from '@/shared/utils/system';
 
 function DialogOverlay({ className, ...props }: ComponentProps<typeof Overlay>) {
   return (

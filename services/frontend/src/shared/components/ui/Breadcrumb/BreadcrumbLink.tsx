@@ -1,7 +1,7 @@
 import type { ComponentProps } from 'react';
 import { Slot } from '@radix-ui/react-slot';
 
-import { cn } from '@/shared/utils/utils';
+import { cn } from '@/shared/utils/system';
 
 type BreadcrumbLinkProps = ComponentProps<'a'> & {
   asChild?: boolean;

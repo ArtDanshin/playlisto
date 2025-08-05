@@ -63,16 +63,25 @@ export function isExactMatch(track: Track, spotifyTrack: SpotifyTrackDataRespons
 }
 
 /**
- * Получаем длительность трека в секундах
+ * Получаем длительность трека в формате MM:SS
  */
-export function getTrackDuration(track: Track): number | undefined {
+export function getTrackDuration(track: Track): string | undefined {
+  let seconds;
+
   if (track.m3uData?.duration) {
-    return track.m3uData.duration;
+    seconds = track.m3uData.duration;
   }
   // Для Spotify данных длительность в миллисекундах, конвертируем в секунды
   if (track.spotifyData?.duration) {
-    return Math.round(track.spotifyData.duration / 1000);
+    seconds = Math.round(track.spotifyData.duration / 1000);
   }
+
+  if (seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  }
+
   return undefined;
 }
 

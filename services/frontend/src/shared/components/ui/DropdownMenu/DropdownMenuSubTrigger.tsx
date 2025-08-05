@@ -4,7 +4,7 @@ import type { ComponentProps } from 'react';
 import { SubTrigger } from '@radix-ui/react-dropdown-menu';
 import { ChevronRightIcon } from 'lucide-react';
 
-import { cn } from '@/shared/utils/utils';
+import { cn } from '@/shared/utils/system';
 
 type DropdownMenuSubTriggerProps = ComponentProps<typeof SubTrigger> & {
   inset?: boolean;

@@ -5,6 +5,10 @@ class PlaylistoDBService implements PlaylistoDBServiceImp {
     return new Promise(() => {});
   }
 
+  async getAllPlaylists(): Promise<Playlist[]> {
+    return [];
+  }
+
   async addCoverByURL(url: string, key?: string): Promise<string> {
     return key || url;
   }
@@ -13,8 +17,20 @@ class PlaylistoDBService implements PlaylistoDBServiceImp {
     return;
   }
 
+  async deletePlaylist(): Promise<void> {
+    return;
+  }
+
+  async updatePlaylist(): Promise<void> {
+    return;
+  }
+
   async updatePlaylistWithCoverLoad(playlist: Playlist): Promise<Playlist> {
     return playlist;
+  }
+
+  async getCover(): Promise<undefined> {
+    return;
   }
 
   async exportDatabase(): Promise<DatabaseDump> {
@@ -26,9 +42,9 @@ class PlaylistoDBService implements PlaylistoDBServiceImp {
     };
   }
 
-  async importDatabase(_: DatabaseDump): Promise<void> {
+  async importDatabase(): Promise<void> {
     return;
-  
+  }
 }
 
 // Создаем глобальный экземпляр базы данных

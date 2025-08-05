@@ -2,7 +2,7 @@
 
 import type { ComponentProps } from 'react';
 
-import { cn } from '@/shared/utils/utils';
+import { cn } from '@/shared/utils/system';
 import { Input } from '@/shared/components/ui/Input';
 
 function SidebarInput({ className, ...props }: ComponentProps<typeof Input>) {

@@ -3,7 +3,7 @@
 import type { ComponentProps } from 'react';
 import { Content, Portal, Arrow } from '@radix-ui/react-tooltip';
 
-import { cn } from '@/shared/utils/utils';
+import { cn } from '@/shared/utils/system';
 
 function TooltipContent({
   className,

@@ -11,6 +11,7 @@ import {
 } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
 import {
+  arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
@@ -47,7 +48,7 @@ function PlaylistsList() {
   const handleRemovePlaylist = async (playlist: Playlist) => {
     if (!playlist.id) return;
     try {
-      await removePlaylist(playlist.id);
+      await removePlaylist(playlist);
     } catch (error) {
       console.error('Failed to remove playlist:', error);
       // Здесь можно добавить уведомление пользователю об ошибке
@@ -63,10 +64,8 @@ function PlaylistsList() {
 
       if (oldIndex !== -1 && newIndex !== -1) {
         // Новый порядок id
-        const ordered = [...playlists];
-        const [removed] = ordered.splice(oldIndex, 1);
-        ordered.splice(newIndex, 0, removed);
-        await updatePlaylistsOrder(ordered.map((p) => p.id!));
+        const ordered = arrayMove(playlists, oldIndex, newIndex);
+        await updatePlaylistsOrder(ordered);
       }
     }
   };

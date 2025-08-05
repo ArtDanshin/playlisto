@@ -2,7 +2,7 @@
 
 import type { ComponentProps } from 'react';
 
-import { cn } from '@/shared/utils/utils';
+import { cn } from '@/shared/utils/system';
 
 function DropdownMenuShortcut({ className, ...props }: ComponentProps<'span'>) {
   return (

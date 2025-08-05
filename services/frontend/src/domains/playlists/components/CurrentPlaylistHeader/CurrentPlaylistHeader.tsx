@@ -10,7 +10,7 @@ import { UpdateTracksDataDialog } from '../UpdateTracksDataDialog';
 import { ExportPlaylistDialog } from '../ExportPlaylistDialog';
 
 function CurrentPlaylistHeader() {
-  const { currentPlaylist, updateCurrentPlaylistTracks, mergeCurrentPlaylistTracks } = usePlaylistStore();
+  const { currentPlaylist, updatePlaylistWithCoverLoad, mergeCurrentPlaylistTracks } = usePlaylistStore();
   
   return (
     <div className='flex items-center justify-between'>
@@ -27,7 +27,10 @@ function CurrentPlaylistHeader() {
                 Обновить состав
               </Button>
             </UpdateTracksCompDialog>
-            <UpdateTracksDataDialog tracks={currentPlaylist.tracks} onTracksUpdate={updateCurrentPlaylistTracks}>
+            <UpdateTracksDataDialog 
+              tracks={currentPlaylist.tracks}
+              onTracksUpdate={(tracks) => updatePlaylistWithCoverLoad({ ...currentPlaylist, tracks })}
+            >
               <Button variant='outline' size='sm'>
                 <Music className='mr-2 h-4 w-4' />
                 Обновить данные

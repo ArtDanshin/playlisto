@@ -3,7 +3,7 @@
 import type { ComponentProps, CSSProperties } from 'react';
 import { useMemo } from 'react';
 
-import { cn } from '@/shared/utils/utils';
+import { cn } from '@/shared/utils/system';
 import { Skeleton } from '@/shared/components/ui/Skeleton';
 
 type SidebarMenuSkeletonProps = ComponentProps<'div'> & {
