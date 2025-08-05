@@ -3,7 +3,7 @@
 import type { ComponentProps } from 'react';
 import { Item } from '@radix-ui/react-dropdown-menu';
 
-import { cn } from '@/shared/utils/system';
+import { cn } from '@/shared/utils/common';
 
 type DropdownMenuItemProps = ComponentProps<typeof Item> & {
   inset?: boolean;

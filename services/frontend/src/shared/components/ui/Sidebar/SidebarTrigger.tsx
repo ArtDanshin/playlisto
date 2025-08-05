@@ -3,7 +3,7 @@
 import type { ComponentProps } from 'react';
 import { PanelLeftIcon } from 'lucide-react';
 
-import { cn } from '@/shared/utils/system';
+import { cn } from '@/shared/utils/common';
 import { Button } from '@/shared/components/ui/Button';
 
 import { useSidebar } from './SidebarProvider';

@@ -4,7 +4,7 @@ import type { ComponentProps } from 'react';
 import { CheckboxItem, ItemIndicator } from '@radix-ui/react-dropdown-menu';
 import { CheckIcon } from 'lucide-react';
 
-import { cn } from '@/shared/utils/system';
+import { cn } from '@/shared/utils/common';
 
 function DropdownMenuCheckboxItem({
   className,

@@ -38,6 +38,14 @@ class SpotifyService implements SpotifyServiceImp {
     return [];
   }
 
+  async getTrackByURL(): Promise<SpotifyTrackDataResponse> {
+    return {} as SpotifyTrackDataResponse;
+  }
+
+  async searchTracks(): Promise<SpotifyTrackDataResponse[]> {
+    return [];      
+  }
+
   async searhAndMatchTracks(
     _: Track[],
     onProcess?: (current: number, total: number) => void

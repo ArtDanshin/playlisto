@@ -3,7 +3,7 @@
 import type { ComponentProps } from 'react';
 import { Title } from '@radix-ui/react-dialog';
 
-import { cn } from '@/shared/utils/system';
+import { cn } from '@/shared/utils/common';
 
 function DialogTitle({ className, ...props }: ComponentProps<typeof Title>) {
   return (

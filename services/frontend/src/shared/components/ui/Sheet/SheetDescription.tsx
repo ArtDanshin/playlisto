@@ -3,7 +3,7 @@
 import type { ComponentProps } from 'react';
 import { Description } from '@radix-ui/react-dialog';
 
-import { cn } from '@/shared/utils/system';
+import { cn } from '@/shared/utils/common';
 
 function SheetDescription({ className, ...props }: ComponentProps<typeof Description>) {
   return (

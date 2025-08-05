@@ -3,7 +3,7 @@
 import type { ComponentProps } from 'react';
 import { Separator } from '@radix-ui/react-dropdown-menu';
 
-import { cn } from '@/shared/utils/system';
+import { cn } from '@/shared/utils/common';
 
 function DropdownMenuSeparator({ className, ...props }: ComponentProps<typeof Separator>) {
   return (

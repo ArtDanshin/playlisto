@@ -1,7 +1,7 @@
 import type { ComponentProps } from 'react';
 import { ChevronRight } from 'lucide-react';
 
-import { cn } from '@/shared/utils/system';
+import { cn } from '@/shared/utils/common';
 
 function BreadcrumbSeparator({
   children,

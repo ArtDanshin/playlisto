@@ -17,7 +17,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 
-import type { Playlist } from '@/shared/types';
+import type { Playlist } from '@/shared/types/playlist';
 
 import { usePlaylistStore } from '../../store';
 

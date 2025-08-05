@@ -1,6 +1,6 @@
 import type { StateCreator } from 'zustand';
 
-import type { Playlist, Track } from '@/shared/types';
+import type { Playlist, Track } from '@/shared/types/playlist';
 import { playlistoDBService } from '@/infrastructure/services/playlisto-db';
 import { createTrackKey, type MergeTracksOptions, mergeTracks } from '@/shared/utils/playlist';
 

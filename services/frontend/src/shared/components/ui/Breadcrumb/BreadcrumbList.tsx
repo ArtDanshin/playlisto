@@ -1,6 +1,6 @@
 import type { ComponentProps } from 'react';
 
-import { cn } from '@/shared/utils/system';
+import { cn } from '@/shared/utils/common';
 
 function BreadcrumbList({ className, ...props }: ComponentProps<'ol'>) {
   return (

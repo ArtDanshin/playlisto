@@ -3,7 +3,7 @@
 import type { ComponentProps } from 'react';
 import { Root } from '@radix-ui/react-label';
 
-import { cn } from '@/shared/utils/system';
+import { cn } from '@/shared/utils/common';
 
 function Label({ className, ...props }: ComponentProps<typeof Root>) {
   return (

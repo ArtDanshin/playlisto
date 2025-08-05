@@ -2,7 +2,7 @@
 
 import type { ComponentProps } from 'react';
 
-import { cn } from '@/shared/utils/system';
+import { cn } from '@/shared/utils/common';
 
 function SidebarFooter({ className, ...props }: ComponentProps<'div'>) {
   return (

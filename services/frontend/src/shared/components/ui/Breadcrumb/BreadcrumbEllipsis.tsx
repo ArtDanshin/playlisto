@@ -1,7 +1,7 @@
 import type { ComponentProps } from 'react';
 import { MoreHorizontal } from 'lucide-react';
 
-import { cn } from '@/shared/utils/system';
+import { cn } from '@/shared/utils/common';
 
 function BreadcrumbEllipsis({ className, ...props }: ComponentProps<'span'>) {
   return (

@@ -3,7 +3,7 @@
 import type { ComponentProps } from 'react';
 import { SubContent } from '@radix-ui/react-dropdown-menu';
 
-import { cn } from '@/shared/utils/system';
+import { cn } from '@/shared/utils/common';
 
 function DropdownMenuSubContent({ className, ...props }: ComponentProps<typeof SubContent>) {
   return (

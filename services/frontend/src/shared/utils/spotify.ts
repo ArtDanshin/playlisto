@@ -1,5 +1,5 @@
 import type { SpotifyTrackDataResponse } from '@/infrastructure/services/spotify';
-import type { Playlist, Track, SpotifyTrackData } from '@/shared/types';
+import type { Playlist, Track, SpotifyTrackData } from '@/shared/types/playlist';
 
 // PKCE utilities for Spotify OAuth
 export function generateCodeVerifier(length: number = 128): string {
@@ -89,20 +89,6 @@ export function extractPlaylistId(url: string): string | null {
 };
 
 /**
- * Проверяет, является ли строка валидным Spotify URL трека
- */
-export function isValidSpotifyTrackUrl(url: string): boolean {
-  return extractTrackIdFromUrl(url) !== null;
-}
-
-/**
- * Создает Spotify URL трека по ID
- */
-export function createSpotifyTrackUrl(trackId: string): string {
-  return `https://open.spotify.com/track/${trackId}`;
-}
-
-/**
  * Проверяем точное совпадение треков
  */
 export function isExactSpotifyMatch(artist: string, title: string, spotifyTrack: SpotifyTrackDataResponse): boolean {
@@ -126,12 +112,12 @@ export function createPlaylistFromSpotify(name: string, spotifyTracks: SpotifyTr
 /**
  * Формируем информацию о треке из Spotify данных
  */
-export function createTrackDataFromSpotify(spotifyTrackData: SpotifyTrackDataResponse, position: number): Track {
+export function createTrackDataFromSpotify(spotifyTrackData: SpotifyTrackDataResponse, position: number = 0): Track {
   return {
     title: spotifyTrackData.name,
     artist: spotifyTrackData.artists[0]?.name || 'Unknown Artist',
     album: spotifyTrackData.album?.name || '',
-    duration: spotifyTrackData.duration_ms,
+    duration: Math.round(spotifyTrackData.duration_ms / 1000),
     position,
     coverKey: '',
     spotifyData: createSpotifyData(spotifyTrackData),

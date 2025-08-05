@@ -1,5 +1,5 @@
 import { spotifyApi } from '@/infrastructure/api/spotify';
-import { extractPlaylistId } from '@/shared/utils/spotify';
+import { extractPlaylistId, extractTrackIdFromUrl } from '@/shared/utils/spotify';
 import type { Playlist, Track } from '@/shared/types/playlist';
 import { isExactSpotifyMatch, updateTrackDataFromSpotify } from '@/shared/utils/spotify';
 
@@ -52,6 +52,25 @@ class SpotifyService implements SpotifyServiceImp {
     // TODO: Обработать ошибки API
 
     return allTracks;
+  }
+
+  // Получение всех треков плейлиста по его URL
+  async getTrackByURL(spotifyTrackURL: string): Promise<SpotifyTrackDataResponse> {
+    const trackId = extractTrackIdFromUrl(spotifyTrackURL);
+
+    if (!trackId) {
+      throw new Error(`Неверный форма URL. Исходный URL: ${spotifyTrackURL}`)
+    }
+
+    return await spotifyApi.getTrack(trackId);
+  }
+
+  // Поиск треков в Spotify
+  async searchTracks(artist: string, title: string): Promise<SpotifyTrackDataResponse[]> {
+    const query = `${artist} ${title}`.trim();
+    const response = await spotifyApi.searchTracks(query, 10);
+
+    return response.tracks.items;      
   }
 
   // Поиск и сопоставление треков в Spotify

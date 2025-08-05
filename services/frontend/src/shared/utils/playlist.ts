@@ -1,49 +1,5 @@
-import type { Track } from '@/shared/types';
-import type { SpotifyTrackDataResponse } from '@/infrastructure/api/spotify';
-import { playlistoDB } from '@/infrastructure/storage/playlisto-db';
+import type { Track } from '@/shared/types/playlist';
 import type { DatabaseDump } from '@/infrastructure/services/playlisto-db';
-
-import { fetchImageAsBase64 } from './image-utils';
-
-/**
- * Обновляет трек данными из Spotify
- */
-export async function updateTrackWithSpotify(
-  track: Track,
-  spotifyTrack: SpotifyTrackDataResponse,
-): Promise<Track> {
-  // Выбираем наименьшую картинку для обложки
-  const imagesSorted = [...spotifyTrack.album.images].sort((a, b) => a.width - b.width);
-  const smallestImage = imagesSorted[0];
-
-  let { coverKey } = track;
-  if (smallestImage?.url && !coverKey) {
-    // Сохраняем base64 в IndexedDB только если обложки еще нет
-    try {
-      const base64 = await fetchImageAsBase64(smallestImage.url);
-      coverKey = smallestImage.url;
-      await playlistoDB.addCover(smallestImage.url, base64);
-    } catch {
-      // Игнорируем ошибки загрузки обложки
-    }
-  }
-
-  const spotifyData: SpotifyData = {
-    id: spotifyTrack.id,
-    title: spotifyTrack.name,
-    artist: spotifyTrack.artists[0]?.name || 'Unknown Artist',
-    album: spotifyTrack.album.name,
-    coverUrl: smallestImage?.url || '',
-    duration: spotifyTrack.duration_ms || 0,
-  };
-
-  return {
-    ...track,
-    album: spotifyTrack.album.name, // Обновляем альбом из Spotify
-    coverKey,
-    spotifyData,
-  };
-}
 
 /**
  * Создает ключ для сравнения треков
@@ -53,43 +9,22 @@ export function createTrackKey(track: Track): string {
 }
 
 /**
- * Проверяем точное совпадение треков
- */
-export function isExactMatch(track: Track, spotifyTrack: SpotifyTrackDataResponse): boolean {
-  const trackKey = createTrackKey(track);
-  const spotifyKey = `${spotifyTrack.artists[0]?.name.toLowerCase().trim()}-${spotifyTrack.name.toLowerCase().trim()}`;
-
-  return trackKey === spotifyKey;
-}
-
-/**
  * Получаем длительность трека в формате MM:SS
  */
-export function getTrackDuration(track: Track): string | undefined {
-  let seconds;
+export function getTrackDuration(track: Track): number | undefined {
+  if (track.duration) {
+    return track.duration;
+  }
 
   if (track.m3uData?.duration) {
-    seconds = track.m3uData.duration;
+    return track.m3uData.duration;
   }
   // Для Spotify данных длительность в миллисекундах, конвертируем в секунды
   if (track.spotifyData?.duration) {
-    seconds = Math.round(track.spotifyData.duration / 1000);
-  }
-
-  if (seconds) {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+    return Math.round(track.spotifyData.duration / 1000);
   }
 
   return undefined;
-}
-
-/**
- * Получаем Spotify ID трека
- */
-export function getSpotifyId(track: Track): string | undefined {
-  return track.spotifyData?.id;
 }
 
 /**

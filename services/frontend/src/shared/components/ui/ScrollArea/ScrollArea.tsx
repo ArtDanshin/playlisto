@@ -3,7 +3,7 @@
 import type { ComponentProps } from 'react';
 import { Root, Viewport, Corner } from '@radix-ui/react-scroll-area';
 
-import { cn } from '@/shared/utils/system';
+import { cn } from '@/shared/utils/common';
 
 import ScrollBar from './ScrollBar';
 

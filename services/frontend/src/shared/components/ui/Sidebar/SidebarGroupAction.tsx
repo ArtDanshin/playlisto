@@ -3,7 +3,7 @@
 import type { ComponentProps } from 'react';
 import { Slot } from '@radix-ui/react-slot';
 
-import { cn } from '@/shared/utils/system';
+import { cn } from '@/shared/utils/common';
 
 type SidebarGroupActionProps = ComponentProps<'button'> & {
   asChild?: boolean;

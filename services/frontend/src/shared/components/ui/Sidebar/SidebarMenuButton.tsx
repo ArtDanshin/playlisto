@@ -4,7 +4,7 @@ import type { ComponentProps } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { Slot } from '@radix-ui/react-slot';
 
-import { cn } from '@/shared/utils/system';
+import { cn } from '@/shared/utils/common';
 import {
   Tooltip,
   TooltipContent,

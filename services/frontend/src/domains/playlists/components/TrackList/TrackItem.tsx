@@ -7,10 +7,11 @@ import {
   GripVertical, Edit2, Music, X, Check,
 } from 'lucide-react';
 
-import type { Track } from '@/shared/types';
+import type { Track } from '@/shared/types/playlist';
 import { Button } from '@/shared/components/ui/Button';
 import { Input } from '@/shared/components/ui/Input';
 import { playlistoDBService } from '@/infrastructure/services/playlisto-db';
+import { formatDuration } from '@/shared/utils/common';
 import { getTrackDuration, isTrackLinkedToSpotify, createTrackKey } from '@/shared/utils/playlist';
 
 import { usePlaylistStore } from '../../store';
@@ -232,7 +233,7 @@ function TrackItem({
 
       {/* Duration */}
       <div className='flex-shrink-0 text-sm text-muted-foreground'>
-        {duration}
+        {duration && formatDuration(duration)}
       </div>
 
       {/* Edit Button */}

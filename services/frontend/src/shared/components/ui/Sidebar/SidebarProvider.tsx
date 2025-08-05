@@ -6,7 +6,7 @@ import {
 } from 'react';
 
 import { useIsMobile } from '@/shared/hooks/use-is-mobile';
-import { cn } from '@/shared/utils/system';
+import { cn } from '@/shared/utils/common';
 import { TooltipProvider } from '@/shared/components/ui/Tooltip';
 
 const SIDEBAR_COOKIE_NAME = 'sidebar_state';
