@@ -33,6 +33,6 @@ export interface TrackM3UData {
 }
 
 export interface CoverData {
-  key: string; // Ключ обложки, по которому ее можно получить в приложении 
+  key: string; // Ключ обложки, по которому ее можно получить в приложении
   base64: string; // Картинка, закодированная в base64
 }

@@ -11,7 +11,7 @@ import { ExportPlaylistDialog } from '../ExportPlaylistDialog';
 
 function CurrentPlaylistHeader() {
   const { currentPlaylist, updatePlaylistWithCoverLoad, mergeCurrentPlaylistTracks } = usePlaylistStore();
-  
+
   return (
     <div className='flex items-center justify-between'>
       <h2 className='text-2xl font-bold'>Треки</h2>
@@ -27,7 +27,7 @@ function CurrentPlaylistHeader() {
                 Обновить состав
               </Button>
             </UpdateTracksCompDialog>
-            <UpdateTracksDataDialog 
+            <UpdateTracksDataDialog
               tracks={currentPlaylist.tracks}
               onTracksUpdate={(tracks) => updatePlaylistWithCoverLoad({ ...currentPlaylist, tracks })}
             >
@@ -42,7 +42,7 @@ function CurrentPlaylistHeader() {
                 Экспорт
               </Button>
             </ExportPlaylistDialog>
-          </>  
+          </>
         )}
       </div>
     </div>

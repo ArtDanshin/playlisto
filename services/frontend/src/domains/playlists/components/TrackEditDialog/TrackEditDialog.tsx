@@ -124,23 +124,29 @@ function TrackEditDialog({ track, onTrackUpdate, children }: TrackEditDialogProp
   );
 
   const renderSpotifyTab = () => (
-    <EditTrackFormFromSpotify track={track} onDataChange={(spotifyData) => {
-      setLocalTrack((prev) => ({ 
-        ...prev,
-        album: prev.album || spotifyData.album,
-        duration: prev.duration || Math.round(spotifyData.duration / 1000),
-        spotifyData
-      }))
-    }}/>
+    <EditTrackFormFromSpotify
+      track={track}
+      onDataChange={(spotifyData) => {
+        setLocalTrack((prev) => ({
+          ...prev,
+          album: prev.album || spotifyData.album,
+          duration: prev.duration || Math.round(spotifyData.duration / 1000),
+          spotifyData,
+        }));
+      }}
+    />
   );
 
   const renderM3UTab = () => (
-    <EditTrackFormFromM3U track={track} onDataChange={(m3uData) => {
-      setLocalTrack((prev) => ({ 
-        ...prev,
-        m3uData
-      }))
-    }}/>
+    <EditTrackFormFromM3U
+      track={track}
+      onDataChange={(m3uData) => {
+        setLocalTrack((prev) => ({
+          ...prev,
+          m3uData,
+        }));
+      }}
+    />
   );
 
   const renderCurrentTab = () => {

@@ -5,11 +5,12 @@ import type { FileService as FileServiceImp, TracksWithNewData } from './types';
 class FileService implements FileServiceImp {
   async addDataToTracksFromM3UFile(_: File, __: Track[], onProcess?: (current: number, total: number) => void): Promise<TracksWithNewData> {
     let processedCount = 0;
-    const toProcessTracksCount = 10
+    const toProcessTracksCount = 10;
     const updatedTracks: Track[] = [];
 
     onProcess && onProcess(processedCount, toProcessTracksCount);
 
+    /* eslint-disable no-loop-func */
     while (processedCount < 10) {
       await new Promise<void>((resolve) => setTimeout(() => {
         processedCount++;
@@ -20,15 +21,15 @@ class FileService implements FileServiceImp {
         resolve();
       }, 200));
     }
-    
+
     return {
       allTracks: [],
       onlyUpdatedTracks: [],
-      notUpdatedTracks: []
+      notUpdatedTracks: [],
     };
   }
 
-  async getTracksFromM3UFile(_: File): Promise<TrackM3UData[]> {
+  async getTracksFromM3UFile(): Promise<TrackM3UData[]> {
     return [];
   }
 }

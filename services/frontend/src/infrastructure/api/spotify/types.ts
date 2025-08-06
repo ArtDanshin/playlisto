@@ -41,7 +41,7 @@ export interface SpotifyPlaylistInfoResponse {
   id: string;
   owner: {
     id: string;
-  }
+  };
 }
 
 export interface SpotifyPlaylistTracksResponse {
@@ -49,6 +49,6 @@ export interface SpotifyPlaylistTracksResponse {
   offset: number;
   total: number;
   items: {
-    track: SpotifyTrackDataResponse
+    track: SpotifyTrackDataResponse;
   }[];
 }

@@ -21,8 +21,10 @@ export default tseslint.config(
       'unicorn/no-reduce': [0], // Отключает - Запрещает использовать Array#reduce
       'unicorn/no-fn-reference-in-iterator': [0], // Отключает - Запрещает записывать ссылки на функции в тело итераторов типа .map(), .forEach() и пр.
       'unicorn/no-array-for-each': [0], // Отключает - Нельзя использовать Array#forEach
+      'unicorn/no-await-expression-member': [0], // Отключает - Нельзя сразу после вызова функции с await, обращаться к ее параметрам. У нас в проекте так тестовые модули подключатся
       'unicorn/no-new-array': [0], // Отключает - Нельзя неочевидно объявлять массивы
       'unicorn/no-array-reduce': [0], // Отключает - Можно использовать reduce только в простых операциях
+      'unicorn/no-array-callback-reference': [0], // Отключает - Запрещает в методы вида .map() передавать просто функции
       'unicorn/prefer-ternary': [0], // Отключает - Контролирует чистоту использования условий
       'unicorn/numeric-separators-style': [0], // Отключает - Задает стиль разделения частей чисел
       'unicorn/prefer-global-this': [0], // Отключает - Использовать только globalThis вместо глобальных переменных

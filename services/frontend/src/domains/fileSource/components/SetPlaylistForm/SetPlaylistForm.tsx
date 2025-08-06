@@ -3,13 +3,13 @@
 import { useRef, useState, type ChangeEvent } from 'react';
 import { FileAudio, Upload } from 'lucide-react';
 
-import { type SetPlaylistForm as SetPlaylistFormImp } from '@/shared/types/source';
+import type { SetPlaylistForm as SetPlaylistFormImp } from '@/shared/types/source';
 import { Button } from '@/shared/components/ui/Button';
 import { fileService } from '@/infrastructure/services/file';
 
 import { createPlaylistFromFile } from '../../utils';
 
-const NewPlaylistLoadForm: SetPlaylistFormImp = ({ setPlaylist }) => {
+const NewPlaylistLoadForm: SetPlaylistFormImp = function ({ setPlaylist }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,7 +34,7 @@ const NewPlaylistLoadForm: SetPlaylistFormImp = ({ setPlaylist }) => {
 
     try {
       const tracks = await fileService.getTracksFromM3UFile(file);
-      const playlistName = file.name.replace(/\.[^/.]+$/, '')
+      const playlistName = file.name.replace(/\.[^/.]+$/, '');
 
       setPlaylist(createPlaylistFromFile(playlistName, tracks));
     } catch (error_) {
@@ -87,6 +87,6 @@ const NewPlaylistLoadForm: SetPlaylistFormImp = ({ setPlaylist }) => {
       </div>
     </div>
   );
-}
+};
 
 export default NewPlaylistLoadForm;

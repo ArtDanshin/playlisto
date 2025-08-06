@@ -1,11 +1,11 @@
 import { extractPlaylistId } from '@/shared/utils/spotify';
-import type { Playlist, Track } from '@/shared/types/playlist';
+import type { Track } from '@/shared/types/playlist';
 
-import type { 
+import type {
   SpotifyService as SpotifyServiceImp,
   SpotifyPlaylistInfoResponse,
   SpotifyTrackDataResponse,
-  MatchedTracks
+  MatchedTracks,
 } from './types';
 
 class SpotifyService implements SpotifyServiceImp {
@@ -15,23 +15,23 @@ class SpotifyService implements SpotifyServiceImp {
     const playlistId = extractPlaylistId(spotifyPlaylistURL);
 
     if (!playlistId) {
-      throw new Error(`Неверный форма URL. Исходный URL: ${spotifyPlaylistURL}`)
+      throw new Error(`Неверный форма URL. Исходный URL: ${spotifyPlaylistURL}`);
     }
 
     return {
       name: 'MusicMelomanPlaylist',
       id: 'qwerty42',
       owner: {
-        id: 'music_meloman'
-      }
-    }
+        id: 'music_meloman',
+      },
+    };
   }
 
   async getPlaylistTracksByURL(spotifyPlaylistURL: string): Promise<SpotifyTrackDataResponse[]> {
     const playlistId = extractPlaylistId(spotifyPlaylistURL);
 
     if (!playlistId) {
-      throw new Error(`Неверный форма URL. Исходный URL: ${spotifyPlaylistURL}`)
+      throw new Error(`Неверный форма URL. Исходный URL: ${spotifyPlaylistURL}`);
     }
 
     console.log('Service SpotifyService. Method getPlaylistTracksByURL. Params:', spotifyPlaylistURL);
@@ -43,19 +43,20 @@ class SpotifyService implements SpotifyServiceImp {
   }
 
   async searchTracks(): Promise<SpotifyTrackDataResponse[]> {
-    return [];      
+    return [];
   }
 
   async searhAndMatchTracks(
     _: Track[],
-    onProcess?: (current: number, total: number) => void
+    onProcess?: (current: number, total: number) => void,
   ): Promise<MatchedTracks> {
     let processedCount = 0;
-    const toProcessTracksCount = 10
+    const toProcessTracksCount = 10;
     const updatedTracks: Track[] = [];
 
     onProcess && onProcess(processedCount, toProcessTracksCount);
 
+    /* eslint-disable no-loop-func */
     while (processedCount < 10) {
       await new Promise<void>((resolve) => setTimeout(() => {
         processedCount++;
@@ -70,21 +71,21 @@ class SpotifyService implements SpotifyServiceImp {
     return {
       allTracks: [],
       onlyUpdatedTracks: [],
-      notUpdatedTracks: []
+      notUpdatedTracks: [],
     };
   }
 
-  async createPlaylist(_: Playlist): Promise<SpotifyPlaylistInfoResponse> {    
+  async createPlaylist(): Promise<SpotifyPlaylistInfoResponse> {
     return {
       name: 'MusicMelomanPlaylist',
       id: 'qwerty42',
       owner: {
-        id: 'music_meloman'
-      }
-    }
+        id: 'music_meloman',
+      },
+    };
   }
 
-  async updatePlaylistTracks(_: string, __: Track[]): Promise<void> {
+  async updatePlaylistTracks(): Promise<void> {
     return;
   }
 }

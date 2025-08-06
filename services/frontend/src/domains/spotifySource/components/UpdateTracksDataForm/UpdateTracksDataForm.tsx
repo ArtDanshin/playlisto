@@ -9,7 +9,7 @@ import { spotifyService } from '@/infrastructure/services/spotify';
 
 import { useSpotifyStore } from '../../store';
 
-const UpdateTracksDataForm: MatchForm = ({ tracks, updateTracks }) => {
+const UpdateTracksDataForm: MatchForm = function ({ tracks, updateTracks }) {
   const { authStatus } = useSpotifyStore();
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
@@ -26,7 +26,7 @@ const UpdateTracksDataForm: MatchForm = ({ tracks, updateTracks }) => {
 
     try {
       const { allTracks, onlyUpdatedTracks, notUpdatedTracks } = await spotifyService.searhAndMatchTracks(tracks, (current, total) => {
-        setProgress({ current, total })
+        setProgress({ current, total });
       });
 
       updateTracks(allTracks, onlyUpdatedTracks, notUpdatedTracks);
@@ -100,8 +100,8 @@ const UpdateTracksDataForm: MatchForm = ({ tracks, updateTracks }) => {
               </p>
             </div>
           )}
-      </div>
+    </div>
   );
-}
+};
 
 export default UpdateTracksDataForm;

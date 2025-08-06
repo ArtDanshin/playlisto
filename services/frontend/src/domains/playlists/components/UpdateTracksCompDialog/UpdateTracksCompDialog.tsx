@@ -18,7 +18,7 @@ const SOURCES: string[] = ['spotify', 'file'];
 const SOURCES_DATA: Record<string, SourceCommon & SourceUpdateTracksComp> = {
   file: { ...fileCommon, ...fileUpdateTracksComp },
   spotify: { ...spotifyCommon, ...spotifyUpdateTracksComp },
-}
+};
 
 interface UpdateTracksCompDialogProps {
   tracks: Track[];
@@ -37,7 +37,7 @@ function UpdateTracksCompDialog({ tracks, onTracksCompUpdate, children }: Update
     removeMissingTracks: true,
     syncOrder: true,
   });
-  
+
   const handleMergeOptionsChange = (option: keyof MergeOptionsWithoutSource, value: boolean) => {
     setMergeOptions((prev) => ({
       ...prev,
@@ -49,14 +49,14 @@ function UpdateTracksCompDialog({ tracks, onTracksCompUpdate, children }: Update
     if (tracks && uploadedPlaylist) {
       return getTracksComparison(tracks, uploadedPlaylist.tracks, currentSource);
     }
-    
+
     return {
       addTracks: [],
       missingTracks: [],
       commonTracks: [],
       hasOrderDifference: false,
-    }
-  }, [tracks, uploadedPlaylist])
+    };
+  }, [tracks, uploadedPlaylist, currentSource]);
 
   const stepBeggin: Step = {
     component: (next) => {
@@ -64,13 +64,13 @@ function UpdateTracksCompDialog({ tracks, onTracksCompUpdate, children }: Update
         setCurrentSource(source);
         next();
       };
-      
+
       return (
         <div className='space-y-4'>
           <div className='grid grid-cols-2 gap-4'>
             {SOURCES.map((source) => {
-              const Icon = SOURCES_DATA[source].Icon
-              
+              const { Icon } = SOURCES_DATA[source];
+
               return (
                 <Button
                   variant='outline'
@@ -86,40 +86,40 @@ function UpdateTracksCompDialog({ tracks, onTracksCompUpdate, children }: Update
                     </div>
                   </div>
                 </Button>
-              )
+              );
             })}
           </div>
         </div>
-      )
+      );
     },
-  }
-  
+  };
+
   const stepProcess: Step = {
     component: (next) => {
       if (currentSource) {
-        const LoadForm = SOURCES_DATA[currentSource].LoadForm;
+        const { LoadForm } = SOURCES_DATA[currentSource];
 
         const handleSetPlaylist = (playlist: Playlist) => {
           setUploadedPlaylist(playlist);
           next();
-        }
+        };
 
         return <LoadForm setPlaylist={handleSetPlaylist} />;
       }
-      
+
       return null;
     },
     viewPrevButton: {
       status: 'active',
-      text: 'Назад к выбору источника'
-    }
-  }
+      text: 'Назад к выбору источника',
+    },
+  };
 
   const stepProcessingInfo: Step = {
     component: (next, prev) => {
-      const Icon = SOURCES_DATA[currentSource].Icon
+      const { Icon } = SOURCES_DATA[currentSource];
 
-      const handleUpdatePlaylist = async() => {
+      const handleUpdatePlaylist = async () => {
         if (!uploadedPlaylist) return;
 
         try {
@@ -127,9 +127,9 @@ function UpdateTracksCompDialog({ tracks, onTracksCompUpdate, children }: Update
           next();
         } catch (error: any) {
           console.error('Ошибка при обновлении состава треков', error);
-          setError(error.message)
+          setError(error.message);
         }
-      }
+      };
 
       return uploadedPlaylist && (
         <>
@@ -224,26 +224,24 @@ function UpdateTracksCompDialog({ tracks, onTracksCompUpdate, children }: Update
             </Button>
           </div>
         </>
-      )
-    },
-  }
-
-  const stepResult: Step = {
-    component: () => {
-      return (
-        <div className='space-y-4'>
-          <div className='text-center'>
-            <CheckCircle className='h-12 w-12 text-green-500 mx-auto mb-4' />
-            <h3 className='text-lg font-semibold mb-2'>Список треков успешно обновлен</h3>
-          </div>
-        </div>
       );
     },
+  };
+
+  const stepResult: Step = {
+    component: () => (
+      <div className='space-y-4'>
+        <div className='text-center'>
+          <CheckCircle className='h-12 w-12 text-green-500 mx-auto mb-4' />
+          <h3 className='text-lg font-semibold mb-2'>Список треков успешно обновлен</h3>
+        </div>
+      </div>
+    ),
     viewCloseButton: {
       status: 'active',
-    }
-  }
-  
+    },
+  };
+
   return (
     <StepsDialog
       title='Обновление данных'

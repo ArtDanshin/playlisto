@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import type { ReactNode } from 'react';
 
+/* eslint-disable import/no-cycle */
 import { useSpotifyStore } from './index';
 
 interface ProvidersProps {

@@ -6,11 +6,11 @@ import { FileText } from 'lucide-react';
 import { Input } from '@/shared/components/ui/Input';
 import { Label } from '@/shared/components/ui/Label';
 import type { Track, TrackM3UData } from '@/shared/types/playlist';
-import { formatDuration } from '@/shared/utils/common'; 
- 
+import { formatDuration } from '@/shared/utils/common';
+
 interface EditTrackFormProps {
   track: Track;
-  onDataChange: (data: TrackM3UData) => void; 
+  onDataChange: (data: TrackM3UData) => void;
 }
 
 function EditTrackForm({ track, onDataChange }: EditTrackFormProps) {
@@ -26,12 +26,12 @@ function EditTrackForm({ track, onDataChange }: EditTrackFormProps) {
       const newM3UData = {
         ...prev,
         [field]: value,
-      }
+      };
 
       onDataChange(newM3UData);
 
       return newM3UData;
-    })
+    });
   };
 
   return (

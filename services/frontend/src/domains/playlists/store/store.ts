@@ -28,17 +28,17 @@ export const store: StateCreator<PlaylistState> = (set, get) => ({
   isLoading: true,
   error: null,
   newTracks: new Set<string>(),
-  
+
   setCurrentPlaylist: (playlist) => {
     set({ currentPlaylist: playlist, newTracks: new Set() });
   },
-  
+
   loadPlaylists: async () => {
     set({ isLoading: true, error: null });
     try {
       await playlistoDBService.init();
       const savedPlaylists = await playlistoDBService.getAllPlaylists();
-  
+
       // Сортируем по полю order
       const sortedPlaylists = savedPlaylists
         .sort((a, b) => {
@@ -46,7 +46,7 @@ export const store: StateCreator<PlaylistState> = (set, get) => ({
           const orderB = b.order ?? Number.MAX_SAFE_INTEGER;
           return orderA - orderB;
         });
-  
+
       set({ playlists: sortedPlaylists });
     } catch (error: any) {
       set({ error: error.message || 'Failed to load playlists' });
@@ -102,7 +102,7 @@ export const store: StateCreator<PlaylistState> = (set, get) => ({
         const playlists = state.playlists.map((p) => p.id === playlist.id ? playlist : p);
         // Обновляем активный плейлист, если он изменился он
         const currentPlaylist = state.currentPlaylist?.id === playlist.id ? playlist : state.currentPlaylist;
-        
+
         return { playlists, currentPlaylist };
       });
     } catch (error: any) {

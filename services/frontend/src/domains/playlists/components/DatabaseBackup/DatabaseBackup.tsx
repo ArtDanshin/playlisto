@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Database, Download, Upload, Loader2, AlertCircle } from 'lucide-react';
+import {
+  Database, Download, Upload, Loader2, AlertCircle,
+} from 'lucide-react';
 
 import { Button } from '@/shared/components/ui/Button';
 import { playlistoDBService } from '@/infrastructure/services/playlisto-db';
@@ -122,4 +124,4 @@ function DatabaseBackup() {
   );
 }
 
-export default DatabaseBackup
+export default DatabaseBackup;

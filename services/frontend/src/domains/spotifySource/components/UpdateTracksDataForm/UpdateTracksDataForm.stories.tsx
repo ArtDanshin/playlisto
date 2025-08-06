@@ -1,4 +1,4 @@
-import { type Meta } from '@storybook/react-vite';
+import type { Meta } from '@storybook/react-vite';
 
 import { SpotifyProvider } from '@/domains/spotifySource/store';
 
@@ -12,7 +12,7 @@ const MetaInfo: Meta<typeof UpdateTracksDataForm> = {
       <SpotifyProvider>
         <Story />
       </SpotifyProvider>
-    )
+    ),
   ],
 };
 
@@ -20,7 +20,5 @@ export default MetaInfo;
 
 // Форма загрузки плелиста из Spotify
 export const Default = {
-  render: () => {
-    return <UpdateTracksDataForm tracks={[]} updateTracks={console.log} />;
-  },
+  render: () => <UpdateTracksDataForm tracks={[]} updateTracks={console.log} />,
 };

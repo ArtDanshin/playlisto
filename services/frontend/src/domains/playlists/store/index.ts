@@ -1,8 +1,8 @@
-const isTest = import.meta.env.MODE === 'test';
-
 import { create, type StateCreator } from 'zustand';
 
 import type { PlaylistState } from './store';
+
+const isTest = import.meta.env.MODE === 'test';
 
 let store: StateCreator<PlaylistState>;
 

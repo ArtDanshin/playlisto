@@ -39,7 +39,7 @@ export function isTrackLinkedToSpotify(track: Track): boolean {
  */
 export function getTrackServices(track: Track): Array<'spotify' | 'm3u'> {
   const services: Array<'spotify' | 'm3u'> = [];
-  
+
   if (track.spotifyData) {
     services.push('spotify');
   }
@@ -55,7 +55,7 @@ export function getTrackServices(track: Track): Array<'spotify' | 'm3u'> {
  */
 export function getTrackExternalServices(track: Track): Array<'spotify'> {
   const services: Array<'spotify' | 'm3u'> = getTrackServices(track);
-  
+
   return services.filter((service) => service !== 'm3u');
 }
 
@@ -70,7 +70,7 @@ export function isExternalServices(service: string = ''): boolean {
  * Генерируем ключ для обложки в формате ${service}_${имя_файла}
  */
 export function createCoverKey(service: string, url: string): string {
-  const match = url.match(/\/([^\/]+)$/);
+  const match = url.match(/\/([^/]+)$/);
   const fileName = match ? match[1] : '';
 
   return `${service}_${fileName}`;
@@ -78,14 +78,14 @@ export function createCoverKey(service: string, url: string): string {
 
 /**
  * Формирование ключа трека, для их сопоставление
- * Для разных сервисов они могут иметь разный вид и состоять из своих данных 
+ * Для разных сервисов они могут иметь разный вид и состоять из своих данных
  */
 export function getMatchKeyBySource(track: Track, service: string): string {
   if (service === 'spotify' && track.spotifyData?.id) {
-    return track.spotifyData.id
+    return track.spotifyData.id;
   }
 
-  return createTrackKey(track)
+  return createTrackKey(track);
 }
 
 /**
@@ -96,10 +96,10 @@ export function getTracksComparison(
   tracks2: Track[],
   service: string,
 ): {
-  addTracks: Track[],
-  missingTracks: Track[],
-  commonTracks: Track[],
-  hasOrderDifference: boolean
+  addTracks: Track[];
+  missingTracks: Track[];
+  commonTracks: Track[];
+  hasOrderDifference: boolean;
 } {
   const tracks1Keys = new Set(tracks1.map((t) => getMatchKeyBySource(t, service)));
   const tracks2Keys = new Set(tracks2.map((t) => getMatchKeyBySource(t, service)));
@@ -142,10 +142,10 @@ export interface MergeTracksOptions {
 export function mergeTracks(
   currentTracks: Track[],
   mergeTracks: Track[],
-  mergeOptions: MergeTracksOptions
+  mergeOptions: MergeTracksOptions,
 ): {
-  mergedTracks: Track[],
-  newTracks: Track[]
+  mergedTracks: Track[];
+  newTracks: Track[];
 } {
   const existingTracks = [...currentTracks];
   const uploadedTracks = [...mergeTracks];
@@ -165,7 +165,7 @@ export function mergeTracks(
   });
 
   let mergedTracks: Track[] = [];
-  let newTracks: Track[] = [];
+  const newTracks: Track[] = [];
 
   if (mergeOptions.syncOrder) {
     // Синхронизируем порядок как в загруженном плейлисте
@@ -248,7 +248,7 @@ export function mergeTracks(
   return {
     mergedTracks,
     newTracks,
-  }
+  };
 }
 
 /**

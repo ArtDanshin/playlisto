@@ -55,10 +55,6 @@ function StepsDialog({
     setCurrentStep((step) => --step);
   };
 
-  const closeDialog = () => {
-    handleDialogOpenChange(false);
-  }
-
   const handleDialogOpenChange = (open: boolean) => {
     setIsOpen(open);
     if (open) {
@@ -69,6 +65,11 @@ function StepsDialog({
     }
   };
 
+  const closeDialog = () => {
+    handleDialogOpenChange(false);
+  };
+
+  /* eslint-disable react/no-array-index-key */
   return (
     <Dialog open={isOpen} onOpenChange={handleDialogOpenChange}>
       <DialogTrigger asChild>
@@ -82,9 +83,8 @@ function StepsDialog({
 
         <div className='space-y-4 overflow-y-auto max-h-[calc(90vh-200px)]'>
           <div className='flex items-center justify-center space-x-2'>
-            {/* eslint-disable react/no-missing-key */}
             {steps.map((_, index) => (
-              <div 
+              <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
                   currentStep === index ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'
                 }`}

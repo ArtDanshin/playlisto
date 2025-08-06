@@ -15,7 +15,7 @@ const SOURCES = ['file', 'spotify'];
 const SOURCES_DATA: Record<string, SourceCommon & SourceNewPlaylist> = {
   file: { ...fileCommon, ...fileNewPlaylist },
   spotify: { ...spotifyCommon, ...spotifyNewPlaylist },
-}
+};
 
 interface NewPlaylistDialogProps {
   children: ReactNode;
@@ -39,13 +39,13 @@ function NewPlaylistDialog({ children }: NewPlaylistDialogProps) {
         setCurrentSource(source);
         next();
       };
-      
+
       return (
         <div className='space-y-4'>
           <div className='grid grid-cols-2 gap-4'>
             {SOURCES.map((source) => {
-              const Icon = SOURCES_DATA[source].Icon
-              
+              const { Icon } = SOURCES_DATA[source];
+
               return (
                 <Button
                   variant='outline'
@@ -61,34 +61,34 @@ function NewPlaylistDialog({ children }: NewPlaylistDialogProps) {
                     </div>
                   </div>
                 </Button>
-              )
+              );
             })}
           </div>
         </div>
-      )
+      );
     },
-  }
+  };
 
   const stepProcess: Step = {
     component: (_, __, close) => {
       if (currentSource) {
-        const LoadForm = SOURCES_DATA[currentSource].LoadForm;
+        const { LoadForm } = SOURCES_DATA[currentSource];
 
         const handleSetPlaylist = (playlist: Playlist) => {
           addPlaylistToApp(playlist);
           close();
-        }
+        };
 
         return <LoadForm setPlaylist={handleSetPlaylist} />;
       }
-      
+
       return null;
     },
     viewPrevButton: {
       status: 'active',
-      text: 'Назад к выбору источника'
-    }
-  }
+      text: 'Назад к выбору источника',
+    },
+  };
 
   return (
     <StepsDialog

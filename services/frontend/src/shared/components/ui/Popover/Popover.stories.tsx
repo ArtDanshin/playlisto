@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  CalendarDays, Settings, User, Calendar, Mail, Phone, MapPin, Clock,
+  CalendarDays, Settings, Calendar, Mail, Phone, MapPin, Clock,
 } from 'lucide-react';
 
 import Button from '../Button/Button';
@@ -16,6 +16,7 @@ export default {
   component: Popover,
 };
 
+/* eslint-disable react-hooks/rules-of-hooks */
 // Базовый popover
 export const Default = {
   render: () => (

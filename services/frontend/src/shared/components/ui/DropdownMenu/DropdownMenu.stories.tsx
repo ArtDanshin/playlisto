@@ -1,7 +1,5 @@
 import { useState } from 'react';
 import {
-  Check,
-  ChevronRight,
   Circle,
   CreditCard,
   Github,
@@ -14,7 +12,6 @@ import {
   Settings,
   User,
   UserPlus,
-  Users,
 } from 'lucide-react';
 
 import Button from '../Button/Button';
@@ -39,6 +36,7 @@ export default {
   component: DropdownMenu,
 };
 
+/* eslint-disable react-hooks/rules-of-hooks */
 // Базовый dropdown menu
 export const Default = {
   render: () => (

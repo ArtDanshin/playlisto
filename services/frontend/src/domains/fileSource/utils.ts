@@ -1,4 +1,4 @@
-import type { Playlist, Track, TrackM3UData } from "@/shared/types/playlist";
+import type { Playlist, Track, TrackM3UData } from '@/shared/types/playlist';
 
 /**
  * Формируем информацию о новом плейлисте
@@ -7,8 +7,8 @@ export function createPlaylistFromFile(name: string, m3uTrack: TrackM3UData[]): 
   return {
     name: name || 'New playlist',
     order: 0,
-    tracks: m3uTrack.map(covertTrackFromM3U)
-  }
+    tracks: m3uTrack.map(covertTrackFromM3U),
+  };
 }
 
 /**

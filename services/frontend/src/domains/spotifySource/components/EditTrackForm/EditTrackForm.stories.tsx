@@ -1,4 +1,4 @@
-import { type Meta } from '@storybook/react-vite';
+import type { Meta } from '@storybook/react-vite';
 
 import { SpotifyProvider } from '@/domains/spotifySource/store';
 
@@ -12,26 +12,24 @@ const MetaInfo: Meta<typeof EditTrackForm> = {
       <SpotifyProvider>
         <Story />
       </SpotifyProvider>
-    )
+    ),
   ],
 };
 
 export default MetaInfo;
 
 export const Default = {
-  render: () => {
-    return (
-      <EditTrackForm
-        track={{
-          title: 'CoolTrack',
-          artist: 'Meloman',
-          album: '',
-          coverKey: '',
-          duration: 0,
-          position: 0,
-        }}
-        onDataChange={console.log} 
-      />
-    );
-  },
+  render: () => (
+    <EditTrackForm
+      track={{
+        title: 'CoolTrack',
+        artist: 'Meloman',
+        album: '',
+        coverKey: '',
+        duration: 0,
+        position: 0,
+      }}
+      onDataChange={console.log}
+    />
+  ),
 };

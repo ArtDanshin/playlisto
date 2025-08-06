@@ -7,16 +7,14 @@ export default {
 
 // Форма загрузки файла для нового плейлиста
 export const Default = {
-  render: () => {
-    return (
-      <ExportPlaylistForm 
-        playlist={{
-          name: '',
-          order: 0,
-          tracks: [],
-        }}
-        onSuccessExport={console.log} 
-      />
-    );
-  },
+  render: () => (
+    <ExportPlaylistForm
+      playlist={{
+        name: '',
+        order: 0,
+        tracks: [],
+      }}
+      onSuccessExport={console.log}
+    />
+  ),
 };

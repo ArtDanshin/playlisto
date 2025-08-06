@@ -10,7 +10,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from '@/shared/components/ui/Sidebar';
-import { PlaylistsList } from '@/domains/playlists/components/PlaylistsList'
+import { PlaylistsList } from '@/domains/playlists/components/PlaylistsList';
 import { NewPlaylistDialog } from '@/domains/playlists/components/NewPlaylistDialog';
 
 function Sidebar({ ...props }: ComponentProps<typeof SidebarBase>) {
@@ -25,7 +25,7 @@ function Sidebar({ ...props }: ComponentProps<typeof SidebarBase>) {
         </NewPlaylistDialog>
       </SidebarHeader>
       <SidebarContent>
-        <PlaylistsList/>
+        <PlaylistsList />
       </SidebarContent>
       <SidebarRail />
     </SidebarBase>

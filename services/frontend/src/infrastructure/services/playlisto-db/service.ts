@@ -10,7 +10,7 @@ class PlaylistoDBService implements PlaylistoDBServiceImp {
   }
 
   async getAllPlaylists(): Promise<Playlist[]> {
-    return await playlistoDB.getAllPlaylists()
+    return await playlistoDB.getAllPlaylists();
   }
 
   async addCoverByURL(url: string, key?: string): Promise<string> {
@@ -36,10 +36,10 @@ class PlaylistoDBService implements PlaylistoDBServiceImp {
 
   async createPlaylist(playlist: Playlist): Promise<void> {
     const resultPlaylist: PlaylistAPI = {
-      name: playlist.name, 
+      name: playlist.name,
       order: playlist.order,
       tracks: [],
-    }
+    };
 
     if (playlist.order === 0) {
       resultPlaylist.order = await playlistoDB.getPlaylistsCount();
@@ -50,16 +50,16 @@ class PlaylistoDBService implements PlaylistoDBServiceImp {
 
       if (!track.coverKey) {
         const service = getTrackExternalServices(track)[0];
-        
+
         if (!service || !track[`${service}Data`]?.coverUrl) {
           resultPlaylist.tracks.push(resultTrack);
           continue;
         }
-        
-        const coverKey = createCoverKey(service, track[`${service}Data`].coverUrl);
-        
+
+        const coverKey = createCoverKey(service, track[`${service}Data`]!.coverUrl);
+
         try {
-          await this.addCoverByURL(track[`${service}Data`].coverUrl, coverKey);
+          await this.addCoverByURL(track[`${service}Data`]!.coverUrl, coverKey);
 
           resultTrack.coverKey = coverKey;
         } catch (error) {
@@ -67,7 +67,7 @@ class PlaylistoDBService implements PlaylistoDBServiceImp {
           console.error(`Треку ${track.artist} - ${track.title} не добавлена обложка`);
         }
       }
-      
+
       resultPlaylist.tracks.push(resultTrack);
     }
 
@@ -94,23 +94,23 @@ class PlaylistoDBService implements PlaylistoDBServiceImp {
     const resultPlaylist: PlaylistAPI = {
       ...playlist,
       tracks: [],
-    }
+    };
 
     for (const track of playlist.tracks) {
       const resultTrack = { ...track };
 
       if (!track.coverKey) {
         const service = getTrackExternalServices(track)[0];
-        
+
         if (!service || !track[`${service}Data`]?.coverUrl) {
           resultPlaylist.tracks.push(resultTrack);
           continue;
         }
-        
-        const coverKey = createCoverKey(service, track[`${service}Data`].coverUrl);
-        
+
+        const coverKey = createCoverKey(service, track[`${service}Data`]!.coverUrl);
+
         try {
-          await this.addCoverByURL(track[`${service}Data`].coverUrl, coverKey);
+          await this.addCoverByURL(track[`${service}Data`]!.coverUrl, coverKey);
 
           resultTrack.coverKey = coverKey;
         } catch (error) {
@@ -118,7 +118,7 @@ class PlaylistoDBService implements PlaylistoDBServiceImp {
           console.error(`Треку ${track.artist} - ${track.title} не добавлена обложка`);
         }
       }
-      
+
       resultPlaylist.tracks.push(resultTrack);
     }
 
@@ -137,17 +137,17 @@ class PlaylistoDBService implements PlaylistoDBServiceImp {
   async exportDatabase(): Promise<DatabaseDump> {
     // Получаем все плейлисты
     const playlists = await playlistoDB.getAllPlaylists();
-  
+
     // Получаем все обложки
     const covers = await playlistoDB.getAllCovers();
-  
+
     const dump: DatabaseDump = {
       version: '1.0.0',
       timestamp: new Date().toISOString(),
       playlists,
       covers,
     };
-  
+
     return dump;
   }
 
@@ -159,15 +159,15 @@ class PlaylistoDBService implements PlaylistoDBServiceImp {
     if (!dump.version || !dump.playlists || !dump.covers) {
       throw new Error('Неверный формат файла дампа');
     }
-  
+
     // Очищаем существующие данные
     await playlistoDB.clearDatabase();
-  
+
     // Импортируем обложки
     for (const cover of dump.covers) {
       await playlistoDB.addCover(cover.key, cover.base64);
     }
-  
+
     // Импортируем плейлисты
     for (const playlist of dump.playlists) {
       await playlistoDB.addPlaylist(playlist);

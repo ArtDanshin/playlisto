@@ -1,4 +1,4 @@
-import { type StateCreator } from 'zustand';
+import type { StateCreator } from 'zustand';
 
 import type { SpotifyState } from './store';
 
@@ -12,39 +12,45 @@ export const store: StateCreator<SpotifyState> = (set) => ({
   error: null,
 
   initializeSpotify: async () => {
-    set({ authStatus: {
-      isAuthenticated: true,
-      user: {
-        id: 'coolMeloman',
-        display_name: 'CoolMeloman',
-        email: 'cool-meloman@playlisto.local'
+    set({
+      authStatus: {
+        isAuthenticated: true,
+        user: {
+          id: 'coolMeloman',
+          display_name: 'CoolMeloman',
+          email: 'cool-meloman@playlisto.local',
+        },
+        expiresAt: new Date(8.64e15).getTime(),
       },
-      expiresAt: new Date(8.64e15).getTime(),
-    }});
-},
+    });
+  },
 
   handleSpotifyCallback: async () => {
-    set({ authStatus: {
-      isAuthenticated: true,
-      user: {
-        id: 'coolMeloman',
-        display_name: 'CoolMeloman',
-        email: 'cool-meloman@playlisto.local'
+    set({
+      authStatus: {
+        isAuthenticated: true,
+        user: {
+          id: 'coolMeloman',
+          display_name: 'CoolMeloman',
+          email: 'cool-meloman@playlisto.local',
+        },
+        expiresAt: new Date(8.64e15).getTime(),
       },
-      expiresAt: new Date(8.64e15).getTime(),
-    }});
+    });
   },
 
   login: async () => {
-    set({ authStatus: {
-      isAuthenticated: true,
-      user: {
-        id: 'coolMeloman',
-        display_name: 'CoolMeloman',
-        email: 'cool-meloman@playlisto.local'
+    set({
+      authStatus: {
+        isAuthenticated: true,
+        user: {
+          id: 'coolMeloman',
+          display_name: 'CoolMeloman',
+          email: 'cool-meloman@playlisto.local',
+        },
+        expiresAt: new Date(8.64e15).getTime(),
       },
-      expiresAt: new Date(8.64e15).getTime(),
-    }});
+    });
   },
 
   logout: () => {

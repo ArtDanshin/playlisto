@@ -1,12 +1,12 @@
 import path from 'path';
 import fs from 'fs';
-import { defineConfig } from 'vite';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react-swc';
 
 const __dirname = import.meta.dirname;
 
-export default defineConfig({
+/** @type {import('vite').UserConfig} */
+export default {
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
@@ -21,4 +21,7 @@ export default defineConfig({
       cert: fs.readFileSync(path.resolve(__dirname, './ssl/playlisto.local-cert.pem')),
     },
   },
-});
+  build: {
+    target: ['chrome109', 'firefox115', 'safari15'],
+  },
+};

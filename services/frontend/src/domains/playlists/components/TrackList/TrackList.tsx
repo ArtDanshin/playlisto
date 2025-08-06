@@ -27,7 +27,7 @@ function TrackList() {
   const { currentPlaylist, updatePlaylistWithCoverLoad, updatePlaylistTracksOrder } = usePlaylistStore();
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const tracks = currentPlaylist?.tracks || [];
-  
+
   // Сброс scroll-позиции окна при переключении плейлиста
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
@@ -49,20 +49,22 @@ function TrackList() {
 
       if (oldIndex !== -1 && newIndex !== -1) {
         const newTracks = arrayMove(tracks, oldIndex, newIndex);
-        await updatePlaylistTracksOrder({ ...currentPlaylist!, tracks: newTracks })
+        await updatePlaylistTracksOrder({ ...currentPlaylist!, tracks: newTracks });
       }
     }
   };
 
   const handleManualOrderChange = async (trackIndex: number, newOrder: number) => {
     let realNewOrder = newOrder;
-    
+
     if (newOrder < 1) {
       return;
-    } else if (newOrder > tracks.length) {
+    }
+
+    if (newOrder > tracks.length) {
       realNewOrder = tracks.length;
     }
-      
+
     const newTracks = arrayMove(tracks, trackIndex, realNewOrder);
 
     await updatePlaylistTracksOrder({ ...currentPlaylist!, tracks: newTracks });

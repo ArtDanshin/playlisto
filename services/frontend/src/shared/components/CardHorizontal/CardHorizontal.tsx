@@ -13,7 +13,7 @@ export interface CardHorizontalProps {
 };
 
 function CardHorizontal({
-  title, description, Icon, iconBgColorClass: IconBgColorClass, iconTextColorClass: IconTextColorClass, onClick
+  title, description, Icon, iconBgColorClass: IconBgColorClass, iconTextColorClass: IconTextColorClass, onClick,
 }: CardHorizontalProps) {
   return (
     <button
@@ -22,11 +22,13 @@ function CardHorizontal({
       className='flex items-center gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors'
     >
       {
-        Icon ? (
-          <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${IconBgColorClass || 'bg-gray-100'}`}>
-            <Icon className={`h-6 w-6 ${IconTextColorClass || 'text-gray-600'}`} />
-          </div>
-        ) : null
+        Icon
+          ? (
+              <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${IconBgColorClass || 'bg-gray-100'}`}>
+                <Icon className={`h-6 w-6 ${IconTextColorClass || 'text-gray-600'}`} />
+              </div>
+            )
+          : null
       }
       <div className='flex-1 text-left'>
         <h4 className='font-medium'>{title}</h4>

@@ -8,27 +8,18 @@ import {
   Files,
   Calendar,
   Mail,
-  Phone,
   Plus,
-  ChevronRight,
   ChevronsUpDown,
   LogOut,
-  BadgeCheck,
-  Bell,
-  Sparkles,
-  CreditCard,
   PieChart,
   MoreHorizontal,
-  Folder,
   Forward,
   Trash2,
   Archive,
   Reply,
-  ReplyAll,
 } from 'lucide-react';
 
 import Button from '../Button/Button';
-import Input from '../Input/Input';
 
 import { SidebarProvider } from './SidebarProvider';
 import Sidebar from './Sidebar';
@@ -36,7 +27,6 @@ import SidebarContent from './SidebarContent';
 import SidebarFooter from './SidebarFooter';
 import SidebarGroup from './SidebarGroup';
 import SidebarGroupAction from './SidebarGroupAction';
-import SidebarGroupContent from './SidebarGroupContent';
 import SidebarGroupLabel from './SidebarGroupLabel';
 import SidebarHeader from './SidebarHeader';
 import SidebarInset from './SidebarInset';
@@ -57,6 +47,7 @@ export default {
   component: Sidebar,
 };
 
+/* eslint-disable react-hooks/rules-of-hooks */
 // Базовый Sidebar
 export const Default = {
   render: () => (
@@ -372,6 +363,7 @@ export const Variants = {
   },
 };
 
+/* eslint-disable react/no-array-index-key */
 // Sidebar с действиями в меню
 export const WithMenuActions = {
   render: () => (

@@ -14,7 +14,7 @@ const SOURCES: string[] = ['spotify', 'file'];
 const SOURCES_DATA: Record<string, SourceCommon & SourceExportPlaylist> = {
   file: { ...fileCommon, ...fileExportPlaylist },
   spotify: { ...spotifyCommon, ...spotifyExportPlaylist },
-}
+};
 
 interface UpdateTracksDataDialogProps {
   playlist: Playlist;
@@ -23,7 +23,7 @@ interface UpdateTracksDataDialogProps {
 
 function NewPlaylistDialog({ playlist, children }: UpdateTracksDataDialogProps) {
   const [currentSource, setCurrentSource] = useState<string | undefined>();
-  const [successMessages, setSuccessMessages] = useState<{ mainMessage: string, secondMessage?: ReactNode } | null>(null);
+  const [successMessages, setSuccessMessages] = useState<{ mainMessage: string; secondMessage?: ReactNode; } | null>(null);
 
   const stepBeggin: Step = {
     component: (next) => {
@@ -31,7 +31,7 @@ function NewPlaylistDialog({ playlist, children }: UpdateTracksDataDialogProps) 
         setCurrentSource(source);
         next();
       };
-      
+
       return (
         <div className='space-y-4'>
           <div className='text-center'>
@@ -44,6 +44,7 @@ function NewPlaylistDialog({ playlist, children }: UpdateTracksDataDialogProps) 
           <div className='grid gap-4'>
             {SOURCES.map((source) => (
               <CardHorizontal
+                key={source}
                 title={SOURCES_DATA[source].title}
                 description={SOURCES_DATA[source].description}
                 Icon={SOURCES_DATA[source].Icon}
@@ -54,52 +55,49 @@ function NewPlaylistDialog({ playlist, children }: UpdateTracksDataDialogProps) 
             ))}
           </div>
         </div>
-      )
+      );
     },
-  }
+  };
 
-  
   const stepProcess: Step = {
     component: (next, prev) => {
       if (currentSource) {
-        const ExportForm = SOURCES_DATA[currentSource].ExportForm;
+        const { ExportForm } = SOURCES_DATA[currentSource];
 
         const handleSetPlaylist = (mainMessage: string, secondMessage: ReactNode) => {
           setSuccessMessages({ mainMessage, secondMessage });
           next();
-        }
+        };
 
-        return <ExportForm playlist={playlist} onSuccessExport={handleSetPlaylist} onCancel={prev}/>;
+        return <ExportForm playlist={playlist} onSuccessExport={handleSetPlaylist} onCancel={prev} />;
       }
-      
+
       return null;
     },
-  }
+  };
 
   const stepResult: Step = {
-    component: () => {
-      return (
-        <div className='text-center space-y-4'>
-          <div className='w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto'>
-            <Download className='h-8 w-8 text-green-600' />
-          </div>
-          <h3 className='text-lg font-semibold text-green-600'>Экспорт завершен!</h3>
-          <p className='text-muted-foreground'>
-            {successMessages?.mainMessage}
-          </p>
-          {successMessages?.secondMessage && (
-            <div className='pt-2'>
-              {successMessages.secondMessage}
-            </div>
-          )}
+    component: () => (
+      <div className='text-center space-y-4'>
+        <div className='w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto'>
+          <Download className='h-8 w-8 text-green-600' />
         </div>
-      );
-    },
+        <h3 className='text-lg font-semibold text-green-600'>Экспорт завершен!</h3>
+        <p className='text-muted-foreground'>
+          {successMessages?.mainMessage}
+        </p>
+        {successMessages?.secondMessage && (
+          <div className='pt-2'>
+            {successMessages.secondMessage}
+          </div>
+        )}
+      </div>
+    ),
     viewCloseButton: {
       status: 'active',
-    }
-  }
-  
+    },
+  };
+
   return (
     <StepsDialog
       title='Экспорт плейлиста'

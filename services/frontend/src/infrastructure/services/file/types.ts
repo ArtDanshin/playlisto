@@ -1,5 +1,4 @@
-import type { TrackM3UData } from '@/shared/types/playlist';
-import type { Track } from '@/shared/types/playlist';
+import type { TrackM3UData, Track } from '@/shared/types/playlist';
 
 export interface FileService {
   addDataToTracksFromM3UFile: (file: File, tracks: Track[], onProcess?: (current: number, total: number) => void) => Promise<TracksWithNewData>;
@@ -7,7 +6,7 @@ export interface FileService {
 };
 
 export interface TracksWithNewData {
-  allTracks: Track[],
-  onlyUpdatedTracks: Track[],
-  notUpdatedTracks: Track[],
+  allTracks: Track[];
+  onlyUpdatedTracks: Track[];
+  notUpdatedTracks: Track[];
 }

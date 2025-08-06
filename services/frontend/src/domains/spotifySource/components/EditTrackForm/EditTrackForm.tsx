@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { ExternalLink, Link, Loader2, Music, Search } from 'lucide-react';
+import {
+  ExternalLink, Link, Loader2, Music, Search,
+} from 'lucide-react';
 
 import { Button } from '@/shared/components/ui/Button';
 import { Input } from '@/shared/components/ui/Input';
@@ -9,14 +11,14 @@ import { Label } from '@/shared/components/ui/Label';
 import { ScrollArea } from '@/shared/components/ui/ScrollArea';
 import { spotifyService, type SpotifyTrackDataResponse } from '@/infrastructure/services/spotify';
 import type { Track, SpotifyTrackData } from '@/shared/types/playlist';
-import { formatDuration } from '@/shared/utils/common'; 
-import { createTrackDataFromSpotify } from '@/shared/utils/spotify'; 
+import { formatDuration } from '@/shared/utils/common';
+import { createTrackDataFromSpotify } from '@/shared/utils/spotify';
 
 import { useSpotifyStore } from '../../store';
- 
+
 interface EditTrackFormProps {
   track: Track;
-  onDataChange: (data: SpotifyTrackData) => void; 
+  onDataChange: (data: SpotifyTrackData) => void;
 }
 
 function EditTrackForm({ track, onDataChange }: EditTrackFormProps) {
@@ -27,7 +29,7 @@ function EditTrackForm({ track, onDataChange }: EditTrackFormProps) {
   const [searchResults, setSearchResults] = useState<SpotifyTrackDataResponse[]>([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [previewSpotifyTrack, setPreviewSpotifyTrack] = useState<Track>(track);
-  
+
   const { authStatus } = useSpotifyStore();
 
   const handleSearch = async () => {
@@ -35,7 +37,7 @@ function EditTrackForm({ track, onDataChange }: EditTrackFormProps) {
       setError('Необходимо авторизоваться в Spotify');
       return;
     }
-    
+
     if (!track?.title.trim() || !track?.artist.trim() || !authStatus.isAuthenticated) {
       setError('Введите название трека и исполнителя для поиска');
       return;

@@ -7,7 +7,5 @@ export default {
 
 // Форма загрузки файла для нового плейлиста
 export const Default = {
-  render: () => {
-    return <SetPlaylistForm setPlaylist={console.log} />;
-  },
+  render: () => <SetPlaylistForm setPlaylist={console.log} />,
 };

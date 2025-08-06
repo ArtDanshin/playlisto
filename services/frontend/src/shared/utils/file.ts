@@ -1,4 +1,4 @@
-import type { Track, TrackM3UData } from "../types/playlist";
+import type { Track, TrackM3UData } from '../types/playlist';
 
 export function extractArtistAndTitle(trackInfo: string): { artist: string; title: string; } {
   const dashIndex = trackInfo.indexOf(' - ');

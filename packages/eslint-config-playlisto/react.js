@@ -41,7 +41,11 @@ export default tseslint.config({
     ...renameRules(pluginReactClassic.configs.flat.recommended.rules, {
       react: 'react-classic',
     }),
+    // Отключаем ненужные правила
     'react-classic/react-in-jsx-scope': 'off',
+    'react-classic/prop-types': 'off',
+
+    // Частично применяем правила airbnb конфига
     'react-classic/forbid-prop-types': ['error', {
       forbid: ['any', 'array', 'object'],
       checkContextTypes: true,
@@ -95,7 +99,6 @@ export default tseslint.config({
       namedComponents: ['function-declaration', 'function-expression'],
       unnamedComponents: 'function-expression',
     }],
-    'react-classic/no-unstable-nested-components': 'error',
     'react-classic/no-namespace': 'error',
     'react-classic/no-arrow-function-lifecycle': 'error',
     'react-classic/no-invalid-html-attribute': 'error',

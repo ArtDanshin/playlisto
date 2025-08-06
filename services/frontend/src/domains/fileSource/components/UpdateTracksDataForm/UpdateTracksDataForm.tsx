@@ -7,7 +7,7 @@ import type { MatchForm } from '@/shared/types/source';
 import { Button } from '@/shared/components/ui/Button';
 import { fileService } from '@/infrastructure/services/file';
 
-const UpdateTracksDataForm: MatchForm = ({ tracks, updateTracks }) => {
+const UpdateTracksDataForm: MatchForm = function ({ tracks, updateTracks }) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +21,7 @@ const UpdateTracksDataForm: MatchForm = ({ tracks, updateTracks }) => {
     }
   };
 
-// Функция обновления треков из M3U файла
+  // Функция обновления треков из M3U файла
   const handleM3UUpdate = async () => {
     if (!selectedFile) {
       setError('Ошибка при выборе файла');
@@ -121,7 +121,7 @@ const UpdateTracksDataForm: MatchForm = ({ tracks, updateTracks }) => {
             </div>
           )}
     </div>
-  )
-}
+  );
+};
 
 export default UpdateTracksDataForm;

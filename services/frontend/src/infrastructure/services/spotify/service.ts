@@ -1,13 +1,12 @@
 import { spotifyApi } from '@/infrastructure/api/spotify';
-import { extractPlaylistId, extractTrackIdFromUrl } from '@/shared/utils/spotify';
+import { extractPlaylistId, extractTrackIdFromUrl, isExactSpotifyMatch, updateTrackDataFromSpotify } from '@/shared/utils/spotify';
 import type { Playlist, Track } from '@/shared/types/playlist';
-import { isExactSpotifyMatch, updateTrackDataFromSpotify } from '@/shared/utils/spotify';
 
-import type { 
+import type {
   SpotifyService as SpotifyServiceImp,
   SpotifyPlaylistInfoResponse,
   SpotifyTrackDataResponse,
-  MatchedTracks
+  MatchedTracks,
 } from './types';
 
 class SpotifyService implements SpotifyServiceImp {
@@ -15,10 +14,10 @@ class SpotifyService implements SpotifyServiceImp {
     const playlistId = extractPlaylistId(spotifyPlaylistURL);
 
     if (!playlistId) {
-      throw new Error(`Неверный форма URL. Исходный URL: ${spotifyPlaylistURL}`)
+      throw new Error(`Неверный форма URL. Исходный URL: ${spotifyPlaylistURL}`);
     }
 
-    return await spotifyApi.getPlaylistInfo(playlistId)
+    return await spotifyApi.getPlaylistInfo(playlistId);
   }
 
   // Получение всех треков плейлиста по его URL
@@ -26,7 +25,7 @@ class SpotifyService implements SpotifyServiceImp {
     const playlistId = extractPlaylistId(spotifyPlaylistURL);
 
     if (!playlistId) {
-      throw new Error(`Неверный форма URL. Исходный URL: ${spotifyPlaylistURL}`)
+      throw new Error(`Неверный форма URL. Исходный URL: ${spotifyPlaylistURL}`);
     }
 
     const allTracks: SpotifyTrackDataResponse[] = [];
@@ -59,7 +58,7 @@ class SpotifyService implements SpotifyServiceImp {
     const trackId = extractTrackIdFromUrl(spotifyTrackURL);
 
     if (!trackId) {
-      throw new Error(`Неверный форма URL. Исходный URL: ${spotifyTrackURL}`)
+      throw new Error(`Неверный форма URL. Исходный URL: ${spotifyTrackURL}`);
     }
 
     return await spotifyApi.getTrack(trackId);
@@ -70,13 +69,13 @@ class SpotifyService implements SpotifyServiceImp {
     const query = `${artist} ${title}`.trim();
     const response = await spotifyApi.searchTracks(query, 10);
 
-    return response.tracks.items;      
+    return response.tracks.items;
   }
 
   // Поиск и сопоставление треков в Spotify
   async searhAndMatchTracks(
     tracks: Track[],
-    onProcess?: (current: number, total: number) => void
+    onProcess?: (current: number, total: number) => void,
   ): Promise<MatchedTracks> {
     let processedCount = 0;
     const toProcessTracksCount = tracks.reduce((total, track) => {
@@ -85,7 +84,7 @@ class SpotifyService implements SpotifyServiceImp {
       }
 
       return total;
-    }, 0)
+    }, 0);
     const resultTracks: Track[] = [];
     const updatedTracks: Track[] = [];
     const notUpdatedTracks: Track[] = [];
@@ -114,7 +113,7 @@ class SpotifyService implements SpotifyServiceImp {
           resultTracks.push(updatedTrack);
           updatedTracks.push(updatedTrack);
         } else {
-          resultTracks.push(track)
+          resultTracks.push(track);
           notUpdatedTracks.push(track);
         }
       } catch (error) {
@@ -129,7 +128,7 @@ class SpotifyService implements SpotifyServiceImp {
     return {
       allTracks: resultTracks,
       onlyUpdatedTracks: updatedTracks,
-      notUpdatedTracks: notUpdatedTracks
+      notUpdatedTracks,
     };
   }
 
@@ -139,7 +138,7 @@ class SpotifyService implements SpotifyServiceImp {
     await this.updatePlaylistTracks(playlistData.id, playlist.tracks);
 
     // TODO: Обработать ошибки API
-    
+
     return playlistData;
   }
 

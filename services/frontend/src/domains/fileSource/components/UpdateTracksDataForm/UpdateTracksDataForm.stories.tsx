@@ -7,7 +7,5 @@ export default {
 
 // Форма загрузки файла для нового плейлиста
 export const Default = {
-  render: () => {
-    return <UpdateTracksDataForm tracks={[]} updateTracks={console.log} />;
-  },
+  render: () => <UpdateTracksDataForm tracks={[]} updateTracks={console.log} />,
 };

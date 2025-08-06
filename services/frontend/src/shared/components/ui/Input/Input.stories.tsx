@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import {
-  Search, Mail, Lock, User, Eye, EyeOff, Calendar,
-} from 'lucide-react';
+import { Search, Mail, User } from 'lucide-react';
 
 import Label from '../Label/Label';
 import Button from '../Button/Button';
@@ -13,6 +11,7 @@ export default {
   component: Input,
 };
 
+/* eslint-disable react-hooks/rules-of-hooks */
 // Базовый input
 export const Default = {
   args: {

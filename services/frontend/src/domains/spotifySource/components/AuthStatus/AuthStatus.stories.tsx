@@ -1,4 +1,4 @@
-import { type Meta } from '@storybook/react-vite';
+import type { Meta } from '@storybook/react-vite';
 
 import { SpotifyProvider } from '@/domains/spotifySource/store';
 
@@ -12,7 +12,7 @@ const MetaInfo: Meta<typeof AuthStatus> = {
       <SpotifyProvider>
         <Story />
       </SpotifyProvider>
-    )
+    ),
   ],
 };
 
@@ -20,9 +20,7 @@ export default MetaInfo;
 
 // Форма загрузки плелиста из Spotify
 export const Default = {
-  render: () => {
-    return (
-      <AuthStatus/>
-    );
-  },
+  render: () => (
+    <AuthStatus />
+  ),
 };

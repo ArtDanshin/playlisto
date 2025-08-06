@@ -1,6 +1,6 @@
-const isTest = import.meta.env.MODE === 'test';
-
 import type { FileService } from './types';
+
+const isTest = import.meta.env.MODE === 'test';
 
 let service: FileService;
 

@@ -3,7 +3,9 @@ import {
   generateCodeVerifier, generateCodeChallenge, isTokenExpired, getTokenExpiryTime, getUrlParams,
 } from '@/shared/utils/spotify';
 
-import type { SpotifyTrackDataResponse, SpotifyUserResponse, SpotifyAuthStatusResponse, SpotifySearchResponse, SpotifyPlaylistInfoResponse, SpotifyPlaylistTracksResponse } from './types';
+import type {
+  SpotifyTrackDataResponse, SpotifyUserResponse, SpotifyAuthStatusResponse, SpotifySearchResponse, SpotifyPlaylistInfoResponse, SpotifyPlaylistTracksResponse,
+} from './types';
 
 interface SpotifyApiClient {
   initiateAuth: () => Promise<void>;
@@ -18,7 +20,7 @@ interface SpotifyApiClient {
   searchTracks: (query: string, limit?: number) => Promise<SpotifySearchResponse>;
   getTrack: (trackId: string) => Promise<SpotifyTrackDataResponse>;
   createPlaylist: (name: string, description?: string) => Promise<SpotifyPlaylistInfoResponse>;
-  updatePlaylistTracks: (playlistId: string, trackUris: string[]) => Promise<void>; 
+  updatePlaylistTracks: (playlistId: string, trackUris: string[]) => Promise<void>;
 }
 
 class SpotifyApi implements SpotifyApiClient {
@@ -231,7 +233,7 @@ class SpotifyApi implements SpotifyApiClient {
     const fields = [
       'name',
       'id',
-      'owner'
+      'owner',
     ].join(',');
 
     return this.apiCall(`/playlists/${playlistId}?fields=${encodeURIComponent(fields)}`);
@@ -269,7 +271,7 @@ class SpotifyApi implements SpotifyApiClient {
     const response = await this.apiCall('/me/playlists', {
       method: 'POST',
       body: JSON.stringify({
-        name: name,
+        name,
         description: description || `Экспортировано из Playlisto - ${new Date().toLocaleDateString()}`,
         public: false,
       }),

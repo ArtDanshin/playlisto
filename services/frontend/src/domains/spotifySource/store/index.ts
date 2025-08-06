@@ -1,8 +1,8 @@
-const isTest = import.meta.env.MODE === 'test';
-
 import { create, type StateCreator } from 'zustand';
 
 import type { SpotifyState } from './store';
+
+const isTest = import.meta.env.MODE === 'test';
 
 let store: StateCreator<SpotifyState>;
 
@@ -14,4 +14,5 @@ if (isTest) {
 
 export const useSpotifyStore = create<SpotifyState>(store);
 
+/* eslint-disable import/no-cycle */
 export { default as SpotifyProvider } from './provider';

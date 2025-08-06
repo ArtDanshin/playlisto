@@ -105,8 +105,8 @@ export function createPlaylistFromSpotify(name: string, spotifyTracks: SpotifyTr
   return {
     name: name || 'New playlist',
     order: 0,
-    tracks: spotifyTracks.map(createTrackDataFromSpotify)
-  }
+    tracks: spotifyTracks.map(createTrackDataFromSpotify),
+  };
 }
 
 /**
@@ -150,7 +150,7 @@ export function createSpotifyData(spotifyTrackData: SpotifyTrackDataResponse): S
     artist: spotifyTrackData.artists[0]?.name || 'Unknown Artist',
     album: spotifyTrackData.album?.name || '',
     // Запоминаем самую маленькую обложку. Она на момент написания была последней
-    coverUrl: (albumCoversCount) ? spotifyTrackData.album.images[albumCoversCount-1].url : '', 
+    coverUrl: (albumCoversCount) ? spotifyTrackData.album.images[albumCoversCount - 1].url : '',
     duration: spotifyTrackData.duration_ms || 0,
   };
 }

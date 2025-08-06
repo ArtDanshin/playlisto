@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Music } from 'lucide-react';
 
-import { type SetPlaylistForm as SetPlaylistFormImp } from '@/shared/types/source';
+import type { SetPlaylistForm as SetPlaylistFormImp } from '@/shared/types/source';
 import { Button } from '@/shared/components/ui/Button';
 import { Input } from '@/shared/components/ui/Input';
 import { Label } from '@/shared/components/ui/Label';
@@ -12,7 +12,7 @@ import { createPlaylistFromSpotify } from '@/shared/utils/spotify';
 
 import { useSpotifyStore } from '../../store';
 
-const SetPlaylistForm: SetPlaylistFormImp = ({ setPlaylist }) => {
+const SetPlaylistForm: SetPlaylistFormImp = function ({ setPlaylist }) {
   const { authStatus } = useSpotifyStore();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -99,6 +99,6 @@ const SetPlaylistForm: SetPlaylistFormImp = ({ setPlaylist }) => {
       </div>
     </div>
   );
-}
+};
 
 export default SetPlaylistForm;

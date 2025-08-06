@@ -18,13 +18,13 @@ import { useSpotifyStore } from '../../store';
 
 type MergeOptionsWithoutSource = Omit<MergeTracksOptions, 'source'>;
 
-const ExportPlaylistForm: ExportForm = ({ playlist, onSuccessExport, onCancel }) => {
+const ExportPlaylistForm: ExportForm = function ({ playlist, onSuccessExport, onCancel }) {
   const { authStatus } = useSpotifyStore();
   const [error, setError] = useState<string | null>(null);
   const [exportMode, setExportMode] = useState<'new' | 'existing'>('new');
   const [playlistUrl, setPlaylistUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [spotifyPlaylist, setSpotifyPlaylist] = useState<{ id: string, data: Playlist } | null>(null);
+  const [spotifyPlaylist, setSpotifyPlaylist] = useState<{ id: string; data: Playlist; } | null>(null);
   const [mergeOptions, setMergeOptions] = useState<MergeOptionsWithoutSource>({
     addNewTracks: true,
     removeMissingTracks: true,
@@ -37,7 +37,7 @@ const ExportPlaylistForm: ExportForm = ({ playlist, onSuccessExport, onCancel })
       [option]: value,
     }));
   };
-  
+
   const handlePlaylistUrlChange = async (url: string) => {
     // TODO: Добавить Debounce на ввод URL
 
@@ -56,8 +56,8 @@ const ExportPlaylistForm: ExportForm = ({ playlist, onSuccessExport, onCancel })
       }
 
       const tracks = await spotifyService.getPlaylistTracksByURL(url);
-      
-      setSpotifyPlaylist({ 
+
+      setSpotifyPlaylist({
         id: playlistInfo.id,
         data: createPlaylistFromSpotify(playlistInfo.name, tracks),
       });
@@ -75,8 +75,8 @@ const ExportPlaylistForm: ExportForm = ({ playlist, onSuccessExport, onCancel })
     }
 
     const onlyPlaylistTracksWithSpotifyData = playlist.tracks.filter((t) => t.spotifyData);
-    
-    return getTracksComparison(spotifyPlaylist.data.tracks, onlyPlaylistTracksWithSpotifyData, 'spotify')
+
+    return getTracksComparison(spotifyPlaylist.data.tracks, onlyPlaylistTracksWithSpotifyData, 'spotify');
   }, [playlist, spotifyPlaylist]);
 
   const handleExport = async () => {
@@ -92,23 +92,25 @@ const ExportPlaylistForm: ExportForm = ({ playlist, onSuccessExport, onCancel })
       if (exportMode === 'new') {
         const playlistInfo = await spotifyService.createPlaylist(playlist);
 
-        onSuccessExport('Плейлист успешно создан!', (
-          <a
-            href={`https://open.spotify.com/playlist/${playlistInfo.id}`}
-            target='_blank'
-            rel='noopener noreferrer'
-            className='text-blue-600 hover:underline flex items-center gap-1 justify-center'
-          >
-            <ExternalLink className='h-4 w-4' />
-            Открыть в Spotify
-          </a>
-        ));
+        onSuccessExport(
+          'Плейлист успешно создан!', (
+            <a
+              href={`https://open.spotify.com/playlist/${playlistInfo.id}`}
+              target='_blank'
+              rel='noopener noreferrer'
+              className='text-blue-600 hover:underline flex items-center gap-1 justify-center'
+            >
+              <ExternalLink className='h-4 w-4' />
+              Открыть в Spotify
+            </a>
+          ),
+        );
       } else {
         if (spotifyPlaylist) {
           const { mergedTracks } = mergeTracks(spotifyPlaylist.data.tracks, playlist.tracks, { ...mergeOptions, source: 'spotify' });
           await spotifyService.updatePlaylistTracks(spotifyPlaylist.id, mergedTracks);
 
-          onSuccessExport('Плейлист успешно обновлен!')
+          onSuccessExport('Плейлист успешно обновлен!');
         }
       }
     } catch (error: any) {
@@ -278,6 +280,6 @@ const ExportPlaylistForm: ExportForm = ({ playlist, onSuccessExport, onCancel })
       </div>
     </>
   );
-}
+};
 
 export default ExportPlaylistForm;

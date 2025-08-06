@@ -4,8 +4,8 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, Trash2 } from 'lucide-react';
 
-import type { Playlist } from '@/shared/types';
 import { Button } from '@/shared/components/ui/Button';
+import type { Playlist } from '@/shared/types/playlist';
 
 interface SortablePlaylistItemProps {
   playlist: Playlist;

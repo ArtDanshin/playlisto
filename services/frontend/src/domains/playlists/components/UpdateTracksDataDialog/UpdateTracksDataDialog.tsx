@@ -16,7 +16,7 @@ const SOURCES: string[] = ['spotify', 'file'];
 const SOURCES_DATA: Record<string, SourceCommon & SourceUpdateTracksData> = {
   file: { ...fileCommon, ...fileUpdateTracksData },
   spotify: { ...spotifyCommon, ...spotifyUpdateTracksData },
-}
+};
 
 interface UpdateTracksDataDialogProps {
   tracks: Track[];
@@ -26,9 +26,9 @@ interface UpdateTracksDataDialogProps {
 
 function NewPlaylistDialog({ tracks, onTracksUpdate, children }: UpdateTracksDataDialogProps) {
   const [currentSource, setCurrentSource] = useState<string | undefined>();
-    const [arrayOfProcessedTracks, setArrayOfProcessedTracks] = useState<{onlyUpdatedTracks: Track[], notUpdatedTracks: Track[]}>({
+  const [arrayOfProcessedTracks, setArrayOfProcessedTracks] = useState<{ onlyUpdatedTracks: Track[]; notUpdatedTracks: Track[]; }>({
     onlyUpdatedTracks: [],
-    notUpdatedTracks: []
+    notUpdatedTracks: [],
   });
 
   const stepBeggin: Step = {
@@ -37,7 +37,7 @@ function NewPlaylistDialog({ tracks, onTracksUpdate, children }: UpdateTracksDat
         setCurrentSource(source);
         next();
       };
-      
+
       return (
         <div className='space-y-6'>
           <div className='text-center'>
@@ -51,6 +51,7 @@ function NewPlaylistDialog({ tracks, onTracksUpdate, children }: UpdateTracksDat
           <div className='grid gap-4'>
             {SOURCES.map((source) => (
               <CardHorizontal
+                key={source}
                 title={SOURCES_DATA[source].title}
                 description={SOURCES_DATA[source].description}
                 Icon={SOURCES_DATA[source].Icon}
@@ -61,40 +62,39 @@ function NewPlaylistDialog({ tracks, onTracksUpdate, children }: UpdateTracksDat
             ))}
           </div>
         </div>
-      )
+      );
     },
-  }
+  };
 
-  
   const stepProcess: Step = {
     component: (next) => {
       if (currentSource) {
-        const MatchForm = SOURCES_DATA[currentSource].MatchForm;
-        
+        const { MatchForm } = SOURCES_DATA[currentSource];
+
         const handleUpdateTracks: UpdateTracksAfterMatch = (allTracks, onlyUpdatedTracks, notUpdatedTracks) => {
           onTracksUpdate(allTracks);
           setArrayOfProcessedTracks({ onlyUpdatedTracks, notUpdatedTracks });
 
           next();
-        }
-        
+        };
+
         return <MatchForm tracks={tracks} updateTracks={handleUpdateTracks} />;
       }
-      
+
       return null;
     },
     viewPrevButton: {
       status: 'active',
-      text: 'Назад к выбору'
-    }
-  }
+      text: 'Назад к выбору',
+    },
+  };
 
   const stepResult: Step = {
     component: () => {
       const title = currentSource && SOURCES_DATA[currentSource].resultTitle;
       const description = currentSource && SOURCES_DATA[currentSource].resultDescription(
         arrayOfProcessedTracks.onlyUpdatedTracks.length,
-        arrayOfProcessedTracks.onlyUpdatedTracks.length + arrayOfProcessedTracks.notUpdatedTracks.length
+        arrayOfProcessedTracks.onlyUpdatedTracks.length + arrayOfProcessedTracks.notUpdatedTracks.length,
       );
 
       return (
@@ -147,9 +147,9 @@ function NewPlaylistDialog({ tracks, onTracksUpdate, children }: UpdateTracksDat
     },
     viewCloseButton: {
       status: 'active',
-    }
-  }
-  
+    },
+  };
+
   return (
     <StepsDialog
       title='Обновление данных'

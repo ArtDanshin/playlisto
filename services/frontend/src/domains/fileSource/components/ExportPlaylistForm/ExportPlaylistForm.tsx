@@ -6,10 +6,10 @@ import { Button } from '@/shared/components/ui/Button';
 import type { ExportForm } from '@/shared/types/source';
 import { exportToM3UFile } from '@/shared/utils/file';
 
-const ExportPlaylistForm: ExportForm = ({ playlist, onSuccessExport, onCancel }) => {
+const ExportPlaylistForm: ExportForm = function ({ playlist, onSuccessExport, onCancel }) {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const tracksWithM3UData = playlist.tracks.filter((track) => track.m3uData);
   const totalTracks = playlist.tracks.length;
 
@@ -90,6 +90,6 @@ const ExportPlaylistForm: ExportForm = ({ playlist, onSuccessExport, onCancel })
       </div>
     </>
   );
-}
+};
 
 export default ExportPlaylistForm;

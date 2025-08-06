@@ -8,15 +8,13 @@ export default {
 };
 
 export const Default = {
-  render: () => {
-    return (
-      <CardHorizontal
-        title='Заголовок'
-        description='Описание'
-        Icon={Music}
-        iconBgColorClass='bg-green-100'
-        iconTextColorClass='text-green-600'
-      />
-    );
-  },
+  render: () => (
+    <CardHorizontal
+      title='Заголовок'
+      description='Описание'
+      Icon={Music}
+      iconBgColorClass='bg-green-100'
+      iconTextColorClass='text-green-600'
+    />
+  ),
 };
