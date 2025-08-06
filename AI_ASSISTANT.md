@@ -38,6 +38,7 @@ This is a Rush monorepo using pnpm as package manager. Node.js version: >=22.16.
 4. `rushx build` - to build only frontend project
 
 ## Important Notes
+- Always read `/(packages|services)/docs` folders before work
 - Always use Rush commands instead of npm/yarn
 - The project uses pnpm version 9.15.5
 - Rush version: 5.155.0

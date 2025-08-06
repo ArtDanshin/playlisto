@@ -57,7 +57,7 @@
 
 ### 5. Проверка работы
 
-1. Запустите приложение: `npm run dev`
+1. Запустите приложение: `rushx dev`
 2. Откройте `https://playlisto.local:8443/`
 3. Нажмите на иконку пользователя в правом верхнем углу
 4. Нажмите "Войти в Spotify"
@@ -93,8 +93,8 @@
 
 ```
 services/frontend/
-├── .env                    # Ваши переменные окружения (не в git)
+├── .env                   # Ваши переменные окружения (не в git)
 ├── env.example            # Пример переменных окружения
-├── src/infrastructure/spotify/spotify-config.ts  # Конфигурация (читает из .env)
+├── src/infrastructure/configs/spotify.ts  # Конфигурация (читает из .env)
 └── ...
 ``` 
