@@ -1,6 +1,6 @@
-const isTest = import.meta.env.MODE === 'test';
-
 import type { SpotifyService } from './types';
+
+const isTest = import.meta.env.MODE === 'test';
 
 let service: SpotifyService;
 
