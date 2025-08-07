@@ -41,6 +41,3 @@ playlisto/
 
 ### Приложения
 - `services/frontend` - Фронтенд Playlisto
-
-## For AI Assistants
-See `AI_ASSISTANT.md` for specific instructions on working with this Rush monorepo.

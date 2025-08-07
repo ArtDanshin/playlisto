@@ -32,9 +32,19 @@ openssl req -x509 -newkey rsa:4096 -keyout ssl/playlisto.local-key.pem -out ssl/
 
 ## Запуск команд проекта(команды смотри в `package.json`)
 
-```bash
-rushx команда
-```
+Проект является частью RushJS репозитория, поэтому вместо npm и pnpm команд, используются аналогичные из Rushjs:
+
+- `rush add --package <package-name> --project <project-name>` - Установка зависимости
+- `rush update` - Обновление и установка зависимостей после изменения файла `package.json`
+- `rushx <npm_команда>` - Для запуска npm скриптов из файла `package.json`
+- `rush build` - Сборка проекта и его зависимостей
+
+Частые команды для разработки:
+
+- `rushx dev` - Запуск dev сервера
+- `rushx lint` - Запуск проверок линтера
+- `rushx lint --fix` - Запуск проверок линтера с автоматическим исправлением возможного
+- `rushx storybook` - Запуск storybook сервера
 
 ## Проблемы
 
