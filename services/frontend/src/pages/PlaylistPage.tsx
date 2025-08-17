@@ -1,9 +1,24 @@
+import { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+
 import { TrackList } from '@/domains/playlists/components/TrackList';
 import { CurrentPlaylistHeader } from '@/domains/playlists/components/CurrentPlaylistHeader';
 import { usePlaylistStore } from '@/domains/playlists/store';
 
-function App() {
-  const currentPlaylist = usePlaylistStore((state) => state.currentPlaylist);
+function PlaylistPage() {
+  const { id } = useParams<{ id: string; }>();
+  const { currentPlaylist, loadPlaylist, setCurrentPlaylist } = usePlaylistStore();
+
+  useEffect(() => {
+    if (id) {
+      loadPlaylist(id);
+    }
+
+    // Очищаем текущий плейлист при размонтировании компонента
+    return () => {
+      setCurrentPlaylist(null);
+    };
+  }, [id, loadPlaylist, setCurrentPlaylist]);
 
   return (
     <div className='flex flex-1 flex-col gap-4 px-4 py-10'>
@@ -26,4 +41,4 @@ function App() {
   );
 }
 
-export default App;
+export default PlaylistPage;

@@ -13,6 +13,10 @@ class PlaylistoDBService implements PlaylistoDBServiceImp {
     return await playlistoDB.getAllPlaylists();
   }
 
+  async getPlaylistById(id: number): Promise<Playlist | undefined> {
+    return await playlistoDB.getPlaylistById(id);
+  }
+
   async addCoverByURL(url: string, key?: string): Promise<string> {
     try {
       const response = await fetch(url);

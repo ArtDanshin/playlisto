@@ -9,6 +9,10 @@ class PlaylistoDBService implements PlaylistoDBServiceImp {
     return [];
   }
 
+  async getPlaylistById(): Promise<Playlist | undefined> {
+    return undefined;
+  }
+
   async addCoverByURL(url: string, key?: string): Promise<string> {
     return key || url;
   }

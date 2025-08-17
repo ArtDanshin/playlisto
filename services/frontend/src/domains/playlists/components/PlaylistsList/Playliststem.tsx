@@ -4,20 +4,18 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, Trash2 } from 'lucide-react';
 
-import { Button } from '@/shared/components/ui/Button';
+import { Button } from '@/shared/components/Button';
 import type { Playlist } from '@/shared/types/playlist';
 
 interface SortablePlaylistItemProps {
   playlist: Playlist;
   isActive: boolean;
-  onSelect: (playlist: Playlist) => void;
   onRemove: (playlist: Playlist) => void;
 }
 
 function SortablePlaylistItem({
   playlist,
   isActive,
-  onSelect,
   onRemove,
 }: SortablePlaylistItemProps) {
   const {
@@ -58,7 +56,7 @@ function SortablePlaylistItem({
         variant='ghost'
         size='sm'
         className='flex-1 justify-start hover:bg-transparent cursor-pointer'
-        onClick={() => onSelect(playlist)}
+        to={`/playlist/${playlist.id}`}
       >
         {playlist.name}
       </Button>

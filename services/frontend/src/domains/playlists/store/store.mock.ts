@@ -11,6 +11,7 @@ export const store: StateCreator<PlaylistState> = () => ({
 
   setCurrentPlaylist: () => {},
   loadPlaylists: async () => {},
+  loadPlaylist: async () => {},
   addPlaylist: async () => {},
   removePlaylist: async () => {},
   updatePlaylist: async () => {},

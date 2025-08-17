@@ -5,6 +5,7 @@ export type { Playlist, CoverData } from '@/infrastructure/storage/playlisto-db'
 export interface PlaylistoDBService {
   init: () => Promise<void>;
   getAllPlaylists: () => Promise<Playlist[]>;
+  getPlaylistById: (id: number) => Promise<Playlist | undefined>;
   // Возвращает ключ обложки
   addCoverByURL: (url: string, key?: string) => Promise<string>;
   createPlaylist: (playlist: Playlist) => Promise<void>;

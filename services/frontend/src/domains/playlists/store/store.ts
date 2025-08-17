@@ -12,6 +12,7 @@ export interface PlaylistState {
   newTracks: Set<string>;
   setCurrentPlaylist: (playlist: Playlist | null) => void;
   loadPlaylists: () => Promise<void>;
+  loadPlaylist: (id: string) => Promise<void>;
   addPlaylist: (playlist: Playlist) => Promise<void>;
   removePlaylist: (playlistId: Playlist) => Promise<void>;
   updatePlaylist: (playlist: Playlist) => Promise<void>;
@@ -50,6 +51,30 @@ export const store: StateCreator<PlaylistState> = (set, get) => ({
       set({ playlists: sortedPlaylists });
     } catch (error: any) {
       set({ error: error.message || 'Failed to load playlists' });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  loadPlaylist: async (id: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      await playlistoDBService.init();
+      const playlistId = Number.parseInt(id, 10);
+
+      if (Number.isNaN(playlistId)) {
+        throw new TypeError('Invalid playlist ID');
+      }
+
+      const playlist = await playlistoDBService.getPlaylistById(playlistId);
+
+      if (!playlist) {
+        throw new Error('Playlist not found');
+      }
+
+      set({ currentPlaylist: playlist });
+    } catch (error: any) {
+      set({ error: error.message || 'Failed to load playlist' });
     } finally {
       set({ isLoading: false });
     }

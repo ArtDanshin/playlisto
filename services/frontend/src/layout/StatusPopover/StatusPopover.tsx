@@ -1,16 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { User, Info } from 'lucide-react';
+import { User, Settings, Info } from 'lucide-react';
 
-import { Button } from '@/shared/components/ui/Button';
+import { Button } from '@/shared/components/Button';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/shared/components/ui/Popover';
 import { Separator } from '@/shared/components/ui/Separator';
-import { DatabaseBackup } from '@/domains/playlists/components/DatabaseBackup';
 import { AuthStatus as SpotifyAuthStatus } from '@/domains/spotifySource/components/AuthStatus';
 
 function StatusPopover() {
@@ -44,14 +43,23 @@ function StatusPopover() {
 
           <Separator />
 
-          <DatabaseBackup />
-
           <Separator />
 
           <div className='flex items-center gap-2 text-xs text-muted-foreground'>
             <Info className='h-3 w-3' />
             <span>Playlisto v1.0.0</span>
           </div>
+
+          <Button
+            variant='outline'
+            size='sm'
+            to='/settings'
+            onClick={() => setIsOpen(false)}
+            className='w-full'
+          >
+            <Settings className='mr-2 h-3 w-3' />
+            Настройки
+          </Button>
         </div>
       </PopoverContent>
     </Popover>

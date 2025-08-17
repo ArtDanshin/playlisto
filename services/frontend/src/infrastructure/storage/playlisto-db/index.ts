@@ -6,6 +6,7 @@ interface PlaylistoDBClient {
   init: () => Promise<void>;
   addPlaylist: (playlist: Playlist) => Promise<number>;
   getAllPlaylists: () => Promise<Playlist[]>;
+  getPlaylistById: (id: number) => Promise<Playlist | undefined>;
   getPlaylistsCount: () => Promise<number>;
   deletePlaylist: (id: number) => Promise<void>;
   updatePlaylist: (playlist: Playlist) => Promise<void>;
@@ -71,6 +72,22 @@ class IndexedDBStorage implements PlaylistoDBClient {
       request.onsuccess = () => {
         const playlists = request.result;
         resolve(playlists);
+      };
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async getPlaylistById(id: number): Promise<Playlist | undefined> {
+    if (!this.db) throw new Error('Database not initialized');
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction([PLAYLISTS_STORE], 'readonly');
+      const store = transaction.objectStore(PLAYLISTS_STORE);
+      const request = store.get(id);
+
+      request.onsuccess = () => {
+        const playlist = request.result;
+        resolve(playlist);
       };
       request.onerror = () => reject(request.error);
     });

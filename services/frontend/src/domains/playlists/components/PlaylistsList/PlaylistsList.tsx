@@ -27,7 +27,6 @@ function PlaylistsList() {
   const {
     playlists,
     currentPlaylist,
-    setCurrentPlaylist,
     removePlaylist,
     isLoading,
     loadPlaylists,
@@ -76,7 +75,7 @@ function PlaylistsList() {
         Плейлисты
       </h3>
       <div className='flex flex-col gap-y-1'>
-        {isLoading
+        {isLoading && playlists.length === 0
           ? (
               <div className='text-sm text-muted-foreground'>Загрузка плейлистов...</div>
             )
@@ -99,7 +98,6 @@ function PlaylistsList() {
                         key={playlist.id || playlist.name}
                         playlist={playlist}
                         isActive={currentPlaylist?.id === playlist.id}
-                        onSelect={setCurrentPlaylist}
                         onRemove={handleRemovePlaylist}
                       />
                     ))}
