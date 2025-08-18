@@ -10,6 +10,7 @@ export const store: StateCreator<SpotifyState> = (set) => ({
   },
   isLoading: false,
   error: null,
+  clientId: 'mock_client_id',
 
   initializeSpotify: async () => {
     set({
@@ -65,4 +66,5 @@ export const store: StateCreator<SpotifyState> = (set) => ({
   },
 
   refreshUserProfile: async () => {},
+  saveClientId: async () => {},
 });

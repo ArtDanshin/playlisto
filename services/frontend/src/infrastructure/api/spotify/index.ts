@@ -21,11 +21,29 @@ interface SpotifyApiClient {
   getTrack: (trackId: string) => Promise<SpotifyTrackDataResponse>;
   createPlaylist: (name: string, description?: string) => Promise<SpotifyPlaylistInfoResponse>;
   updatePlaylistTracks: (playlistId: string, trackUris: string[]) => Promise<void>;
+  getClientId: () => string;
+  hasClientId: () => boolean;
 }
 
 class SpotifyApi implements SpotifyApiClient {
+  // Получение Client ID из localStorage
+  getClientId(): string {
+    const localClientId = localStorage.getItem(SPOTIFY_STORAGE_KEYS.CLIENT_ID);
+    return localClientId && localClientId.trim() ? localClientId : '';
+  }
+
+  // Проверка наличия Client ID
+  hasClientId(): boolean {
+    return !!this.getClientId();
+  }
+
   // Инициализация авторизации
   async initiateAuth(): Promise<void> {
+    // Проверяем наличие Client ID
+    if (!this.hasClientId()) {
+      throw new Error('Spotify Client ID не настроен. Перейдите в настройки и сохраните Client ID.');
+    }
+
     const codeVerifier = generateCodeVerifier();
     const codeChallenge = await generateCodeChallenge(codeVerifier);
 
@@ -36,7 +54,7 @@ class SpotifyApi implements SpotifyApiClient {
     const authUrl = new URL(SPOTIFY_CONFIG.AUTH_URL);
     const params = {
       response_type: 'code',
-      client_id: SPOTIFY_CONFIG.CLIENT_ID,
+      client_id: this.getClientId(),
       scope: SPOTIFY_CONFIG.SCOPES,
       code_challenge_method: 'S256',
       code_challenge: codeChallenge,
@@ -85,7 +103,7 @@ class SpotifyApi implements SpotifyApiClient {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: new URLSearchParams({
-        client_id: SPOTIFY_CONFIG.CLIENT_ID,
+        client_id: this.getClientId(),
         grant_type: 'authorization_code',
         code,
         redirect_uri: SPOTIFY_CONFIG.REDIRECT_URI,
@@ -122,7 +140,7 @@ class SpotifyApi implements SpotifyApiClient {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({
-          client_id: SPOTIFY_CONFIG.CLIENT_ID,
+          client_id: this.getClientId(),
           grant_type: 'refresh_token',
           refresh_token: refreshToken,
         }),

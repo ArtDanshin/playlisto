@@ -224,6 +224,3 @@ export const BackButton: Story = {
     },
   },
 };
-
-
-

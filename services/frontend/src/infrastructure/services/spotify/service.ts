@@ -1,4 +1,5 @@
 import { spotifyApi } from '@/infrastructure/api/spotify';
+import { SPOTIFY_STORAGE_KEYS } from '@/infrastructure/configs/spotify';
 import { extractPlaylistId, extractTrackIdFromUrl, isExactSpotifyMatch, updateTrackDataFromSpotify } from '@/shared/utils/spotify';
 import type { Playlist, Track } from '@/shared/types/playlist';
 
@@ -10,6 +11,48 @@ import type {
 } from './types';
 
 class SpotifyService implements SpotifyServiceImp {
+  // Методы для работы с Client ID
+  getClientId(): string {
+    const localClientId = localStorage.getItem(SPOTIFY_STORAGE_KEYS.CLIENT_ID);
+    return localClientId && localClientId.trim() ? localClientId : '';
+  }
+
+  setClientId(clientId: string): void {
+    if (!clientId.trim()) {
+      throw new Error('Client ID не может быть пустым');
+    }
+    localStorage.setItem(SPOTIFY_STORAGE_KEYS.CLIENT_ID, clientId.trim());
+  }
+
+  hasClientId(): boolean {
+    return !!this.getClientId();
+  }
+
+  // Методы авторизации
+  async initiateAuth(): Promise<void> {
+    return spotifyApi.initiateAuth();
+  }
+
+  async handleCallback(): Promise<boolean> {
+    return spotifyApi.handleCallback();
+  }
+
+  async refreshToken(): Promise<boolean> {
+    return spotifyApi.refreshToken();
+  }
+
+  logout(): void {
+    spotifyApi.logout();
+  }
+
+  getAuthStatus() {
+    return spotifyApi.getAuthStatus();
+  }
+
+  async fetchUserProfile() {
+    return spotifyApi.fetchUserProfile();
+  }
+
   async getPlaylistInfoByURL(spotifyPlaylistURL: string): Promise<SpotifyPlaylistInfoResponse> {
     const playlistId = extractPlaylistId(spotifyPlaylistURL);
 

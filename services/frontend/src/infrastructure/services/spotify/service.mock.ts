@@ -9,6 +9,50 @@ import type {
 } from './types';
 
 class SpotifyService implements SpotifyServiceImp {
+  // Методы для работы с Client ID
+  getClientId(): string {
+    return 'mock_client_id';
+  }
+
+  setClientId(clientId: string): void {
+    console.log('Mock: Setting Client ID:', clientId);
+  }
+
+  hasClientId(): boolean {
+    return true;
+  }
+
+  // Методы авторизации
+  async initiateAuth(): Promise<void> {
+    console.log('Mock: Initiating auth');
+  }
+
+  async handleCallback(): Promise<boolean> {
+    console.log('Mock: Handling callback');
+    return true;
+  }
+
+  async refreshToken(): Promise<boolean> {
+    console.log('Mock: Refreshing token');
+    return true;
+  }
+
+  logout(): void {
+    console.log('Mock: Logging out');
+  }
+
+  getAuthStatus() {
+    return {
+      isAuthenticated: true,
+      user: { display_name: 'Mock User' },
+      expiresAt: Date.now() + 3600000,
+    };
+  }
+
+  async fetchUserProfile() {
+    return { display_name: 'Mock User' };
+  }
+
   async getPlaylistInfoByURL(spotifyPlaylistURL: string): Promise<SpotifyPlaylistInfoResponse> {
     console.log('Service SpotifyService. Method getPlaylistInfoByURL. Params:', spotifyPlaylistURL);
 

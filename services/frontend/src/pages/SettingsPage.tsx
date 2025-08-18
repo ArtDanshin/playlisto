@@ -1,4 +1,5 @@
 import { DatabaseBackup } from '@/domains/playlists/components/DatabaseBackup';
+import { Settings } from '@/domains/spotifySource/components/Settings';
 
 function SettingsPage() {
   return (
@@ -13,7 +14,10 @@ function SettingsPage() {
           </div>
         </div>
 
-        <DatabaseBackup />
+        <div className='grid gap-6 md:grid-cols-1'>
+          <DatabaseBackup />
+          <Settings />
+        </div>
       </div>
     </div>
   );

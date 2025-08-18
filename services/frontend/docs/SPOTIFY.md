@@ -35,25 +35,13 @@
    - `https://yourdomain.com` (для продакшена)
 3. Нажмите "Save"
 
-### 4. Настройка переменных окружения
+### 4. Настройка Spotify Client ID
 
-#### Для разработки:
-
-1. Скопируйте файл `env.example` в `.env`:
-   ```bash
-   cp env.example .env
-   ```
-
-2. Откройте файл `.env` и замените значение:
-   ```env
-   VITE_SPOTIFY_CLIENT_ID=your_actual_spotify_client_id_here
-   ```
-
-#### Для продакшена:
-
-Создайте соответствующие файлы окружения:
-- `.env.production` - для продакшена
-- `.env.staging` - для тестирования
+1. Запустите приложение: `rushx dev`
+2. Откройте `https://playlisto.local:8443/`
+3. Перейдите в раздел "Настройки"
+4. В секции "Spotify API" введите ваш Client ID
+5. Нажмите "Сохранить Client ID"
 
 ### 5. Проверка работы
 
@@ -79,22 +67,21 @@
 - Client Secret не используется в PKCE flow (более безопасно)
 - Токены хранятся в localStorage (для продакшена рекомендуется более безопасное хранение)
 - Автоматическое обновление токенов при истечении
-- **Client ID хранится в переменных окружения** (не в коде)
+- **Client ID хранится в localStorage** (локально в браузере пользователя)
 
 ### 8. Продакшен
 
 Для продакшена:
 1. Создайте новое приложение в Spotify Dashboard
 2. Добавьте продакшен Redirect URI
-3. Создайте файл `.env.production` с продакшен Client ID
+3. Пользователи смогут настроить Client ID через интерфейс приложения
 4. Рассмотрите использование более безопасного хранения токенов
 
 ### 9. Структура файлов
 
 ```
 services/frontend/
-├── .env                   # Ваши переменные окружения (не в git)
-├── env.example            # Пример переменных окружения
-├── src/infrastructure/configs/spotify.ts  # Конфигурация (читает из .env)
+├── src/infrastructure/configs/spotify.ts  # Конфигурация (читает из localStorage)
+├── src/domains/spotifySource/components/SpotifySettings/  # Компонент настроек
 └── ...
 ``` 

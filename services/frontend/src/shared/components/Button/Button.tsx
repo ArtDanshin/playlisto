@@ -24,6 +24,3 @@ function Button({ to, onClick, ...props }: ButtonProps) {
 }
 
 export default Button;
-
-
-
