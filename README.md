@@ -1,3 +1,7 @@
+<div align='center'>
+  <img src='./services/frontend/src/assets/images/logo-transparent.png' alt='Playlisto Logo' width='500' />
+</div>
+
 # Playlisto
 
 Приложение для управления музыкальными плейлистами о отправки их в различные источники

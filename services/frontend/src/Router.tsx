@@ -22,6 +22,8 @@ const router = createBrowserRouter([
       },
     ],
   },
-]);
+], {
+  basename: import.meta.env.PROD ? '/playlisto' : '/',
+});
 
 export default router;

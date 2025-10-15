@@ -20,7 +20,8 @@
   "author": "Playlisto Team",
   "license": "MIT",
   "scripts": {
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "build": "echo 'No build step required'"
   },
   "dependencies": {
     "@eslint/js": "9.32.0",

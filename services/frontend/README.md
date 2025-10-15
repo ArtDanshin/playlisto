@@ -1,3 +1,7 @@
+<div align='center'>
+  <img src='./src/assets/images/logo-transparent.png' alt='Playlisto Logo' width='300' />
+</div>
+
 # Фронтенд проекта Playlisto
 
 ## Основная информация
