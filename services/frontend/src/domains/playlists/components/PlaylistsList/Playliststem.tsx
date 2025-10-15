@@ -7,6 +7,8 @@ import { GripVertical, Trash2 } from 'lucide-react';
 import { Button } from '@/shared/components/Button';
 import type { Playlist } from '@/shared/types/playlist';
 
+import { CoverWithLoad } from '../CoverWithLoad';
+
 interface SortablePlaylistItemProps {
   playlist: Playlist;
   isActive: boolean;
@@ -51,11 +53,17 @@ function SortablePlaylistItem({
         <GripVertical className='h-3 w-3 text-muted-foreground' />
       </div>
 
+      {/* Playlist Cover */}
+      <CoverWithLoad
+        coverKey={playlist.coverKey}
+        size='sm'
+      />
+
       {/* Playlist Name */}
       <Button
         variant='ghost'
         size='sm'
-        className='flex-1 justify-start hover:bg-transparent cursor-pointer'
+        className='flex-1 justify-start hover:bg-transparent cursor-pointer overflow-hidden'
         to={`/playlist/${playlist.id}`}
       >
         {playlist.name}

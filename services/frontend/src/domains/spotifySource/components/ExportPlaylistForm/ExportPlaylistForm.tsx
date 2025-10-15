@@ -30,6 +30,7 @@ const ExportPlaylistForm: ExportForm = function ({ playlist, onSuccessExport, on
     removeMissingTracks: true,
     syncOrder: true,
   });
+  const [uploadCover, setUploadCover] = useState(true);
 
   const handleMergeOptionsChange = (option: keyof MergeOptionsWithoutSource, value: boolean) => {
     setMergeOptions((prev) => ({
@@ -59,7 +60,7 @@ const ExportPlaylistForm: ExportForm = function ({ playlist, onSuccessExport, on
 
       setSpotifyPlaylist({
         id: playlistInfo.id,
-        data: createPlaylistFromSpotify(playlistInfo.name, tracks),
+        data: createPlaylistFromSpotify(playlistInfo, tracks),
       });
     } catch (error: any) {
       console.error('Error fetching playlist:', error);
@@ -90,7 +91,7 @@ const ExportPlaylistForm: ExportForm = function ({ playlist, onSuccessExport, on
 
     try {
       if (exportMode === 'new') {
-        const playlistInfo = await spotifyService.createPlaylist(playlist);
+        const playlistInfo = await spotifyService.createPlaylist(playlist, { uploadCover });
 
         onSuccessExport(
           'Плейлист успешно создан!', (
@@ -108,7 +109,7 @@ const ExportPlaylistForm: ExportForm = function ({ playlist, onSuccessExport, on
       } else {
         if (spotifyPlaylist) {
           const { mergedTracks } = mergeTracks(spotifyPlaylist.data.tracks, playlist.tracks, { ...mergeOptions, source: 'spotify' });
-          await spotifyService.updatePlaylistTracks(spotifyPlaylist.id, mergedTracks);
+          await spotifyService.updatePlaylist(spotifyPlaylist.id, mergedTracks, playlist, { uploadCover });
 
           onSuccessExport('Плейлист успешно обновлен!');
         }
@@ -126,6 +127,32 @@ const ExportPlaylistForm: ExportForm = function ({ playlist, onSuccessExport, on
     }
     return spotifyPlaylist !== null;
   };
+
+  const ExportSettings = useMemo(() => (
+    <div className='space-y-3'>
+      <Label>Настройки экспорта</Label>
+      <div className='space-y-2'>
+        <label className='flex items-center space-x-2'>
+          <Checkbox
+            checked={uploadCover}
+            onChange={(e) => setUploadCover(e.target.checked)}
+          />
+          <span className='text-sm'>
+            {exportMode === 'new'
+              ? 'Загрузить обложку плейлиста'
+              : 'Обновить обложку плейлиста'}
+          </span>
+        </label>
+        {!uploadCover && (
+          <p className='text-xs text-muted-foreground ml-6'>
+            {exportMode === 'new'
+              ? 'Плейлист будет создан без обложки'
+              : 'Обложка плейлиста не будет обновлена'}
+          </p>
+        )}
+      </div>
+    </div>
+  ), [exportMode, uploadCover]);
 
   return (
     <>
@@ -163,6 +190,8 @@ const ExportPlaylistForm: ExportForm = function ({ playlist, onSuccessExport, on
             </Button>
           </div>
         </div>
+
+        {exportMode === 'new' && playlist.coverKey && ExportSettings}
 
         {exportMode === 'existing' && (
           <div className='space-y-3'>
@@ -250,6 +279,10 @@ const ExportPlaylistForm: ExportForm = function ({ playlist, onSuccessExport, on
                     </label>
                   </div>
                 </div>
+
+                <Separator />
+
+                {playlist.coverKey && ExportSettings}
               </div>
             )}
           </div>

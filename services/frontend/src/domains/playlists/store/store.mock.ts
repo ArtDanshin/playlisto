@@ -17,6 +17,7 @@ export const store: StateCreator<PlaylistState> = () => ({
   updatePlaylist: async () => {},
   updatePlaylistTracksOrder: async () => {},
   updatePlaylistWithCoverLoad: async () => {},
+  updatePlaylistInfo: async () => ({ id: 1, name: 'Test', order: 0, tracks: [] }),
   mergeCurrentPlaylistTracks: async () => {},
   updatePlaylistsOrder: async () => {},
   setNewTracks: () => {},

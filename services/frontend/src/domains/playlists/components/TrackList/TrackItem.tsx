@@ -10,12 +10,12 @@ import {
 import type { Track } from '@/shared/types/playlist';
 import { Button } from '@/shared/components/ui/Button';
 import { Input } from '@/shared/components/ui/Input';
-import { playlistoDBService } from '@/infrastructure/services/playlisto-db';
 import { formatDuration } from '@/shared/utils/common';
 import { getTrackDuration, isTrackLinkedToSpotify, createTrackKey } from '@/shared/utils/playlist';
 
 import { usePlaylistStore } from '../../store';
 import { TrackEditDialog } from '../TrackEditDialog';
+import { CoverWithLoad } from '../CoverWithLoad';
 
 interface TrackItemProps {
   track: Track;
@@ -37,25 +37,8 @@ function TrackItem({
   onTrackUpdate,
 }: TrackItemProps) {
   const { newTracks } = usePlaylistStore();
-  const [coverBase64, setCoverBase64] = useState<string | null>(null);
   const [manualOrder, setManualOrder] = useState<string>((trackIndex + 1).toString());
   const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    let isMounted = true;
-    async function loadCover() {
-      if (track.coverKey) {
-        const cover = await playlistoDBService.getCover(track.coverKey);
-        if (isMounted) setCoverBase64(cover?.base64 || null);
-      } else {
-        setCoverBase64(null);
-      }
-    }
-    loadCover();
-    return () => {
-      isMounted = false;
-    };
-  }, [track.coverKey]);
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout | undefined;
@@ -198,19 +181,11 @@ function TrackItem({
 
       {/* Album Cover */}
       <div className='flex-shrink-0'>
-        {coverBase64
-          ? (
-              <img
-                src={coverBase64}
-                alt={track.album || track.title}
-                className='w-16 h-16 rounded-lg object-cover'
-              />
-            )
-          : (
-              <div className='w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-lg'>
-                {track.artist.charAt(0).toUpperCase()}
-              </div>
-            )}
+        <CoverWithLoad
+          coverKey={track.coverKey}
+          size='md'
+          placeholder={track.artist.charAt(0).toUpperCase()}
+        />
       </div>
 
       {/* Track Info */}

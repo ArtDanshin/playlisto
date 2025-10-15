@@ -3,6 +3,9 @@ export interface Playlist {
   name: string; // Имя плейлиста
   order: number; // Порядок плейлиста в списке плейлистов
   tracks: Array<Track>; // Список треков плейлиста
+  coverKey?: string; // Ключ обложки плейлиста в базе данных covers
+  description?: string; // Описание плейлиста
+  spotifyData?: SpotifyPlaylistData; // Данные плейлиста из Spotify API
 }
 
 export interface Track {
@@ -30,4 +33,11 @@ export interface TrackM3UData {
   artist: string; // Исполнитель
   url: string; // Путь к файлу
   duration: number; // Длительность трека
+}
+
+export interface SpotifyPlaylistData {
+  id: string; // ID плейлиста в Spotify
+  name: string; // Название плейлиста
+  description: string; // Описание плейлиста
+  coverUrl: string; // URL обложки плейлиста
 }

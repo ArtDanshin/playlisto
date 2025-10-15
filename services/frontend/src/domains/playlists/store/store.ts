@@ -18,6 +18,7 @@ export interface PlaylistState {
   updatePlaylist: (playlist: Playlist) => Promise<void>;
   updatePlaylistTracksOrder: (playlist: Playlist) => Promise<void>;
   updatePlaylistWithCoverLoad: (playlist: Playlist) => Promise<void>;
+  updatePlaylistInfo: (playlist: Playlist, updates: Pick<Playlist, 'name' | 'description' | 'coverKey'>) => Promise<Playlist>;
   mergeCurrentPlaylistTracks: (tracks: Track[], mergeOptions: MergeTracksOptions) => Promise<void>;
   updatePlaylistsOrder: (orderedPlaylists: Playlist[]) => Promise<void>;
   setNewTracks: (tracks: Track[]) => void;
@@ -162,7 +163,7 @@ export const store: StateCreator<PlaylistState> = (set, get) => ({
       set((state) => {
         // Обновляем плейлист в списке плейлистов
         const playlists = state.playlists.map((p) => p.id === newPlaylist.id ? newPlaylist : p);
-        // Обновляем активный плейлист, если он изменился он
+        // Обновляем активный плейлист, если он изменился
         const currentPlaylist = state.currentPlaylist?.id === newPlaylist.id ? newPlaylist : state.currentPlaylist;
 
         return { playlists, currentPlaylist };
@@ -173,6 +174,25 @@ export const store: StateCreator<PlaylistState> = (set, get) => ({
     }
   },
 
+  updatePlaylistInfo: async (playlist: Playlist, updates: Pick<Playlist, 'name' | 'description' | 'coverKey'>) => {
+    try {
+      const newPlaylist = await playlistoDBService.updatePlaylistInfo(playlist, updates);
+
+      set((state) => {
+        // Обновляем плейлист в списке плейлистов
+        const playlists = state.playlists.map((p) => p.id === newPlaylist.id ? newPlaylist : p);
+        // Обновляем активный плейлист, если он изменился
+        const currentPlaylist = state.currentPlaylist?.id === newPlaylist.id ? newPlaylist : state.currentPlaylist;
+
+        return { playlists, currentPlaylist };
+      });
+
+      return newPlaylist;
+    } catch (error: any) {
+      set({ error: error.message || 'Failed to update playlist' });
+      throw error;
+    }
+  },
   mergeCurrentPlaylistTracks: async (tracks: Track[], mergeOptions: MergeTracksOptions) => {
     const { currentPlaylist, setNewTracks } = get();
     try {

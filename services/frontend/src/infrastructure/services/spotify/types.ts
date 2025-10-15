@@ -23,8 +23,14 @@ export interface SpotifyService {
   getTrackByURL: (spotifyTrackURL: string) => Promise<SpotifyTrackDataResponse>;
   searchTracks: (artist: string, title: string) => Promise<SpotifyTrackDataResponse[]>;
   searhAndMatchTracks: (tracks: Track[], onProcess?: (current: number, total: number) => void) => Promise<MatchedTracks>;
-  createPlaylist: (playlist: Playlist) => Promise<SpotifyPlaylistInfoResponse>;
+  createPlaylist: (playlist: Playlist, updateSettings?: PlaylistUpdateSettings) => Promise<SpotifyPlaylistInfoResponse>;
   updatePlaylistTracks: (playlistId: string, tracks: Track[]) => Promise<void>;
+  updatePlaylist: (playlistId: string, tracks: Track[], playlist: Playlist, updateSettings?: PlaylistUpdateSettings) => Promise<void>;
+  uploadPlaylistCover: (playlistId: string, imageBase64: string) => Promise<void>;
+}
+
+export interface PlaylistUpdateSettings {
+  uploadCover: boolean;
 }
 
 export interface MatchedTracks {

@@ -36,7 +36,7 @@ const SetPlaylistForm: SetPlaylistFormImp = function ({ setPlaylist }) {
       const playlistInfo = await spotifyService.getPlaylistInfoByURL(spotifyUrl);
       const tracks = await spotifyService.getPlaylistTracksByURL(spotifyUrl);
 
-      setPlaylist(createPlaylistFromSpotify(playlistInfo.name, tracks));
+      setPlaylist(createPlaylistFromSpotify(playlistInfo, tracks));
     } catch (error: any) {
       setError(error.message || 'Ошибка при импорте плейлиста');
       console.error('Spotify playlist import error:', error);

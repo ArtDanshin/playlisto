@@ -21,6 +21,7 @@ interface SpotifyApiClient {
   getTrack: (trackId: string) => Promise<SpotifyTrackDataResponse>;
   createPlaylist: (name: string, description?: string) => Promise<SpotifyPlaylistInfoResponse>;
   updatePlaylistTracks: (playlistId: string, trackUris: string[]) => Promise<void>;
+  uploadPlaylistCover: (playlistId: string, imageBase64: string) => Promise<void>;
   getClientId: () => string;
   hasClientId: () => boolean;
 }
@@ -242,16 +243,24 @@ class SpotifyApi implements SpotifyApiClient {
       throw new Error(`API call failed: ${response.status}`);
     }
 
-    return response.json();
+    const isJson = response.headers.get('content-type')?.includes('application/json');
+
+    if (isJson) {
+      return response.json();
+    }
+
+    return response.text();
   }
 
   // Получение конкретного плейлиста
   async getPlaylistInfo(playlistId: string): Promise<SpotifyPlaylistInfoResponse> {
-    // Запрашиваем только основную информацию о плейлисте
+    // Запрашиваем только необходимую информацию о плейлисте
     const fields = [
       'name',
       'id',
-      'owner',
+      'owner(id)',
+      'description',
+      'images',
     ].join(',');
 
     return this.apiCall(`/playlists/${playlistId}?fields=${encodeURIComponent(fields)}`);
@@ -305,6 +314,22 @@ class SpotifyApi implements SpotifyApiClient {
       body: JSON.stringify({
         uris: trackUris,
       }),
+    });
+
+    return;
+  }
+
+  // Загрузка обложки плейлиста
+  async uploadPlaylistCover(playlistId: string, imageBase64: string): Promise<void> {
+    // Убираем префикс data:image/...;base64, из base64 строки
+    const base64Data = imageBase64.replace(/^data:image\/[a-z]+;base64,/, '');
+
+    await this.apiCall(`/playlists/${playlistId}/images`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'image/jpeg',
+      },
+      body: base64Data,
     });
 
     return;

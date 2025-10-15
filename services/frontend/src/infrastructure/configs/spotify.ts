@@ -12,6 +12,7 @@ export const SPOTIFY_CONFIG = {
     'playlist-read-collaborative',
     'playlist-modify-public',
     'playlist-modify-private',
+    'ugc-image-upload',
   ].join(' '),
 
   // Spotify API endpoints

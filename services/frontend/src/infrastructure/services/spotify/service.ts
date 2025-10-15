@@ -1,14 +1,11 @@
 import { spotifyApi } from '@/infrastructure/api/spotify';
 import { SPOTIFY_STORAGE_KEYS } from '@/infrastructure/configs/spotify';
-import { extractPlaylistId, extractTrackIdFromUrl, isExactSpotifyMatch, updateTrackDataFromSpotify } from '@/shared/utils/spotify';
+import { playlistoDBService } from '@/infrastructure/services/playlisto-db';
+import { extractTrackIdFromUrl, extractPlaylistId, isExactSpotifyMatch, updateTrackDataFromSpotify } from '@/shared/utils/spotify';
 import type { Playlist, Track } from '@/shared/types/playlist';
+import type { SpotifyTrackDataResponse, SpotifyPlaylistInfoResponse } from '@/infrastructure/api/spotify';
 
-import type {
-  SpotifyService as SpotifyServiceImp,
-  SpotifyPlaylistInfoResponse,
-  SpotifyTrackDataResponse,
-  MatchedTracks,
-} from './types';
+import type { SpotifyService as SpotifyServiceImp, MatchedTracks, PlaylistUpdateSettings } from './types';
 
 class SpotifyService implements SpotifyServiceImp {
   // Методы для работы с Client ID
@@ -175,10 +172,25 @@ class SpotifyService implements SpotifyServiceImp {
     };
   }
 
-  async createPlaylist(playlist: Playlist): Promise<SpotifyPlaylistInfoResponse> {
-    const playlistData = await spotifyApi.createPlaylist(playlist.name);
+  async createPlaylist(playlist: Playlist, updateSettings?: PlaylistUpdateSettings): Promise<SpotifyPlaylistInfoResponse> {
+    const playlistData = await spotifyApi.createPlaylist(playlist.name, playlist.description);
 
     await this.updatePlaylistTracks(playlistData.id, playlist.tracks);
+
+    // Загружаем обложку, если она есть и включена опция загрузки
+    const shouldUploadCover = updateSettings?.uploadCover ?? true;
+    if (shouldUploadCover && playlist.coverKey) {
+      try {
+        const coverData = await playlistoDBService.getCover(playlist.coverKey);
+        if (coverData) {
+          await spotifyApi.uploadPlaylistCover(playlistData.id, coverData.base64);
+        }
+      } catch (error) {
+        console.error('Ошибка при загрузке обложки в Spotify:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка при загрузке обложки';
+        throw new Error(`Плейлист создан, но при загрузке обложки обнаружилась ошибка: ${errorMessage}`);
+      }
+    }
 
     // TODO: Обработать ошибки API
 
@@ -193,6 +205,30 @@ class SpotifyService implements SpotifyServiceImp {
     await spotifyApi.updatePlaylistTracks(playlistId, trackUris);
 
     // TODO: Обработать ошибки API
+  }
+
+  async updatePlaylist(playlistId: string, tracks: Track[], playlist: Playlist, updateSettings?: PlaylistUpdateSettings): Promise<void> {
+    // Обновляем треки
+    await this.updatePlaylistTracks(playlistId, tracks);
+
+    // Обновляем обложку, если она есть и включена опция загрузки
+    const shouldUploadCover = updateSettings?.uploadCover ?? true;
+    if (shouldUploadCover && playlist.coverKey) {
+      try {
+        const coverData = await playlistoDBService.getCover(playlist.coverKey);
+        if (coverData) {
+          await spotifyApi.uploadPlaylistCover(playlistId, coverData.base64);
+        }
+      } catch (error) {
+        console.error('Ошибка при обновлении обложки в Spotify:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка при обновлении обложки';
+        throw new Error(`Плейлист обновлен, но при обновлении обложки обнаружилась ошибка: ${errorMessage}`);
+      }
+    }
+  }
+
+  async uploadPlaylistCover(playlistId: string, imageBase64: string): Promise<void> {
+    await spotifyApi.uploadPlaylistCover(playlistId, imageBase64);
   }
 }
 

@@ -64,10 +64,12 @@ class SpotifyService implements SpotifyServiceImp {
 
     return {
       name: 'MusicMelomanPlaylist',
+      description: 'Mock description',
       id: 'qwerty42',
       owner: {
         id: 'music_meloman',
       },
+      images: [],
     };
   }
 
@@ -121,15 +123,23 @@ class SpotifyService implements SpotifyServiceImp {
 
   async createPlaylist(): Promise<SpotifyPlaylistInfoResponse> {
     return {
-      name: 'MusicMelomanPlaylist',
-      id: 'qwerty42',
-      owner: {
-        id: 'music_meloman',
-      },
+      name: 'Mock Playlist',
+      id: 'mock_playlist_id',
+      owner: { id: 'mock_owner' },
+      description: 'Mock description',
+      images: [],
     };
   }
 
   async updatePlaylistTracks(): Promise<void> {
+    return;
+  }
+
+  async updatePlaylist(): Promise<void> {
+    return;
+  }
+
+  async uploadPlaylistCover(): Promise<void> {
     return;
   }
 }

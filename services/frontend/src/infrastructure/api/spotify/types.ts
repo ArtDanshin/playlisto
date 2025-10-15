@@ -42,6 +42,8 @@ export interface SpotifyPlaylistInfoResponse {
   owner: {
     id: string;
   };
+  description: string;
+  images: Array<{ url: string; height: number; width: number; }>;
 }
 
 export interface SpotifyPlaylistTracksResponse {
