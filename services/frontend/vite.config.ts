@@ -18,8 +18,8 @@ export default {
     host: 'playlisto.local',
     port: 8443,
     https: (() => {
-      const keyPath = path.resolve(__dirname, './sssl/playlisto.local-key.pem');
-      const certPath = path.resolve(__dirname, './sssl/playlisto.local-cert.pem');
+      const keyPath = path.resolve(__dirname, './ssl/playlisto.local-key.pem');
+      const certPath = path.resolve(__dirname, './ssl/playlisto.local-cert.pem');
 
       if (fs.existsSync(keyPath) && fs.existsSync(certPath)) {
         return {

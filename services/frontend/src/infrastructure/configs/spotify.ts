@@ -2,7 +2,7 @@
 
 export const SPOTIFY_CONFIG = {
   // Redirect URI должен быть зарегистрирован в Spotify Developer Dashboard
-  REDIRECT_URI: window.location.origin,
+  REDIRECT_URI: `${window.location.origin}${import.meta.env.PROD ? '/playlisto' : ''}`,
 
   // Scopes для доступа к данным пользователя
   SCOPES: [
