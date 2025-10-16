@@ -21,6 +21,8 @@ interface SpotifyApiClient {
   getTrack: (trackId: string) => Promise<SpotifyTrackDataResponse>;
   createPlaylist: (name: string, description?: string) => Promise<SpotifyPlaylistInfoResponse>;
   updatePlaylistTracks: (playlistId: string, trackUris: string[]) => Promise<void>;
+  clearPlaylist: (playlistId: string, snapshotId: string) => Promise<void>;
+  addPlaylistTracks: (playlistId: string, trackUris: string[]) => Promise<void>;
   uploadPlaylistCover: (playlistId: string, imageBase64: string) => Promise<void>;
   getClientId: () => string;
   hasClientId: () => boolean;
@@ -315,8 +317,26 @@ class SpotifyApi implements SpotifyApiClient {
         uris: trackUris,
       }),
     });
+  }
 
-    return;
+  // Очистка плейлиста (замена всех треков на пустой массив)
+  async clearPlaylist(playlistId: string): Promise<void> {
+    await this.apiCall(`/playlists/${playlistId}/tracks`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        uris: [], // Пустой массив для очистки
+      }),
+    });
+  }
+
+  // Добавление треков в плейлист (простое добавление в конец)
+  async addPlaylistTracks(playlistId: string, trackUris: string[]): Promise<void> {
+    await this.apiCall(`/playlists/${playlistId}/tracks`, {
+      method: 'POST',
+      body: JSON.stringify({
+        uris: trackUris,
+      }),
+    });
   }
 
   // Загрузка обложки плейлиста

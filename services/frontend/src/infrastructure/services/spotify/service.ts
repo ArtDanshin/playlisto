@@ -202,7 +202,37 @@ class SpotifyService implements SpotifyServiceImp {
       .filter((track) => track.spotifyData?.id)
       .map((track) => `spotify:track:${track.spotifyData?.id}`);
 
-    await spotifyApi.updatePlaylistTracks(playlistId, trackUris);
+    const BATCH_SIZE = 100; // Максимальное количество треков за один запрос
+    const totalTracks = trackUris.length;
+
+    if (totalTracks <= BATCH_SIZE) {
+      // Если треков меньше или равно 100, используем обычный метод замены
+      await spotifyApi.updatePlaylistTracks(playlistId, trackUris);
+      return;
+    }
+
+    // Для больших плейлистов используем двухэтапный подход:
+    // 1. Сначала очищаем плейлист
+    // 2. Затем добавляем треки батчами
+
+    // Этап 1: Очистка плейлиста
+    await spotifyApi.clearPlaylist(playlistId);
+
+    // Этап 2: Добавление треков батчами
+    let i = 0;
+    while (i < totalTracks) {
+      const batch = trackUris.slice(i, i + BATCH_SIZE);
+
+      // Простое добавление треков в конец плейлиста
+      await spotifyApi.addPlaylistTracks(playlistId, batch);
+
+      i += BATCH_SIZE;
+
+      // Небольшая задержка между запросами для избежания rate limiting
+      if (i < totalTracks) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+    }
 
     // TODO: Обработать ошибки API
   }
