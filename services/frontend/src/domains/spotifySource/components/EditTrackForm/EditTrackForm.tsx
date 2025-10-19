@@ -9,9 +9,9 @@ import { Button } from '@/shared/components/ui/Button';
 import { Input } from '@/shared/components/ui/Input';
 import { Label } from '@/shared/components/ui/Label';
 import { ScrollArea } from '@/shared/components/ui/ScrollArea';
+import { TrackCard } from '@/shared/components/TrackCard';
 import { spotifyService, type SpotifyTrackDataResponse } from '@/infrastructure/services/spotify';
 import type { Track, SpotifyTrackData } from '@/shared/types/playlist';
-import { formatDuration } from '@/shared/utils/common';
 import { createTrackDataFromSpotify } from '@/shared/utils/spotify';
 
 import { useSpotifyStore } from '../../store';
@@ -193,52 +193,27 @@ function EditTrackForm({ track, onDataChange }: EditTrackFormProps) {
                   )
                 : (
                     searchResults.map((spotifyTrack) => (
-                      <div
+                      <TrackCard
                         key={spotifyTrack.id}
-                        className='flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50 cursor-pointer'
+                        title={spotifyTrack.name}
+                        artist={spotifyTrack.artists.map((a) => a.name).join(', ')}
+                        album={spotifyTrack.album.name}
+                        duration={Math.round(spotifyTrack.duration_ms / 1000)}
+                        coverUrl={spotifyTrack.album.images.length > 0 ? spotifyTrack.album.images[0].url : undefined}
                         onClick={() => handleSelectSpotifyTrack(spotifyTrack)}
-                      >
-                        {/* Album Cover */}
-                        <div className='flex-shrink-0'>
-                          {spotifyTrack.album.images.length > 0
-                            ? (
-                                <img
-                                  src={spotifyTrack.album.images[0].url}
-                                  alt={spotifyTrack.album.name}
-                                  className='w-12 h-12 rounded'
-                                />
-                              )
-                            : (
-                                <div className='w-12 h-12 bg-muted rounded flex items-center justify-center'>
-                                  <Music className='h-6 w-6 text-muted-foreground' />
-                                </div>
-                              )}
-                        </div>
-
-                        {/* Track Info */}
-                        <div className='flex-1 min-w-0'>
-                          <p className='font-medium break-words whitespace-normal'>{spotifyTrack.name}</p>
-                          <p className='text-sm text-muted-foreground break-words whitespace-normal'>{spotifyTrack.artists.map((a) => a.name).join(', ')}</p>
-                          <p className='text-xs text-muted-foreground break-words whitespace-normal'>
-                            {spotifyTrack.album.name}
-                            {' '}
-                            •
-                            {formatDuration(Math.round(spotifyTrack.duration_ms / 1000))}
-                          </p>
-                        </div>
-
-                        {/* External Link */}
-                        <Button
-                          variant='ghost'
-                          size='sm'
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(spotifyTrack.external_urls.spotify, '_blank');
-                          }}
-                        >
-                          <ExternalLink className='h-4 w-4' />
-                        </Button>
-                      </div>
+                        actionButton={(
+                          <Button
+                            variant='ghost'
+                            size='sm'
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              window.open(spotifyTrack.external_urls.spotify, '_blank');
+                            }}
+                          >
+                            <ExternalLink className='h-4 w-4' />
+                          </Button>
+                        )}
+                      />
                     ))
                   )}
             </div>
@@ -250,31 +225,22 @@ function EditTrackForm({ track, onDataChange }: EditTrackFormProps) {
       {previewSpotifyTrack.spotifyData && (
         <div className='space-y-2'>
           <h4 className='text-sm font-medium'>Связанный трек в Spotify:</h4>
-          <div className='flex items-center gap-3 p-3 border rounded-lg bg-muted/20'>
-            {previewSpotifyTrack.spotifyData.coverUrl && (
-              <img
-                src={previewSpotifyTrack.spotifyData.coverUrl}
-                alt={previewSpotifyTrack.spotifyData.album}
-                className='w-12 h-12 rounded'
-              />
+          <TrackCard
+            title={previewSpotifyTrack.spotifyData.title}
+            artist={previewSpotifyTrack.spotifyData.artist}
+            album={previewSpotifyTrack.spotifyData.album}
+            duration={previewSpotifyTrack.spotifyData.duration}
+            coverUrl={previewSpotifyTrack.spotifyData.coverUrl}
+            actionButton={(
+              <Button
+                variant='ghost'
+                size='sm'
+                onClick={() => window.open(`https://open.spotify.com/track/${previewSpotifyTrack.spotifyData!.id}`, '_blank')}
+              >
+                <ExternalLink className='h-4 w-4' />
+              </Button>
             )}
-            <div className='flex-1'>
-              <p className='font-medium'>{previewSpotifyTrack.spotifyData.title}</p>
-              <p className='text-sm text-muted-foreground'>
-                {previewSpotifyTrack.spotifyData.artist}
-              </p>
-              <p className='text-xs text-muted-foreground'>
-                {previewSpotifyTrack.spotifyData.album}
-              </p>
-            </div>
-            <Button
-              variant='ghost'
-              size='sm'
-              onClick={() => window.open(`https://open.spotify.com/track/${previewSpotifyTrack.spotifyData!.id}`, '_blank')}
-            >
-              <ExternalLink className='h-4 w-4' />
-            </Button>
-          </div>
+          />
           <p className='text-xs text-blue-600 bg-blue-50 p-2 rounded'>
             {/* eslint-disable-next-line react-classic/no-unescaped-entities */}
             💡 Изменения будут сохранены при нажатии кнопки "Сохранить"

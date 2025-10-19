@@ -6,8 +6,7 @@ import {
 } from 'lucide-react';
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/shared/components/ui/Collapsible';
-import { formatDuration } from '@/shared/utils/common';
-import { getTrackDuration } from '@/shared/utils/playlist';
+import { TrackCard } from '@/shared/components/TrackCard';
 import type { Track } from '@/shared/types/playlist';
 
 interface PlaylistComparisonProps {
@@ -52,23 +51,17 @@ function PlaylistComparison({
     }
 
     return (
-      <div className='space-y-2'>
+      <div className='divide-y-1'>
         {tracks.map((track) => (
-          <div key={`${track.title}-${track.artist}-${track.duration}`} className='flex items-center gap-3 p-2 bg-muted/30 rounded-lg'>
-            <div className='flex-shrink-0'>
-              <Music className='h-4 w-4 text-muted-foreground' />
-            </div>
-            <div className='flex-1 min-w-0'>
-              <div className='font-medium truncate'>{track.title}</div>
-              <div className='text-sm text-muted-foreground truncate'>{track.artist}</div>
-              {track.album && (
-                <div className='text-xs text-muted-foreground truncate'>{track.album}</div>
-              )}
-            </div>
-            <div className='flex-shrink-0 text-xs text-muted-foreground'>
-              {getTrackDuration(track) && formatDuration(getTrackDuration(track)!)}
-            </div>
-          </div>
+          <TrackCard
+            key={`${track.title}-${track.artist}-${track.duration}`}
+            title={track.title}
+            artist={track.artist}
+            album={track.album}
+            duration={track.duration}
+            coverUrl={track.spotifyData?.coverUrl || track.coverKey}
+            variant='muted'
+          />
         ))}
       </div>
     );
