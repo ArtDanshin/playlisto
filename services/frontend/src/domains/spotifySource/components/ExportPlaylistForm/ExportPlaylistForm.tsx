@@ -8,6 +8,7 @@ import { Checkbox } from '@/shared/components/ui/Checkbox';
 import { Input } from '@/shared/components/ui/Input';
 import { Label } from '@/shared/components/ui/Label';
 import { Separator } from '@/shared/components/ui/Separator';
+import { PlaylistComparison } from '@/shared/components/PlaylistComparison';
 import type { ExportForm } from '@/shared/types/source';
 import type { Playlist } from '@/shared/types/playlist';
 import { getTracksComparison, type MergeTracksOptions, mergeTracks } from '@/shared/utils/playlist';
@@ -217,29 +218,12 @@ const ExportPlaylistForm: ExportForm = function ({ playlist, onSuccessExport, on
 
             {spotifyPlaylist && compTracks && (
               <div className='space-y-3'>
-                <div className='p-3 border rounded-lg'>
-                  <h4 className='font-medium mb-2'>Сравнение плейлистов</h4>
-                  <div className='space-y-1 text-sm'>
-                    <div className='flex justify-between'>
-                      <span>Новых треков:</span>
-                      <span className='font-medium text-green-600'>{compTracks.addTracks.length}</span>
-                    </div>
-                    <div className='flex justify-between'>
-                      <span>Удаляемых треков:</span>
-                      <span className='font-medium text-red-600'>{compTracks.missingTracks.length}</span>
-                    </div>
-                    <div className='flex justify-between'>
-                      <span>Общих треков:</span>
-                      <span className='font-medium'>{compTracks.commonTracks.length}</span>
-                    </div>
-                    {compTracks.hasOrderDifference && (
-                      <div className='flex justify-between'>
-                        <span>Различия в порядке общих треков:</span>
-                        <span className='font-medium text-orange-600'>Да</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                <PlaylistComparison
+                  addTracks={compTracks.addTracks}
+                  missingTracks={compTracks.missingTracks}
+                  commonTracks={compTracks.commonTracks}
+                  hasOrderDifference={compTracks.hasOrderDifference}
+                />
 
                 <Separator />
 

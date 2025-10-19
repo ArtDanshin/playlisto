@@ -8,6 +8,7 @@ import { Checkbox } from '@/shared/components/ui/Checkbox';
 import { Label } from '@/shared/components/ui/Label';
 import { Separator } from '@/shared/components/ui/Separator';
 import { StepsDialog, type Step } from '@/shared/components/StepsDialog';
+import { PlaylistComparison } from '@/shared/components/PlaylistComparison';
 import { common as fileCommon, updateTracksComp as fileUpdateTracksComp } from '@/domains/fileSource';
 import { common as spotifyCommon, updateTracksComp as spotifyUpdateTracksComp } from '@/domains/spotifySource';
 import type { SourceCommon, SourceUpdateTracksComp } from '@/shared/types/source';
@@ -147,29 +148,12 @@ function UpdateTracksCompDialog({ tracks, onTracksCompUpdate, children }: Update
               <span className='font-medium'>Загруженный плейлист: {uploadedPlaylist.name}</span>
             </div>
 
-            <div className='p-3 border rounded-lg'>
-              <h4 className='font-medium mb-2'>Сравнение плейлистов</h4>
-              <div className='space-y-1 text-sm'>
-                <div className='flex justify-between'>
-                  <span>Новых треков:</span>
-                  <span className='font-medium text-green-600'>{compTracks.addTracks.length}</span>
-                </div>
-                <div className='flex justify-between'>
-                  <span>Удаляемых треков:</span>
-                  <span className='font-medium text-red-600'>{compTracks.missingTracks.length}</span>
-                </div>
-                <div className='flex justify-between'>
-                  <span>Общих треков:</span>
-                  <span className='font-medium'>{compTracks.commonTracks.length}</span>
-                </div>
-                {compTracks.hasOrderDifference && (
-                  <div className='flex justify-between'>
-                    <span>Различия в порядке общих треков:</span>
-                    <span className='font-medium text-orange-600'>Да</span>
-                  </div>
-                )}
-              </div>
-            </div>
+            <PlaylistComparison
+              addTracks={compTracks.addTracks}
+              missingTracks={compTracks.missingTracks}
+              commonTracks={compTracks.commonTracks}
+              hasOrderDifference={compTracks.hasOrderDifference}
+            />
 
             <Separator />
 
