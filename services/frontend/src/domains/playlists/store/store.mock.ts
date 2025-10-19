@@ -21,5 +21,5 @@ export const store: StateCreator<PlaylistState> = () => ({
   mergeCurrentPlaylistTracks: async () => {},
   updatePlaylistsOrder: async () => {},
   setNewTracks: () => {},
-  clearNewTracks: () => {},
+  removeTrackFromPlaylist: async () => {},
 });

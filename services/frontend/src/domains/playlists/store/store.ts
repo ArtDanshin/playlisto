@@ -22,6 +22,7 @@ export interface PlaylistState {
   mergeCurrentPlaylistTracks: (tracks: Track[], mergeOptions: MergeTracksOptions) => Promise<void>;
   updatePlaylistsOrder: (orderedPlaylists: Playlist[]) => Promise<void>;
   setNewTracks: (tracks: Track[]) => void;
+  removeTrackFromPlaylist: (playlist: Playlist, trackIndex: number) => Promise<void>;
 }
 
 export const store: StateCreator<PlaylistState> = (set, get) => ({
@@ -226,5 +227,25 @@ export const store: StateCreator<PlaylistState> = (set, get) => ({
 
   setNewTracks: (tracks: Track[]) => {
     set({ newTracks: new Set(tracks.map(createTrackKey)) });
+  },
+
+  removeTrackFromPlaylist: async (playlist: Playlist, trackIndex: number) => {
+    try {
+      const { updatePlaylistTracksOrder } = get();
+
+      // Создаем новый массив треков без удаляемого трека
+      const updatedTracks = playlist.tracks.filter((_, index) => index !== trackIndex);
+
+      const updatedPlaylist = {
+        ...playlist,
+        tracks: updatedTracks,
+      };
+
+      // Обновляем позиции треков после удаления
+      await updatePlaylistTracksOrder(updatedPlaylist);
+    } catch (error: any) {
+      set({ error: error.message || 'Failed to remove track from playlist' });
+      throw error;
+    }
   },
 });

@@ -24,7 +24,7 @@ import { usePlaylistStore } from '../../store';
 import TrackItem from './TrackItem.tsx';
 
 function TrackList() {
-  const { currentPlaylist, updatePlaylistWithCoverLoad, updatePlaylistTracksOrder } = usePlaylistStore();
+  const { currentPlaylist, updatePlaylistWithCoverLoad, updatePlaylistTracksOrder, removeTrackFromPlaylist } = usePlaylistStore();
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const tracks = currentPlaylist?.tracks || [];
 
@@ -71,6 +71,16 @@ function TrackList() {
     setEditingIndex(null);
   };
 
+  const handleTrackDelete = async (trackIndex: number) => {
+    if (!currentPlaylist) return;
+
+    try {
+      await removeTrackFromPlaylist(currentPlaylist, trackIndex);
+    } catch (error) {
+      console.error('Failed to delete track:', error);
+    }
+  };
+
   return (
     <DndContext
       sensors={sensors}
@@ -105,6 +115,7 @@ function TrackList() {
 
                 await updatePlaylistWithCoverLoad(updatedPlaylist);
               }}
+              onTrackDelete={() => handleTrackDelete(index)}
             />
           ))}
         </div>

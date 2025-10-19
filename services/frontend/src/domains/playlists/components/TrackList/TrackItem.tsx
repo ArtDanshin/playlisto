@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import {
-  GripVertical, Edit2, Music, X, Check,
+  GripVertical, Edit2, Music, X, Check, Trash2,
 } from 'lucide-react';
 
 import type { Track } from '@/shared/types/playlist';
@@ -15,6 +15,7 @@ import { getTrackDuration, isTrackLinkedToSpotify, createTrackKey } from '@/shar
 
 import { usePlaylistStore } from '../../store';
 import { TrackEditDialog } from '../TrackEditDialog';
+import { TrackDeleteDialog } from '../TrackDeleteDialog';
 import { CoverWithLoad } from '../CoverWithLoad';
 
 interface TrackItemProps {
@@ -25,6 +26,7 @@ interface TrackItemProps {
   onEditCancel: () => void;
   onOrderChange: (newOrder: number) => void;
   onTrackUpdate: (updatedTrack: Track) => void;
+  onTrackDelete: () => void;
 }
 
 function TrackItem({
@@ -35,6 +37,7 @@ function TrackItem({
   onEditCancel,
   onOrderChange,
   onTrackUpdate,
+  onTrackDelete,
 }: TrackItemProps) {
   const { newTracks } = usePlaylistStore();
   const [manualOrder, setManualOrder] = useState<string>((trackIndex + 1).toString());
@@ -211,13 +214,18 @@ function TrackItem({
         {duration && formatDuration(duration)}
       </div>
 
-      {/* Edit Button */}
-      <div className='flex-shrink-0'>
+      {/* Action Buttons */}
+      <div className='flex-shrink-0 flex gap-1'>
         <TrackEditDialog track={track} onTrackUpdate={onTrackUpdate}>
           <Button variant='ghost' size='sm' className='h-8 w-8 p-0'>
             <Edit2 className='h-4 w-4' />
           </Button>
         </TrackEditDialog>
+        <TrackDeleteDialog track={track} onConfirm={onTrackDelete}>
+          <Button variant='ghost' size='sm' className='h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50'>
+            <Trash2 className='h-4 w-4' />
+          </Button>
+        </TrackDeleteDialog>
       </div>
     </div>
   );
