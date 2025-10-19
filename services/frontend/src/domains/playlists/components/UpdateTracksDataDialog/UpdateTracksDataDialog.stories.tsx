@@ -19,7 +19,6 @@ const MetaInfo: Meta<typeof UpdateTracksDataDialog> = {
 
 export default MetaInfo;
 
-// Базовый popover
 export const Default = {
   render: () => (
     <UpdateTracksDataDialog tracks={[]} onTracksUpdate={console.log}>

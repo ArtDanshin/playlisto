@@ -70,7 +70,7 @@ function CurrentPlaylistHeader() {
           >
             <Button variant='outline' size='sm'>
               <RefreshCw className='mr-2 h-4 w-4' />
-              Обновить состав
+              Синхронизировать состав
             </Button>
           </UpdateTracksCompDialog>
           <UpdateTracksDataDialog
@@ -79,7 +79,7 @@ function CurrentPlaylistHeader() {
           >
             <Button variant='outline' size='sm'>
               <Music className='mr-2 h-4 w-4' />
-              Обновить данные
+              Обновить метаданные
             </Button>
           </UpdateTracksDataDialog>
           <ExportPlaylistDialog playlist={currentPlaylist}>

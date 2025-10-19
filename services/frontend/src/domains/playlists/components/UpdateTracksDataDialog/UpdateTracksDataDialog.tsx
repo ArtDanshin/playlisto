@@ -24,7 +24,7 @@ interface UpdateTracksDataDialogProps {
   children: ReactNode;
 }
 
-function NewPlaylistDialog({ tracks, onTracksUpdate, children }: UpdateTracksDataDialogProps) {
+function UpdateTracksDataDialog({ tracks, onTracksUpdate, children }: UpdateTracksDataDialogProps) {
   const [currentSource, setCurrentSource] = useState<string | undefined>();
   const [arrayOfProcessedTracks, setArrayOfProcessedTracks] = useState<{ onlyUpdatedTracks: Track[]; notUpdatedTracks: Track[]; }>({
     onlyUpdatedTracks: [],
@@ -152,12 +152,12 @@ function NewPlaylistDialog({ tracks, onTracksUpdate, children }: UpdateTracksDat
 
   return (
     <StepsDialog
-      title='Обновление данных'
-      description='Добавьте информацию к трекам из внешних источников'
+      title='Обновление метаданных'
+      description='Добавьте информацию к трекам из указанных источников'
       trigger={children}
       steps={[stepBeggin, stepProcess, stepResult]}
     />
   );
 }
 
-export default NewPlaylistDialog;
+export default UpdateTracksDataDialog;

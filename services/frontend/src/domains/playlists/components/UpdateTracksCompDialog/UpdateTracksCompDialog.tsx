@@ -244,8 +244,8 @@ function UpdateTracksCompDialog({ tracks, onTracksCompUpdate, children }: Update
 
   return (
     <StepsDialog
-      title='Обновление данных'
-      description='Добавьте информацию к трекам из внешних источников'
+      title='Синхронизация состава'
+      description='Синхронизируйте состав треков с указанными источниками'
       trigger={children}
       steps={[stepBeggin, stepProcess, stepProcessingInfo, stepResult]}
     />

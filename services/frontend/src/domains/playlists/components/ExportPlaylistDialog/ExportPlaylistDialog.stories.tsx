@@ -19,7 +19,6 @@ const MetaInfo: Meta<typeof ExportPlaylistDialog> = {
 
 export default MetaInfo;
 
-// Базовый popover
 export const Default = {
   render: () => (
     <ExportPlaylistDialog

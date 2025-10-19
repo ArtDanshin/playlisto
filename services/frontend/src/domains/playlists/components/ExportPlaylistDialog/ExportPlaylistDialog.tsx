@@ -16,12 +16,12 @@ const SOURCES_DATA: Record<string, SourceCommon & SourceExportPlaylist> = {
   spotify: { ...spotifyCommon, ...spotifyExportPlaylist },
 };
 
-interface UpdateTracksDataDialogProps {
+interface ExportPlaylistDialogProps {
   playlist: Playlist;
   children: ReactNode;
 }
 
-function NewPlaylistDialog({ playlist, children }: UpdateTracksDataDialogProps) {
+function ExportPlaylistDialog({ playlist, children }: ExportPlaylistDialogProps) {
   const [currentSource, setCurrentSource] = useState<string | undefined>();
   const [successMessages, setSuccessMessages] = useState<{ mainMessage: string; secondMessage?: ReactNode; } | null>(null);
 
@@ -108,4 +108,4 @@ function NewPlaylistDialog({ playlist, children }: UpdateTracksDataDialogProps) 
   );
 }
 
-export default NewPlaylistDialog;
+export default ExportPlaylistDialog;
