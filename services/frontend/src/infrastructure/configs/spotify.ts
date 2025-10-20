@@ -1,8 +1,18 @@
 // Spotify API Configuration
 
+// Функция для получения Redirect URI (работает только на клиенте)
+export const getRedirectUri = () => {
+  if (typeof window === 'undefined') {
+    return '';
+  }
+  return `${window.location.origin}${import.meta.env.PROD ? '/playlisto' : ''}`;
+};
+
 export const SPOTIFY_CONFIG = {
   // Redirect URI должен быть зарегистрирован в Spotify Developer Dashboard
-  REDIRECT_URI: `${window.location.origin}${import.meta.env.PROD ? '/playlisto' : ''}`,
+  get REDIRECT_URI() {
+    return getRedirectUri();
+  },
 
   // Scopes для доступа к данным пользователя
   SCOPES: [

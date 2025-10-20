@@ -1,7 +1,7 @@
 'use client';
 
 import type { ComponentProps, MouseEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 
 import { Button as ButtonBase } from '@/shared/components/ui/Button';
 
@@ -11,11 +11,11 @@ interface ButtonProps extends Omit<ComponentProps<typeof ButtonBase>, 'onClick'>
 }
 
 function Button({ to, onClick, ...props }: ButtonProps) {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
     if (to) {
-      navigate(to);
+      router.push(to);
     }
     onClick?.(event);
   };

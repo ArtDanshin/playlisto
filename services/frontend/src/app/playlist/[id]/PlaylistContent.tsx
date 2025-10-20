@@ -1,12 +1,16 @@
+'use client';
+
 import { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
 
 import { TrackList } from '@/domains/playlists/components/TrackList';
 import { CurrentPlaylistHeader } from '@/domains/playlists/components/CurrentPlaylistHeader';
 import { usePlaylistStore } from '@/domains/playlists/store';
 
-function PlaylistPage() {
-  const { id } = useParams<{ id: string; }>();
+interface PlaylistContentProps {
+  id: string;
+}
+
+export function PlaylistContent({ id }: PlaylistContentProps) {
   const { currentPlaylist, loadPlaylist, setCurrentPlaylist } = usePlaylistStore();
 
   useEffect(() => {
@@ -41,4 +45,3 @@ function PlaylistPage() {
   );
 }
 
-export default PlaylistPage;
