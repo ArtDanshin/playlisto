@@ -280,11 +280,11 @@ class SpotifyApi implements SpotifyApiClient {
       'uri',
     ].join(',');
 
-    return this.apiCall(`/playlists/${playlistId}/tracks?limit=${limit}&offset=${offset}&fields=${encodeURIComponent(fields)}`);
+    return this.apiCall(`/playlists/${playlistId}/items?limit=${limit}&offset=${offset}&fields=${encodeURIComponent(fields)}`);
   }
 
   // Поиск треков
-  async searchTracks(query: string, limit: number = 20): Promise<SpotifySearchResponse> {
+  async searchTracks(query: string, limit: number = 10): Promise<SpotifySearchResponse> {
     const response = await this.apiCall(`/search?q=${encodeURIComponent(query)}&type=track&limit=${limit}`);
     return response as SpotifySearchResponse;
   }
@@ -311,7 +311,7 @@ class SpotifyApi implements SpotifyApiClient {
 
   // Обновление информации о треках плейлиста
   async updatePlaylistTracks(playlistId: string, trackUris: string[]): Promise<void> {
-    await this.apiCall(`/playlists/${playlistId}/tracks`, {
+    await this.apiCall(`/playlists/${playlistId}/items`, {
       method: 'PUT',
       body: JSON.stringify({
         uris: trackUris,
@@ -321,7 +321,7 @@ class SpotifyApi implements SpotifyApiClient {
 
   // Очистка плейлиста (замена всех треков на пустой массив)
   async clearPlaylist(playlistId: string): Promise<void> {
-    await this.apiCall(`/playlists/${playlistId}/tracks`, {
+    await this.apiCall(`/playlists/${playlistId}/items`, {
       method: 'PUT',
       body: JSON.stringify({
         uris: [], // Пустой массив для очистки
@@ -331,7 +331,7 @@ class SpotifyApi implements SpotifyApiClient {
 
   // Добавление треков в плейлист (простое добавление в конец)
   async addPlaylistTracks(playlistId: string, trackUris: string[]): Promise<void> {
-    await this.apiCall(`/playlists/${playlistId}/tracks`, {
+    await this.apiCall(`/playlists/${playlistId}/items`, {
       method: 'POST',
       body: JSON.stringify({
         uris: trackUris,
